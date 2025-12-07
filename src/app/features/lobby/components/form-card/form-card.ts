@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'lobby-form-card',
@@ -6,6 +7,8 @@ import { Component, signal } from '@angular/core';
   templateUrl: './form-card.html',
 })
 export class FormCard {
+  private router = inject(Router);
+
   readonly tabs = ['Crear sala', 'Unirse a sala'];
   activeTab = signal(0);
   userName = signal('');
@@ -46,9 +49,11 @@ export class FormCard {
   createRoom(): void {
     if (!this.canCreate()) return;
 
-    console.log(`${this.userName()} creating room: ${this.roomName()}`);
+    const roomId = crypto.randomUUID();
 
-    // this.router.navigate(['/board', roomId]);
+    console.log(`${this.userName()} creating room: ${this.roomName()} (${roomId})`);
+
+    this.router.navigate(['/board', roomId]);
   }
 
   joinRoom(): void {
@@ -56,6 +61,6 @@ export class FormCard {
 
     console.log(`${this.userName()} joining room: ${this.roomCode()}`);
 
-    // this.router.navigate(['/board', this.roomCode.trim().toUpperCase()]);
+    this.router.navigate(['/board', this.roomCode().trim().toUpperCase()]);
   }
 }

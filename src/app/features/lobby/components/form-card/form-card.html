@@ -34,7 +34,7 @@
             </div>
             <button
                 class="{{canCreate() ? 'bg-blue-500 hover:bg-blue-700 text-white font-bold' : 'bg-neutral-200 text-neutral-600'}}  py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="button" (click)="createRoom()" [disabled]="canCreate()">
+                type="button" (click)="createRoom()" [disabled]="!canCreate()">
                 Crear
             </button>
             } @else if (activeTab() == 1) {
@@ -49,7 +49,7 @@
             </div>
             <button
                 class="{{canJoin() ? 'bg-blue-500 hover:bg-blue-700 text-white font-bold' : 'bg-neutral-200 text-neutral-600'}} py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="button" (click)="joinRoom()" [disabled]="canJoin()">
+                type="button" (click)="joinRoom()" [disabled]="!canJoin()">
                 Unirse
             </button>
             }

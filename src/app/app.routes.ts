@@ -6,6 +6,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/lobby/lobby.component'),
     },
     {
+        path: 'board/:roomId',
+        loadComponent: () => import('./features/board/board.component'),
+    },
+    {
         path: '**',
         redirectTo: ''
     }
