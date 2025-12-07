@@ -1,0 +1,58 @@
+<div class="bg-gray-700 rounded-2xl p-5">
+    <ul class="flex">
+        @for (tab of tabs; track $index) {
+        <li class="flex-1 mr-2 cursor-pointer">
+            <a class="text-center block border rounded py-2 px-4 {{activeTab() == $index ? ' border-blue-500 bg-blue-500 hover:bg-blue-700 text-white' : 'border-white hover:border-gray-200 text-blue-500 hover:bg-gray-200'}}"
+                (click)="setActiveTab($index)">
+                {{ tab }}
+            </a>
+        </li>
+        }
+    </ul>
+
+    <div class="w-full mt-5">
+        <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Tu nombre
+                </label>
+                <input #txtUserName
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="username" type="text" placeholder="Wade Wilson" [value]="userName()"
+                    (input)="setUserName(txtUserName.value)">
+            </div>
+
+            @if (activeTab() == 0) {
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="roomName">
+                    Nombre de la sala
+                </label>
+                <input #txtRoomName
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="roomName" type="text" placeholder="Chimichangas" [value]="roomName()"
+                    (input)="setRoomName(txtRoomName.value)">
+            </div>
+            <button
+                class="{{canCreate() ? 'bg-blue-500 hover:bg-blue-700 text-white font-bold' : 'bg-neutral-200 text-neutral-600'}}  py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button" (click)="createRoom()" [disabled]="canCreate()">
+                Crear
+            </button>
+            } @else if (activeTab() == 1) {
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="roomCode">
+                    Código de sala
+                </label>
+                <input #txtRoomCode
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="roomCode" type="text" placeholder="DEAD-POOL" [value]="roomCode()"
+                    (input)="setRoomCode(txtRoomCode.value)">
+            </div>
+            <button
+                class="{{canJoin() ? 'bg-blue-500 hover:bg-blue-700 text-white font-bold' : 'bg-neutral-200 text-neutral-600'}} py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button" (click)="joinRoom()" [disabled]="canJoin()">
+                Unirse
+            </button>
+            }
+        </form>
+    </div>
+</div>
