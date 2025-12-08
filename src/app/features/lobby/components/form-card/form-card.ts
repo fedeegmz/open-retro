@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { RoomService } from '@core/services/room.service';
 
 @Component({
   selector: 'lobby-form-card',
@@ -8,6 +9,7 @@ import { Router } from '@angular/router';
 })
 export class FormCard {
   private router = inject(Router);
+  private roomService = inject(RoomService);
 
   readonly tabs = ['Crear sala', 'Unirse a sala'];
   activeTab = signal(0);
@@ -49,7 +51,7 @@ export class FormCard {
   createRoom(): void {
     if (!this.canCreate()) return;
 
-    const roomId = crypto.randomUUID();
+    const roomId = this.roomService.createRoom(this.roomName());
 
     console.log(`${this.userName()} creating room: ${this.roomName()} (${roomId})`);
 

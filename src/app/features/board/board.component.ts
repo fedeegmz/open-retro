@@ -1,17 +1,10 @@
-import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component } from '@angular/core';
+import { Navbar } from "./components/navbar/navbar";
 
 @Component({
     selector: 'app-board',
     standalone: true,
-    imports: [],
+    imports: [Navbar],
     templateUrl: './board.component.html',
 })
-export default class BoardComponent {
-    private router = inject(Router);
-    roomId = '';
-
-    exit(): void {
-        this.router.navigate(['']);
-    }
-}
+export default class BoardComponent { }
