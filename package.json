@@ -1,0 +1,11 @@
+{
+  "name": "open-retro",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev:client",
+    "dev:client": "cd web-client && npm run dev",
+    "dev:server": "cd server && bun --watch src/server.ts",
+    "build": "cd web-client && npm run build"
+  }
+}
