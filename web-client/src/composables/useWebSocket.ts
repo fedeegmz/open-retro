@@ -1,17 +1,22 @@
 import { ref, onUnmounted } from 'vue'
 import type { WsMessage } from '../types/board'
 
+export type WsError = 'auth' | 'connection' | null
+
 export function useWebSocket(url: string) {
   const isConnected = ref(false)
+  const wsError = ref<WsError>(null)
   let ws: WebSocket | null = null
   let onMessageCallback: ((msg: WsMessage) => void) | null = null
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+  let shouldReconnect = true
 
   function connect() {
     ws = new WebSocket(url)
 
     ws.onopen = () => {
       isConnected.value = true
+      wsError.value = null
       console.log('[WS] Connected')
     }
 
@@ -20,8 +25,19 @@ export function useWebSocket(url: string) {
       onMessageCallback?.(msg)
     }
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       isConnected.value = false
+
+      if (event.code === 4001) {
+        wsError.value = 'auth'
+        shouldReconnect = false
+        console.log('[WS] Authentication failed')
+        return
+      }
+
+      if (!shouldReconnect) return
+
+      wsError.value = 'connection'
       console.log('[WS] Disconnected, reconnecting in 2s...')
       reconnectTimer = setTimeout(connect, 2000)
     }
@@ -42,6 +58,7 @@ export function useWebSocket(url: string) {
   }
 
   function disconnect() {
+    shouldReconnect = false
     if (reconnectTimer) clearTimeout(reconnectTimer)
     reconnectTimer = null
     ws?.close()
@@ -52,5 +69,5 @@ export function useWebSocket(url: string) {
 
   onUnmounted(disconnect)
 
-  return { isConnected, send, onMessage, disconnect }
+  return { isConnected, wsError, send, onMessage, disconnect }
 }

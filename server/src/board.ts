@@ -7,6 +7,16 @@ export class Board {
     nextZIndex: 1,
   }
 
+  private passwordHash: string
+
+  constructor(password: string) {
+    this.passwordHash = Bun.hash(password).toString()
+  }
+
+  checkPassword(password: string): boolean {
+    return Bun.hash(password).toString() === this.passwordHash
+  }
+
   handleMessage(msg: WsMessage): void {
     switch (msg.type) {
       case 'note:add':

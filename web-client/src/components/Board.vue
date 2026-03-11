@@ -6,14 +6,19 @@ import ToolBar from './ToolBar.vue'
 import { useWebSocket } from '../composables/useWebSocket'
 import type { Note, Group, WsMessage } from '../types/board'
 
-const boardId = new URLSearchParams(window.location.search).get('board') || 'default'
-const wsUrl = `${import.meta.env.VITE_WS_URL || 'ws://localhost:3001'}?board=${boardId}`
+const props = defineProps<{
+  serverUrl: string
+  boardId: string
+  password: string
+}>()
+
+const wsUrl = `${props.serverUrl}?board=${props.boardId}&password=${encodeURIComponent(props.password)}`
 
 const notes = ref<Note[]>([])
 const groups = ref<Group[]>([])
 let topZ = 1
 
-const { send, onMessage, isConnected } = useWebSocket(wsUrl)
+const { send, onMessage, isConnected, wsError } = useWebSocket(wsUrl)
 
 onMessage((msg) => {
   switch (msg.type) {
@@ -272,7 +277,10 @@ function onBoardMouseDown(event: MouseEvent) {
 
     <ToolBar @add-note="addNote" @add-group="addGroup" />
 
-    <div v-if="!isConnected" class="connection-status">Reconectando...</div>
+    <div v-if="wsError === 'auth'" class="connection-status error">
+      Contraseña incorrecta — acceso denegado
+    </div>
+    <div v-else-if="!isConnected" class="connection-status">Reconectando...</div>
   </div>
 </template>
 
