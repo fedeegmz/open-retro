@@ -40,7 +40,7 @@ npm run format       # oxfmt on src/
 
 The server (`server/src/server.ts`) acts as a relay with state:
 - `POST /board` — creates a new board with a password (hashed via `Bun.hash`)
-- `GET /board/:id` — checks if a board exists
+- `GET /board/exists/:id` — checks if a board exists
 - `GET /ping` — health check
 - WebSocket upgrade: `ws://<host>?board=<id>&password=<pass>`
 
@@ -48,13 +48,13 @@ On WS connect, the server sends `board:sync` with the full current state. All su
 
 ### Client Flow
 
-1. `ServerSetup` view (`/`) — user enters WS server URL, validated via `/ping`. Stored in `sessionStorage`.
-2. `BoardSetup` view (`/connect`) — user creates or joins a board with a password. Stored in `sessionStorage`.
-3. `BoardView` view (`/board/:id`) — loads `Board.vue` with server URL, board ID, and password from `sessionStorage`.
+1. `ServerSetup` view (`/`) — user enters WS server URL, validated via `/ping`. Stored via `LocalStorageService`.
+2. `BoardSetup` view (`/connect`) — user creates or joins a board with a password. Stored via `LocalStorageService`.
+3. `BoardView` view (`/board/:id`) — loads `Board.vue` with server URL, board ID, and password from `LocalStorageService`.
 
 ### Client State Management
 
-There is no Pinia/Vuex. State lives in `Board.vue` as `ref<Note[]>` and `ref<Group[]>`. The `useWebSocket` composable (`src/composables/useWebSocket.ts`) manages the WebSocket connection with auto-reconnect (2s delay) and exposes `send`, `onMessage`, `isConnected`, and `wsError`. Auth failures (close code `4001`) disable reconnect.
+There is no Pinia/Vuex. State lives in `Board.vue` as `ref<Note[]>` and `ref<Group[]>`. Persistence is handled by `LocalStorageService` (`src/services/localStorageService.ts`), which manages `serverUrl` and `boardPassword` keys in `localStorage`. The `useWebSocket` composable (`src/composables/useWebSocket.ts`) manages the WebSocket connection with auto-reconnect (2s delay) and exposes `send`, `onMessage`, `isConnected`, and `wsError`. Auth failures (close code `4001`) disable reconnect.
 
 ### Linting
 

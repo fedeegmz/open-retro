@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ServerService } from '@/services/serverService'
+import { ServerService } from '@/services/api/serverService'
+import { LocalStorageService } from '@/services/localStorageService'
 
 const router = useRouter()
 
@@ -15,7 +16,7 @@ async function connect() {
 
   try {
     await new ServerService(serverUrl.value).ping()
-    sessionStorage.setItem('serverUrl', serverUrl.value)
+    LocalStorageService.setServerUrl(serverUrl.value)
     router.push('/connect')
   } catch {
     error.value =

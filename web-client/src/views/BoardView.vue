@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BoardCanvas from '../components/BoardCanvas.vue'
+import { LocalStorageService } from '@/services/localStorageService'
 
 const route = useRoute()
 const router = useRouter()
@@ -11,8 +12,8 @@ const password = ref('')
 const ready = ref(false)
 
 onMounted(() => {
-  const storedServer = sessionStorage.getItem('serverUrl')
-  const storedPassword = sessionStorage.getItem('boardPassword')
+  const storedServer = LocalStorageService.getServerUrl()
+  const storedPassword = LocalStorageService.getBoardPassword()
 
   if (!storedServer || !storedPassword) {
     router.replace('/')

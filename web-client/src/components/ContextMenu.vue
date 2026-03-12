@@ -1,57 +1,57 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from "vue";
 
 export interface ContextMenuItem {
-  label: string
-  icon?: string
-  danger?: boolean
-  action: () => void
+  label: string;
+  icon?: string;
+  danger?: boolean;
+  action: () => void;
 }
 
-const props = defineProps<{
-  items: ContextMenuItem[]
-  x: number
-  y: number
-}>()
+defineProps<{
+  items: ContextMenuItem[];
+  x: number;
+  y: number;
+}>();
 
 const emit = defineEmits<{
-  close: []
-}>()
+  close: [];
+}>();
 
-const menu = ref<HTMLElement | null>(null)
+const menu = ref<HTMLElement | null>(null);
 
 function onClickOutside(event: MouseEvent) {
   if (menu.value && !menu.value.contains(event.target as Node)) {
-    emit('close')
+    emit("close");
   }
 }
 
 function onContextMenuOutside() {
-  emit('close')
+  emit("close");
 }
 
 function onKeyDown(event: KeyboardEvent) {
-  if (event.key === 'Escape') emit('close')
+  if (event.key === "Escape") emit("close");
 }
 
 function handleAction(item: ContextMenuItem) {
-  item.action()
-  emit('close')
+  item.action();
+  emit("close");
 }
 
 onMounted(() => {
   setTimeout(() => {
-    window.addEventListener('pointerdown', onClickOutside, { capture: true })
-    window.addEventListener('contextmenu', onContextMenuOutside)
-    window.addEventListener('keydown', onKeyDown)
-  }, 0)
-})
+    window.addEventListener("pointerdown", onClickOutside, { capture: true });
+    window.addEventListener("contextmenu", onContextMenuOutside);
+    window.addEventListener("keydown", onKeyDown);
+  }, 0);
+});
 
 onUnmounted(() => {
-  window.removeEventListener('pointerdown', onClickOutside, { capture: true })
-  window.removeEventListener('contextmenu', onContextMenuOutside)
-  window.removeEventListener('keydown', onKeyDown)
-})
+  window.removeEventListener("pointerdown", onClickOutside, { capture: true });
+  window.removeEventListener("contextmenu", onContextMenuOutside);
+  window.removeEventListener("keydown", onKeyDown);
+});
 </script>
 
 <template>

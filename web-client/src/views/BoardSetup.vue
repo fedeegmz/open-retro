@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { BoardService } from "@/services/boardService";
+import { BoardService } from "@/services/api/boardService";
+import { LocalStorageService } from "@/services/localStorageService";
 
 const router = useRouter();
 
@@ -13,7 +14,7 @@ const loading = ref(false);
 const mode = ref<"create" | "join">("create");
 
 onMounted(() => {
-  const stored = sessionStorage.getItem("serverUrl");
+  const stored = LocalStorageService.getServerUrl();
   if (!stored) {
     router.replace("/");
     return;
@@ -27,7 +28,7 @@ async function createBoard() {
 
   try {
     await new BoardService(serverUrl.value).create(boardId.value, password.value);
-    sessionStorage.setItem("boardPassword", password.value);
+    LocalStorageService.setBoardPassword(password.value);
     router.push(`/board/${boardId.value}`);
   } catch (e) {
     error.value = e instanceof Error ? e.message : "Error al comunicarse con el servidor.";
@@ -44,7 +45,7 @@ async function joinBoard() {
     await new BoardService(serverUrl.value).getBoard(boardId.value, (msg) => {
       error.value = msg;
     });
-    sessionStorage.setItem("boardPassword", password.value);
+    LocalStorageService.setBoardPassword(password.value);
     router.push(`/board/${boardId.value}`);
   } catch {
     // error already set via onError callback
