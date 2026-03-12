@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Navigator } from '@/router/navigator'
 import BoardCanvas from '../components/BoardCanvas.vue'
 import { LocalStorageService } from '@/services/localStorageService'
 
 const route = useRoute()
-const router = useRouter()
+const navigator = new Navigator(useRouter())
 
 const serverUrl = ref('')
 const password = ref('')
@@ -16,7 +17,7 @@ onMounted(() => {
   const storedPassword = LocalStorageService.getBoardPassword()
 
   if (!storedServer || !storedPassword) {
-    router.replace('/')
+    navigator.toServerSetup()
     return
   }
 

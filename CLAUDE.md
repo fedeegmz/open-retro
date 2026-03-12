@@ -56,6 +56,17 @@ On WS connect, the server sends `board:sync` with the full current state. All su
 
 There is no Pinia/Vuex. State lives in `Board.vue` as `ref<Note[]>` and `ref<Group[]>`. Persistence is handled by `LocalStorageService` (`src/services/localStorageService.ts`), which manages `serverUrl` and `boardPassword` keys in `localStorage`. The `useWebSocket` composable (`src/composables/useWebSocket.ts`) manages the WebSocket connection with auto-reconnect (2s delay) and exposes `send`, `onMessage`, `isConnected`, and `wsError`. Auth failures (close code `4001`) disable reconnect.
 
+### Navigation
+
+All navigation is centralized in `Navigator` (`src/router/navigator.ts`). Views and components instantiate it with `new Navigator(useRouter())` and call its methods — no hardcoded route strings outside of this class.
+
+| Method | Destination |
+|---|---|
+| `toServerSetup()` | `/` (replace) |
+| `toBoardSetup()` | `/connect` |
+| `toBoard(boardId)` | `/board/:id` |
+| `backToBoardSetup()` | `/connect` (replace) |
+
 ### Linting
 
 The client uses a two-pass lint setup: oxlint runs first (faster, covers correctness rules), then ESLint handles rules oxlint doesn't cover. The `eslint-plugin-oxlint` is used to disable ESLint rules already handled by oxlint.

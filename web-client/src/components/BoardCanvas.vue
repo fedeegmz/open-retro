@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { Navigator } from '@/router/navigator'
 import StickyNote from './StickyNote.vue'
 import NoteGroup from './NoteGroup.vue'
 import ToolBar from './ToolBar.vue'
@@ -21,14 +22,14 @@ const notes = ref<Note[]>([])
 const groups = ref<Group[]>([])
 let topZ = 1
 
-const router = useRouter()
+const navigator = new Navigator(useRouter())
 const { show: showToast } = useToast()
 const { send, onMessage, isConnected, wsError } = useWebSocket(wsUrl)
 
 watch(wsError, (err) => {
   if (err === 'auth') {
     showToast('Contraseña incorrecta')
-    router.replace('/connect')
+    navigator.backToBoardSetup()
   }
 })
 

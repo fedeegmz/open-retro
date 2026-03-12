@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Navigator } from '@/router/navigator'
 import { ServerService } from '@/services/api/serverService'
 import { LocalStorageService } from '@/services/localStorageService'
 
-const router = useRouter()
+const navigator = new Navigator(useRouter())
 
 const serverUrl = ref('ws://localhost:3001')
 const error = ref('')
@@ -17,7 +18,7 @@ async function connect() {
   try {
     await new ServerService(serverUrl.value).ping()
     LocalStorageService.setServerUrl(serverUrl.value)
-    router.push('/connect')
+    navigator.toBoardSetup()
   } catch {
     error.value =
       'No se pudo conectar al servidor. Verificá que la URL sea correcta y que el servidor esté activo.'
