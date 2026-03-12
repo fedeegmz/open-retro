@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ServerService } from '@/services/serverService'
 
 const router = useRouter()
 
@@ -13,14 +14,12 @@ async function connect() {
   loading.value = true
 
   try {
-    const httpUrl = serverUrl.value.replace(/^ws(s?):\/\//, 'http$1://')
-    const res = await fetch(`${httpUrl}/ping`, { signal: AbortSignal.timeout(5000) })
-    if (!res.ok) throw new Error('Respuesta inesperada del servidor')
-
+    await new ServerService(serverUrl.value).ping()
     sessionStorage.setItem('serverUrl', serverUrl.value)
     router.push('/connect')
   } catch {
-    error.value = 'No se pudo conectar al servidor. Verificá que la URL sea correcta y que el servidor esté activo.'
+    error.value =
+      'No se pudo conectar al servidor. Verificá que la URL sea correcta y que el servidor esté activo.'
   } finally {
     loading.value = false
   }
@@ -60,7 +59,11 @@ async function connect() {
 
         <div v-if="error" class="error-banner">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+              clip-rule="evenodd"
+            />
           </svg>
           {{ error }}
         </div>
@@ -194,7 +197,9 @@ input:disabled {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -217,6 +222,8 @@ input:disabled {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

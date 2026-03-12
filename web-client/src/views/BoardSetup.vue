@@ -1,92 +1,69 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { BoardService } from "@/services/boardService";
 
-const router = useRouter()
+const router = useRouter();
 
-const serverUrl = ref('')
-const boardId = ref(crypto.randomUUID())
-const password = ref('')
-const error = ref('')
-const loading = ref(false)
-const mode = ref<'create' | 'join'>('create')
+const serverUrl = ref("");
+const boardId = ref(crypto.randomUUID());
+const password = ref("");
+const error = ref("");
+const loading = ref(false);
+const mode = ref<"create" | "join">("create");
 
 onMounted(() => {
-  const stored = sessionStorage.getItem('serverUrl')
+  const stored = sessionStorage.getItem("serverUrl");
   if (!stored) {
-    router.replace('/')
-    return
+    router.replace("/");
+    return;
   }
-  serverUrl.value = stored
-})
-
-function httpUrl() {
-  return serverUrl.value.replace(/^ws(s?):\/\//, 'http$1://')
-}
+  serverUrl.value = stored;
+});
 
 async function createBoard() {
-  error.value = ''
-  loading.value = true
+  error.value = "";
+  loading.value = true;
 
   try {
-    const res = await fetch(`${httpUrl()}/board`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ boardId: boardId.value, password: password.value }),
-      signal: AbortSignal.timeout(5000),
-    })
-
-    const data = await res.json()
-
-    if (!res.ok) {
-      error.value = data.error || 'No se pudo crear el board.'
-      return
-    }
-
-    sessionStorage.setItem('boardPassword', password.value)
-    router.push(`/board/${boardId.value}`)
-  } catch {
-    error.value = 'Error al comunicarse con el servidor.'
+    await new BoardService(serverUrl.value).create(boardId.value, password.value);
+    sessionStorage.setItem("boardPassword", password.value);
+    router.push(`/board/${boardId.value}`);
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : "Error al comunicarse con el servidor.";
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 async function joinBoard() {
-  error.value = ''
-  loading.value = true
+  error.value = "";
+  loading.value = true;
 
   try {
-    const res = await fetch(`${httpUrl()}/board/${boardId.value}`, {
-      signal: AbortSignal.timeout(5000),
-    })
-
-    if (res.status === 404) {
-      error.value = 'No existe un board con ese ID.'
-      return
-    }
-
-    if (!res.ok) {
-      error.value = 'Error al verificar el board.'
-      return
-    }
-
-    sessionStorage.setItem('boardPassword', password.value)
-    router.push(`/board/${boardId.value}`)
+    await new BoardService(serverUrl.value).getBoard(boardId.value, (msg) => {
+      error.value = msg;
+    });
+    sessionStorage.setItem("boardPassword", password.value);
+    router.push(`/board/${boardId.value}`);
   } catch {
-    error.value = 'Error al comunicarse con el servidor.'
+    // error already set via onError callback
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 function submit() {
-  if (mode.value === 'create') createBoard()
-  else joinBoard()
+  if (mode.value === "create") createBoard();
+  else joinBoard();
+}
+
+function newUUID() {
+  return crypto.randomUUID();
 }
 
 function goBack() {
-  router.push('/')
+  router.push("/");
 }
 </script>
 
@@ -96,7 +73,11 @@ function goBack() {
       <div class="header">
         <button class="back-btn" @click="goBack" title="Volver">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+            <path
+              fill-rule="evenodd"
+              d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
+              clip-rule="evenodd"
+            />
           </svg>
           Volver
         </button>
@@ -106,18 +87,32 @@ function goBack() {
         </div>
       </div>
 
-      <h1>{{ mode === 'create' ? 'Crear un board' : 'Unirse a un board' }}</h1>
+      <h1>{{ mode === "create" ? "Crear un board" : "Unirse a un board" }}</h1>
       <p class="subtitle">
-        {{ mode === 'create'
-          ? 'Creá un nuevo board vacío y protegelo con una contraseña.'
-          : 'Ingresá el ID y la contraseña del board al que querés unirte.' }}
+        {{
+          mode === "create"
+            ? "Creá un nuevo board vacío y protegelo con una contraseña."
+            : "Ingresá el ID y la contraseña del board al que querés unirte."
+        }}
       </p>
 
       <div class="tab-group">
-        <button :class="['tab', { active: mode === 'create' }]" @click="mode = 'create'; error = ''">
+        <button
+          :class="['tab', { active: mode === 'create' }]"
+          @click="
+            mode = 'create';
+            error = '';
+          "
+        >
           Crear
         </button>
-        <button :class="['tab', { active: mode === 'join' }]" @click="mode = 'join'; error = ''">
+        <button
+          :class="['tab', { active: mode === 'join' }]"
+          @click="
+            mode = 'join';
+            error = '';
+          "
+        >
           Unirse
         </button>
       </div>
@@ -130,7 +125,7 @@ function goBack() {
               v-if="mode === 'create'"
               type="button"
               class="regenerate-btn"
-              @click="boardId = crypto.randomUUID()"
+              @click="boardId = newUUID()"
               title="Generar nuevo ID"
             >
               Regenerar
@@ -160,14 +155,18 @@ function goBack() {
 
         <div v-if="error" class="error-banner">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+              clip-rule="evenodd"
+            />
           </svg>
           {{ error }}
         </div>
 
         <button type="submit" class="btn-primary" :disabled="loading || !boardId || !password">
           <span v-if="loading" class="spinner" />
-          {{ loading ? 'Cargando...' : (mode === 'create' ? 'Crear board' : 'Unirse al board') }}
+          {{ loading ? "Cargando..." : mode === "create" ? "Crear board" : "Unirse al board" }}
         </button>
       </form>
     </div>
@@ -227,7 +226,7 @@ function goBack() {
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
   color: #6b7280;
   background: #f3f4f6;
   padding: 4px 10px;
@@ -280,7 +279,9 @@ h1 {
   cursor: pointer;
   background: transparent;
   color: #6b7280;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .tab.active {
@@ -333,7 +334,7 @@ input {
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
   font-size: 14px;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
   color: #111827;
   outline: none;
   transition: border-color 0.15s;
@@ -381,7 +382,9 @@ input:disabled {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -404,6 +407,8 @@ input:disabled {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

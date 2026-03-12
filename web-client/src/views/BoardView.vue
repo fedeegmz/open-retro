@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Board from '../components/Board.vue'
+import BoardCanvas from '../components/BoardCanvas.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -28,10 +28,5 @@ const boardId = route.params.id as string
 </script>
 
 <template>
-  <Board
-    v-if="ready"
-    :server-url="serverUrl"
-    :board-id="boardId"
-    :password="password"
-  />
+  <BoardCanvas v-if="ready" :server-url="serverUrl" :board-id="boardId" :password="password" />
 </template>

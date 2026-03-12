@@ -1,5 +1,5 @@
 import { ref, onUnmounted } from 'vue'
-import type { WsMessage } from '../types/board'
+import type { WsMessage } from '@shared/types/board'
 
 export type WsError = 'auth' | 'connection' | null
 

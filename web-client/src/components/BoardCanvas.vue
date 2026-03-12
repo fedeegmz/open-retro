@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import StickyNote from './StickyNote.vue'
 import NoteGroup from './NoteGroup.vue'
 import ToolBar from './ToolBar.vue'
 import { useWebSocket } from '../composables/useWebSocket'
-import type { Note, Group, WsMessage } from '../types/board'
+import { useToast } from '../composables/useToast'
+import { WsMsgType } from '@shared/types/board'
+import type { Note, Group } from '@shared/types/board'
 
 const props = defineProps<{
   serverUrl: string
@@ -12,26 +15,35 @@ const props = defineProps<{
   password: string
 }>()
 
-const wsUrl = `${props.serverUrl}?board=${props.boardId}&password=${encodeURIComponent(props.password)}`
+const wsUrl = `${props.serverUrl}/board/ws?board=${props.boardId}&password=${encodeURIComponent(props.password)}`
 
 const notes = ref<Note[]>([])
 const groups = ref<Group[]>([])
 let topZ = 1
 
+const router = useRouter()
+const { show: showToast } = useToast()
 const { send, onMessage, isConnected, wsError } = useWebSocket(wsUrl)
+
+watch(wsError, (err) => {
+  if (err === 'auth') {
+    showToast('Contraseña incorrecta')
+    router.replace('/connect')
+  }
+})
 
 onMessage((msg) => {
   switch (msg.type) {
-    case 'board:sync':
+    case WsMsgType.BoardSync:
       notes.value = msg.state.notes
       groups.value = msg.state.groups
       topZ = msg.state.nextZIndex
       break
-    case 'note:add':
+    case WsMsgType.NoteAdd:
       notes.value.push(msg.note)
       topZ = Math.max(topZ, msg.note.zIndex + 1)
       break
-    case 'note:move': {
+    case WsMsgType.NoteMove: {
       const note = notes.value.find((n) => n.id === msg.id)
       if (note) {
         note.x = msg.x
@@ -39,7 +51,7 @@ onMessage((msg) => {
       }
       break
     }
-    case 'note:resize': {
+    case WsMsgType.NoteResize: {
       const note = notes.value.find((n) => n.id === msg.id)
       if (note) {
         note.width = msg.width
@@ -47,24 +59,24 @@ onMessage((msg) => {
       }
       break
     }
-    case 'note:edit': {
+    case WsMsgType.NoteEdit: {
       const note = notes.value.find((n) => n.id === msg.id)
       if (note) note.text = msg.text
       break
     }
-    case 'note:delete':
+    case WsMsgType.NoteDelete:
       notes.value = notes.value.filter((n) => n.id !== msg.id)
       break
-    case 'note:z': {
+    case WsMsgType.NoteZ: {
       const note = notes.value.find((n) => n.id === msg.id)
       if (note) note.zIndex = msg.zIndex
       topZ = Math.max(topZ, msg.zIndex + 1)
       break
     }
-    case 'group:add':
+    case WsMsgType.GroupAdd:
       groups.value.push(msg.group)
       break
-    case 'group:move': {
+    case WsMsgType.GroupMove: {
       const group = groups.value.find((g) => g.id === msg.id)
       if (group) {
         group.x = msg.x
@@ -72,7 +84,7 @@ onMessage((msg) => {
       }
       break
     }
-    case 'group:resize': {
+    case WsMsgType.GroupResize: {
       const group = groups.value.find((g) => g.id === msg.id)
       if (group) {
         group.width = msg.width
@@ -80,7 +92,7 @@ onMessage((msg) => {
       }
       break
     }
-    case 'group:edit': {
+    case WsMsgType.GroupEdit: {
       const group = groups.value.find((g) => g.id === msg.id)
       if (group) {
         group.title = msg.title
@@ -88,10 +100,10 @@ onMessage((msg) => {
       }
       break
     }
-    case 'group:delete':
+    case WsMsgType.GroupDelete:
       groups.value = groups.value.filter((g) => g.id !== msg.id)
       break
-    case 'group:pin': {
+    case WsMsgType.GroupPin: {
       const group = groups.value.find((g) => g.id === msg.id)
       if (group) group.pinned = msg.pinned
       break
@@ -123,7 +135,7 @@ function addNote() {
     text: '',
   }
   notes.value.push(note)
-  send({ type: 'note:add', note })
+  send({ type: WsMsgType.NoteAdd, note })
 }
 
 function addGroup() {
@@ -139,22 +151,22 @@ function addGroup() {
     pinned: false,
   }
   groups.value.push(group)
-  send({ type: 'group:add', group })
+  send({ type: WsMsgType.GroupAdd, group })
 }
 
 function bringToFront(note: Note) {
   note.zIndex = topZ++
-  send({ type: 'note:z', id: note.id, zIndex: note.zIndex })
+  send({ type: WsMsgType.NoteZ, id: note.id, zIndex: note.zIndex })
 }
 
 function deleteNote(id: string) {
   notes.value = notes.value.filter((n) => n.id !== id)
-  send({ type: 'note:delete', id })
+  send({ type: WsMsgType.NoteDelete, id })
 }
 
 function deleteGroup(id: string) {
   groups.value = groups.value.filter((g) => g.id !== id)
-  send({ type: 'group:delete', id })
+  send({ type: WsMsgType.GroupDelete, id })
 }
 
 function startDrag(item: Note | Group, startEvent: MouseEvent, kind: 'note' | 'group') {
@@ -169,7 +181,8 @@ function startDrag(item: Note | Group, startEvent: MouseEvent, kind: 'note' | 'g
   function onUp() {
     window.removeEventListener('mousemove', onMove)
     window.removeEventListener('mouseup', onUp)
-    send({ type: `${kind}:move`, id: item.id, x: item.x, y: item.y } as WsMessage)
+    const type = kind === 'note' ? WsMsgType.NoteMove : WsMsgType.GroupMove
+    send({ type, id: item.id, x: item.x, y: item.y })
   }
 
   window.addEventListener('mousemove', onMove)
@@ -182,13 +195,13 @@ function onNoteResize(id: string, payload: { width: number; height: number }) {
     note.width = payload.width
     note.height = payload.height
   }
-  send({ type: 'note:resize', id, ...payload })
+  send({ type: WsMsgType.NoteResize, id, ...payload })
 }
 
 function onNoteEdit(id: string, text: string) {
   const note = notes.value.find((n) => n.id === id)
   if (note) note.text = text
-  send({ type: 'note:edit', id, text })
+  send({ type: WsMsgType.NoteEdit, id, text })
 }
 
 function onGroupResize(id: string, payload: { width: number; height: number }) {
@@ -197,7 +210,7 @@ function onGroupResize(id: string, payload: { width: number; height: number }) {
     group.width = payload.width
     group.height = payload.height
   }
-  send({ type: 'group:resize', id, ...payload })
+  send({ type: WsMsgType.GroupResize, id, ...payload })
 }
 
 function onGroupEdit(id: string, payload: { title: string; description: string }) {
@@ -206,13 +219,13 @@ function onGroupEdit(id: string, payload: { title: string; description: string }
     group.title = payload.title
     group.description = payload.description
   }
-  send({ type: 'group:edit', id, ...payload })
+  send({ type: WsMsgType.GroupEdit, id, ...payload })
 }
 
 function onGroupTogglePin(id: string, pinned: boolean) {
   const group = groups.value.find((g) => g.id === id)
   if (group) group.pinned = pinned
-  send({ type: 'group:pin', id, pinned })
+  send({ type: WsMsgType.GroupPin, id, pinned })
 }
 
 function onBoardMouseDown(event: MouseEvent) {
