@@ -5,7 +5,11 @@
     "moduleResolution": "bundler",
     "types": ["bun-types"],
     "strict": true,
-    "noEmit": true
+    "skipLibCheck": true,
+    "noEmit": true,
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    }
   },
-  "include": ["src", "../web-client/src/types"]
+  "include": ["src", "../shared"]
 }
