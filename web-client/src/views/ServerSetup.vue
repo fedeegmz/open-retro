@@ -7,7 +7,7 @@ import { LocalStorageService } from '@/services/localStorageService'
 
 const navigator = new Navigator(useRouter())
 
-const serverUrl = ref('ws://localhost:3001')
+const serverUrl = ref(LocalStorageService.getServerUrl() ?? 'ws://localhost:3001')
 const error = ref('')
 const loading = ref(false)
 
