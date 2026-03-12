@@ -1,72 +1,72 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { Navigator } from "@/router/navigator";
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { Navigator } from '@/router/navigator'
 
-import { BoardService } from "@/services/api/boardService";
-import { LocalStorageService } from "@/services/localStorageService";
+import { BoardService } from '@/services/api/boardService'
+import { LocalStorageService } from '@/services/localStorageService'
 
-const navigator = new Navigator(useRouter());
+const navigator = new Navigator(useRouter())
 
-const serverUrl = ref("");
-const boardId = ref(crypto.randomUUID());
-const password = ref("");
-const error = ref("");
-const loading = ref(false);
-const mode = ref<"create" | "join">("create");
+const serverUrl = ref('')
+const boardId = ref(crypto.randomUUID())
+const password = ref('')
+const error = ref('')
+const loading = ref(false)
+const mode = ref<'create' | 'join'>('create')
 
 onMounted(() => {
-  const stored = LocalStorageService.getServerUrl();
+  const stored = LocalStorageService.getServerUrl()
   if (!stored) {
-    navigator.toServerSetup();
-    return;
+    navigator.toServerSetup()
+    return
   }
-  serverUrl.value = stored;
-});
+  serverUrl.value = stored
+})
 
 async function createBoard() {
-  error.value = "";
-  loading.value = true;
+  error.value = ''
+  loading.value = true
 
   try {
-    await new BoardService(serverUrl.value).create(boardId.value, password.value);
-    LocalStorageService.setBoardPassword(password.value);
-    navigator.toBoard(boardId.value);
+    await new BoardService(serverUrl.value).create(boardId.value, password.value)
+    LocalStorageService.setBoardPassword(password.value)
+    navigator.toBoard(boardId.value)
   } catch (e) {
-    error.value = e instanceof Error ? e.message : "Error al comunicarse con el servidor.";
+    error.value = e instanceof Error ? e.message : 'Error al comunicarse con el servidor.'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
 async function joinBoard() {
-  error.value = "";
-  loading.value = true;
+  error.value = ''
+  loading.value = true
 
   try {
     await new BoardService(serverUrl.value).getBoard(boardId.value, (msg) => {
-      error.value = msg;
-    });
-    LocalStorageService.setBoardPassword(password.value);
-    navigator.toBoard(boardId.value);
+      error.value = msg
+    })
+    LocalStorageService.setBoardPassword(password.value)
+    navigator.toBoard(boardId.value)
   } catch {
     // error already set via onError callback
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
 function submit() {
-  if (mode.value === "create") createBoard();
-  else joinBoard();
+  if (mode.value === 'create') createBoard()
+  else joinBoard()
 }
 
 function newUUID() {
-  return crypto.randomUUID();
+  return crypto.randomUUID()
 }
 
 function goBack() {
-  navigator.toServerSetup();
+  navigator.toServerSetup()
 }
 </script>
 
@@ -90,12 +90,12 @@ function goBack() {
         </div>
       </div>
 
-      <h1>{{ mode === "create" ? "Crear un board" : "Unirse a un board" }}</h1>
+      <h1>{{ mode === 'create' ? 'Crear un board' : 'Unirse a un board' }}</h1>
       <p class="subtitle">
         {{
-          mode === "create"
-            ? "Creá un nuevo board vacío y protegelo con una contraseña."
-            : "Ingresá el ID y la contraseña del board al que querés unirte."
+          mode === 'create'
+            ? 'Creá un nuevo board vacío y protegelo con una contraseña.'
+            : 'Ingresá el ID y la contraseña del board al que querés unirte.'
         }}
       </p>
 
@@ -103,8 +103,8 @@ function goBack() {
         <button
           :class="['tab', { active: mode === 'create' }]"
           @click="
-            mode = 'create';
-            error = '';
+            mode = 'create'
+            error = ''
           "
         >
           Crear
@@ -112,8 +112,8 @@ function goBack() {
         <button
           :class="['tab', { active: mode === 'join' }]"
           @click="
-            mode = 'join';
-            error = '';
+            mode = 'join'
+            error = ''
           "
         >
           Unirse
@@ -169,7 +169,7 @@ function goBack() {
 
         <button type="submit" class="btn-primary" :disabled="loading || !boardId || !password">
           <span v-if="loading" class="spinner" />
-          {{ loading ? "Cargando..." : mode === "create" ? "Crear board" : "Unirse al board" }}
+          {{ loading ? 'Cargando...' : mode === 'create' ? 'Crear board' : 'Unirse al board' }}
         </button>
       </form>
     </div>
@@ -229,7 +229,7 @@ function goBack() {
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
   color: #6b7280;
   background: #f3f4f6;
   padding: 4px 10px;
@@ -337,7 +337,7 @@ input {
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
   font-size: 14px;
-  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
   color: #111827;
   outline: none;
   transition: border-color 0.15s;
