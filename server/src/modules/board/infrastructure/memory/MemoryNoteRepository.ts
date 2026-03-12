@@ -14,12 +14,12 @@ export class MemoryNoteRepository implements INoteRepository {
   }
 
   findById(boardId: string, noteId: string): Note | undefined {
-    return this.getAll(boardId).find(n => n.id === noteId)
+    return this.getAll(boardId).find((n) => n.id === noteId)
   }
 
   save(boardId: string, note: Note): void {
     const notes = this.getAll(boardId)
-    const index = notes.findIndex(n => n.id === note.id)
+    const index = notes.findIndex((n) => n.id === note.id)
     if (index >= 0) {
       notes[index] = note
     } else {
@@ -29,7 +29,11 @@ export class MemoryNoteRepository implements INoteRepository {
 
   delete(boardId: string, noteId: string): void {
     const notes = this.store.get(boardId)
-    if (notes) this.store.set(boardId, notes.filter(n => n.id !== noteId))
+    if (notes)
+      this.store.set(
+        boardId,
+        notes.filter((n) => n.id !== noteId),
+      )
   }
 
   deleteAll(boardId: string): void {

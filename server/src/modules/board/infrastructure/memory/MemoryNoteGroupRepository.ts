@@ -14,12 +14,12 @@ export class MemoryNoteGroupRepository implements INoteGroupRepository {
   }
 
   findById(boardId: string, groupId: string): Group | undefined {
-    return this.getAll(boardId).find(g => g.id === groupId)
+    return this.getAll(boardId).find((g) => g.id === groupId)
   }
 
   save(boardId: string, group: Group): void {
     const groups = this.getAll(boardId)
-    const index = groups.findIndex(g => g.id === group.id)
+    const index = groups.findIndex((g) => g.id === group.id)
     if (index >= 0) {
       groups[index] = group
     } else {
@@ -29,7 +29,11 @@ export class MemoryNoteGroupRepository implements INoteGroupRepository {
 
   delete(boardId: string, groupId: string): void {
     const groups = this.store.get(boardId)
-    if (groups) this.store.set(boardId, groups.filter(g => g.id !== groupId))
+    if (groups)
+      this.store.set(
+        boardId,
+        groups.filter((g) => g.id !== groupId),
+      )
   }
 
   deleteAll(boardId: string): void {

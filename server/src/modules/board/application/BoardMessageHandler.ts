@@ -21,17 +21,28 @@ export class BoardMessageHandler {
       }
       case WsMsgType.NoteMove: {
         const note = this.notes.findById(boardId, msg.id)
-        if (note) { note.x = msg.x; note.y = msg.y; this.notes.save(boardId, note) }
+        if (note) {
+          note.x = msg.x
+          note.y = msg.y
+          this.notes.save(boardId, note)
+        }
         break
       }
       case WsMsgType.NoteResize: {
         const note = this.notes.findById(boardId, msg.id)
-        if (note) { note.width = msg.width; note.height = msg.height; this.notes.save(boardId, note) }
+        if (note) {
+          note.width = msg.width
+          note.height = msg.height
+          this.notes.save(boardId, note)
+        }
         break
       }
       case WsMsgType.NoteEdit: {
         const note = this.notes.findById(boardId, msg.id)
-        if (note) { note.text = msg.text; this.notes.save(boardId, note) }
+        if (note) {
+          note.text = msg.text
+          this.notes.save(boardId, note)
+        }
         break
       }
       case WsMsgType.NoteDelete:
@@ -52,17 +63,29 @@ export class BoardMessageHandler {
         break
       case WsMsgType.GroupMove: {
         const group = this.groups.findById(boardId, msg.id)
-        if (group) { group.x = msg.x; group.y = msg.y; this.groups.save(boardId, group) }
+        if (group) {
+          group.x = msg.x
+          group.y = msg.y
+          this.groups.save(boardId, group)
+        }
         break
       }
       case WsMsgType.GroupResize: {
         const group = this.groups.findById(boardId, msg.id)
-        if (group) { group.width = msg.width; group.height = msg.height; this.groups.save(boardId, group) }
+        if (group) {
+          group.width = msg.width
+          group.height = msg.height
+          this.groups.save(boardId, group)
+        }
         break
       }
       case WsMsgType.GroupEdit: {
         const group = this.groups.findById(boardId, msg.id)
-        if (group) { group.title = msg.title; group.description = msg.description; this.groups.save(boardId, group) }
+        if (group) {
+          group.title = msg.title
+          group.description = msg.description
+          this.groups.save(boardId, group)
+        }
         break
       }
       case WsMsgType.GroupDelete:
@@ -70,7 +93,10 @@ export class BoardMessageHandler {
         break
       case WsMsgType.GroupPin: {
         const group = this.groups.findById(boardId, msg.id)
-        if (group) { group.pinned = msg.pinned; this.groups.save(boardId, group) }
+        if (group) {
+          group.pinned = msg.pinned
+          this.groups.save(boardId, group)
+        }
         break
       }
     }

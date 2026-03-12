@@ -10,9 +10,9 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "run-s lint:*",
-    "lint:oxlint": "oxlint . --fix",
+    "lint:oxlint": "cd .. && npm run lint",
     "lint:eslint": "eslint . --fix --cache",
-    "format": "oxfmt src/"
+    "format": "cd .. && npm run format"
   },
   "dependencies": {
     "vue": "^3.5.29",
@@ -30,7 +30,6 @@
     "eslint-plugin-vue": "~10.8.0",
     "jiti": "^2.6.1",
     "npm-run-all2": "^8.0.4",
-    "oxfmt": "^0.35.0",
     "oxlint": "~1.50.0",
     "typescript": "~5.9.3",
     "vite": "^7.3.1",

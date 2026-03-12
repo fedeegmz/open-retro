@@ -6,6 +6,23 @@
     "dev": "npm run dev:client",
     "dev:client": "cd web-client && npm run dev",
     "dev:server": "cd server && bun --watch src/server.ts",
-    "build": "cd web-client && npm run build"
+    "build": "cd web-client && npm run build",
+    "format": "oxfmt server/src/ shared/ web-client/src/",
+    "lint": "oxlint server/src/ shared/ web-client/src/ --fix",
+    "lint:eslint": "cd web-client && npm run lint:eslint",
+    "prepare": "simple-git-hooks"
+  },
+  "devDependencies": {
+    "lint-staged": "^16.3.3",
+    "oxfmt": "^0.39.0",
+    "oxlint": "^1.54.0",
+    "simple-git-hooks": "^2.13.1"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,vue}": ["oxfmt", "oxlint --fix"],
+    "web-client/src/**/*.{ts,vue}": "./web-client/node_modules/.bin/eslint --fix"
   }
 }
