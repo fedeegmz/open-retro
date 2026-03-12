@@ -8,6 +8,7 @@ const props = defineProps<{
   width: number
   height: number
   text: string
+  isOwner: boolean
 }>()
 
 const emit = defineEmits<{
@@ -59,6 +60,7 @@ const contextMenuItems: ContextMenuItem[] = [
 ]
 
 function openContextMenu(event: MouseEvent) {
+  if (!props.isOwner) return
   event.preventDefault()
   event.stopPropagation()
   contextMenuX.value = event.clientX
@@ -73,6 +75,7 @@ let startWidth = 0
 let startHeight = 0
 
 async function enableEditing() {
+  if (!props.isOwner) return
   isEditing.value = true
   await nextTick()
   textarea.value?.focus()
@@ -86,13 +89,14 @@ function disableEditing() {
 }
 
 function onMouseDown(event: MouseEvent) {
-  if (isEditing.value) return
+  if (!props.isOwner || isEditing.value) return
   event.stopPropagation()
   emit('bringToFront')
   emit('dragStart', event)
 }
 
 function startResize(event: MouseEvent) {
+  if (!props.isOwner) return
   event.preventDefault()
   event.stopPropagation()
 

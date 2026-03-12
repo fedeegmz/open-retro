@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Navigator } from '@/router/navigator'
 import { ServerService } from '@/services/api/serverService'
@@ -8,16 +8,38 @@ import { LocalStorageService } from '@/services/localStorageService'
 const navigator = new Navigator(useRouter())
 
 const serverUrl = ref(LocalStorageService.getServerUrl() ?? 'ws://localhost:3001')
+const username = ref(LocalStorageService.getUsername() ?? '')
 const error = ref('')
 const loading = ref(false)
 
+const USERNAME_REGEX = /^[a-zA-Z0-9_-]+$/
+
+const usernameError = computed(() => {
+  if (!username.value) return ''
+  return USERNAME_REGEX.test(username.value)
+    ? ''
+    : 'Solo se permiten letras, números, guiones (-) y guiones bajos (_).'
+})
+
+function onUsernameInput(e: Event) {
+  const cleaned = (e.target as HTMLInputElement).value.replace(/[^a-zA-Z0-9_-]/g, '')
+  username.value = cleaned
+}
+
 async function connect() {
   error.value = ''
+
+  if (!username.value) {
+    error.value = 'Ingresá tu nombre de usuario para continuar.'
+    return
+  }
+
   loading.value = true
 
   try {
     await new ServerService(serverUrl.value).ping()
     LocalStorageService.setServerUrl(serverUrl.value)
+    LocalStorageService.setUsername(username.value.trim())
     navigator.toBoardSetup()
   } catch {
     error.value =
@@ -47,6 +69,20 @@ async function connect() {
 
       <form @submit.prevent="connect" class="form">
         <div class="field">
+          <label for="username">Tu nombre</label>
+          <input
+            id="username"
+            :value="username"
+            type="text"
+            placeholder="Ej: Ana_Garcia"
+            autocomplete="off"
+            :disabled="loading"
+            @input="onUsernameInput"
+          />
+          <span v-if="usernameError" class="field-error">{{ usernameError }}</span>
+        </div>
+
+        <div class="field">
           <label for="server-url">URL del servidor</label>
           <input
             id="server-url"
@@ -70,7 +106,7 @@ async function connect() {
           {{ error }}
         </div>
 
-        <button type="submit" class="btn-primary" :disabled="loading || !serverUrl">
+        <button type="submit" class="btn-primary" :disabled="loading || !serverUrl || !username">
           <span v-if="loading" class="spinner" />
           {{ loading ? 'Conectando...' : 'Conectar' }}
         </button>
@@ -166,6 +202,11 @@ input:focus {
 input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.field-error {
+  font-size: 12px;
+  color: #b91c1c;
 }
 
 .error-banner {

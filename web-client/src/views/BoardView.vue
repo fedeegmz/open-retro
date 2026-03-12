@@ -10,19 +10,22 @@ const navigator = new Navigator(useRouter())
 
 const serverUrl = ref('')
 const password = ref('')
+const username = ref('')
 const ready = ref(false)
 
 onMounted(() => {
   const storedServer = LocalStorageService.getServerUrl()
   const storedPassword = LocalStorageService.getBoardPassword()
+  const storedUsername = LocalStorageService.getUsername()
 
-  if (!storedServer || !storedPassword) {
+  if (!storedServer || !storedPassword || !storedUsername) {
     navigator.toServerSetup()
     return
   }
 
   serverUrl.value = storedServer
   password.value = storedPassword
+  username.value = storedUsername
   ready.value = true
 })
 
@@ -30,5 +33,11 @@ const boardId = route.params.id as string
 </script>
 
 <template>
-  <BoardCanvas v-if="ready" :server-url="serverUrl" :board-id="boardId" :password="password" />
+  <BoardCanvas
+    v-if="ready"
+    :server-url="serverUrl"
+    :board-id="boardId"
+    :password="password"
+    :username="username"
+  />
 </template>

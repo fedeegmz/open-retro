@@ -65,6 +65,11 @@ function newUUID() {
   return crypto.randomUUID()
 }
 
+function setMode(m: 'create' | 'join') {
+  mode.value = m
+  error.value = ''
+}
+
 function goBack() {
   navigator.toServerSetup()
 }
@@ -100,22 +105,10 @@ function goBack() {
       </p>
 
       <div class="tab-group">
-        <button
-          :class="['tab', { active: mode === 'create' }]"
-          @click="
-            mode = 'create'
-            error = ''
-          "
-        >
+        <button :class="['tab', { active: mode === 'create' }]" @click="setMode('create')">
           Crear
         </button>
-        <button
-          :class="['tab', { active: mode === 'join' }]"
-          @click="
-            mode = 'join'
-            error = ''
-          "
-        >
+        <button :class="['tab', { active: mode === 'join' }]" @click="setMode('join')">
           Unirse
         </button>
       </div>

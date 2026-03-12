@@ -1,3 +1,8 @@
+export interface ConnectedUser {
+  id: string
+  username: string
+}
+
 export interface Note {
   id: string
   x: number
@@ -6,6 +11,7 @@ export interface Note {
   width: number
   height: number
   text: string
+  createdBy?: string
 }
 
 export interface Group {
@@ -39,6 +45,9 @@ export enum WsMsgType {
   GroupEdit = 'group:edit',
   GroupDelete = 'group:delete',
   GroupPin = 'group:pin',
+  UsersSync = 'users:sync',
+  UserJoin = 'user:join',
+  UserLeave = 'user:leave',
 }
 
 export type WsMessage =
@@ -55,3 +64,6 @@ export type WsMessage =
   | { type: WsMsgType.GroupEdit; id: string; title: string; description: string }
   | { type: WsMsgType.GroupDelete; id: string }
   | { type: WsMsgType.GroupPin; id: string; pinned: boolean }
+  | { type: WsMsgType.UsersSync; users: ConnectedUser[] }
+  | { type: WsMsgType.UserJoin; user: ConnectedUser }
+  | { type: WsMsgType.UserLeave; userId: string }

@@ -5,21 +5,25 @@ import { Navigator } from '@/router/navigator'
 import StickyNote from './StickyNote.vue'
 import NoteGroup from './NoteGroup.vue'
 import ToolBar from './ToolBar.vue'
+import UsersSidebar from './UsersSidebar.vue'
 import { useWebSocket } from '../composables/useWebSocket'
 import { useToast } from '../composables/useToast'
 import { WsMsgType } from '@shared/types/board'
-import type { Note, Group } from '@shared/types/board'
+import type { Note, Group, ConnectedUser } from '@shared/types/board'
 
 const props = defineProps<{
   serverUrl: string
   boardId: string
   password: string
+  username: string
 }>()
 
-const wsUrl = `${props.serverUrl}/board/ws?board=${props.boardId}&password=${encodeURIComponent(props.password)}`
+const myId = crypto.randomUUID()
+const wsUrl = `${props.serverUrl}/board/ws?board=${props.boardId}&password=${encodeURIComponent(props.password)}&username=${encodeURIComponent(props.username)}&clientId=${myId}`
 
 const notes = ref<Note[]>([])
 const groups = ref<Group[]>([])
+const connectedUsers = ref<ConnectedUser[]>([])
 let topZ = 1
 
 const navigator = new Navigator(useRouter())
@@ -109,6 +113,17 @@ onMessage((msg) => {
       if (group) group.pinned = msg.pinned
       break
     }
+    case WsMsgType.UsersSync:
+      connectedUsers.value = msg.users
+      break
+    case WsMsgType.UserJoin:
+      if (!connectedUsers.value.find((u) => u.id === msg.user.id)) {
+        connectedUsers.value.push(msg.user)
+      }
+      break
+    case WsMsgType.UserLeave:
+      connectedUsers.value = connectedUsers.value.filter((u) => u.id !== msg.userId)
+      break
   }
 })
 
@@ -134,6 +149,7 @@ function addNote() {
     width: 200,
     height: 200,
     text: '',
+    createdBy: myId,
   }
   notes.value.push(note)
   send({ type: WsMsgType.NoteAdd, note })
@@ -280,6 +296,7 @@ function onBoardMouseDown(event: MouseEvent) {
         :width="note.width"
         :height="note.height"
         :text="note.text"
+        :is-owner="note.createdBy === myId"
         :style="{ zIndex: note.zIndex }"
         @bring-to-front="bringToFront(note)"
         @drag-start="startDrag(note, $event, 'note')"
@@ -290,6 +307,8 @@ function onBoardMouseDown(event: MouseEvent) {
     </div>
 
     <ToolBar @add-note="addNote" @add-group="addGroup" />
+
+    <UsersSidebar :users="connectedUsers" :my-id="myId" />
 
     <div v-if="wsError === 'auth'" class="connection-status error">
       Contraseña incorrecta — acceso denegado
