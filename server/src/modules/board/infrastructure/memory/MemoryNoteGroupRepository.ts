@@ -1,3 +1,4 @@
+import NotFoundError from '../../../shared/domain/errors/NotFoundError'
 import type { INoteGroupRepository } from '../../domain/repositories/INoteGroupRepository'
 import type { Group } from '@shared/types/board'
 
@@ -9,15 +10,19 @@ export class MemoryNoteGroupRepository implements INoteGroupRepository {
     return this.store.get(boardId)!
   }
 
-  findAll(boardId: string): Group[] {
+  async findAll(boardId: string): Promise<Group[]> {
     return this.getAll(boardId)
   }
 
-  findById(boardId: string, groupId: string): Group | undefined {
-    return this.getAll(boardId).find((g) => g.id === groupId)
+  async findById(boardId: string, groupId: string): Promise<Group> {
+    const group = this.getAll(boardId).find((g) => g.id === groupId)
+    if (!group) {
+      throw new NotFoundError(`Group ${groupId} not found`)
+    }
+    return group
   }
 
-  save(boardId: string, group: Group): void {
+  async save(boardId: string, group: Group): Promise<void> {
     const groups = this.getAll(boardId)
     const index = groups.findIndex((g) => g.id === group.id)
     if (index >= 0) {
@@ -27,7 +32,7 @@ export class MemoryNoteGroupRepository implements INoteGroupRepository {
     }
   }
 
-  delete(boardId: string, groupId: string): void {
+  async delete(boardId: string, groupId: string): Promise<void> {
     const groups = this.store.get(boardId)
     if (groups)
       this.store.set(
@@ -36,7 +41,7 @@ export class MemoryNoteGroupRepository implements INoteGroupRepository {
       )
   }
 
-  deleteAll(boardId: string): void {
+  async deleteAll(boardId: string): Promise<void> {
     this.store.delete(boardId)
   }
 }

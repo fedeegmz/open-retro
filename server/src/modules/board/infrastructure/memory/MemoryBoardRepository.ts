@@ -1,22 +1,30 @@
 import type { IBoardRepository } from '../../domain/repositories/IBoardRepository'
 import type { Board } from '../../domain/Board'
+import NotFoundError from '../../../shared/domain/errors/NotFoundError'
+import AlreadyExistError from '../../../shared/domain/errors/AlreadyExistError'
 
 export class MemoryBoardRepository implements IBoardRepository {
   private readonly store = new Map<string, Board>()
 
-  findById(id: string): Board | undefined {
-    return this.store.get(id)
+  async findById(id: string): Promise<Board> {
+    const board = this.store.get(id)
+    if (!board) {
+      throw new NotFoundError(`Board ${id} not found`)
+    }
+    return board
   }
 
-  save(board: Board): void {
+  async save(board: Board): Promise<void> {
+    if (this.store.has(board.id)) {
+      throw new AlreadyExistError(`Board ${board.id} already exists`)
+    }
     this.store.set(board.id, board)
   }
 
-  exists(id: string): boolean {
-    return this.store.has(id)
-  }
-
-  delete(id: string): void {
+  async delete(id: string): Promise<void> {
+    if (!this.store.has(id)) {
+      throw new NotFoundError(`Board ${id} not found`)
+    }
     this.store.delete(id)
   }
 }

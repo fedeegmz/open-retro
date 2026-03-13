@@ -1,3 +1,4 @@
+import NotFoundError from '../../../shared/domain/errors/NotFoundError'
 import type { INoteRepository } from '../../domain/repositories/INoteRepository'
 import type { Note } from '@shared/types/board'
 
@@ -9,15 +10,19 @@ export class MemoryNoteRepository implements INoteRepository {
     return this.store.get(boardId)!
   }
 
-  findAll(boardId: string): Note[] {
+  async findAll(boardId: string): Promise<Note[]> {
     return this.getAll(boardId)
   }
 
-  findById(boardId: string, noteId: string): Note | undefined {
-    return this.getAll(boardId).find((n) => n.id === noteId)
+  async findById(boardId: string, noteId: string): Promise<Note> {
+    const note = this.getAll(boardId).find((n) => n.id === noteId)
+    if (!note) {
+      throw new NotFoundError(`Note ${noteId} not found`)
+    }
+    return note
   }
 
-  save(boardId: string, note: Note): void {
+  async save(boardId: string, note: Note): Promise<void> {
     const notes = this.getAll(boardId)
     const index = notes.findIndex((n) => n.id === note.id)
     if (index >= 0) {
@@ -27,7 +32,7 @@ export class MemoryNoteRepository implements INoteRepository {
     }
   }
 
-  delete(boardId: string, noteId: string): void {
+  async delete(boardId: string, noteId: string): Promise<void> {
     const notes = this.store.get(boardId)
     if (notes)
       this.store.set(
@@ -36,7 +41,7 @@ export class MemoryNoteRepository implements INoteRepository {
       )
   }
 
-  deleteAll(boardId: string): void {
+  async deleteAll(boardId: string): Promise<void> {
     this.store.delete(boardId)
   }
 }

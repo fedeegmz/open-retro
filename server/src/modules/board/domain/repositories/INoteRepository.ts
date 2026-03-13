@@ -1,9 +1,9 @@
 import type { Note } from '@shared/types/board'
 
 export interface INoteRepository {
-  findAll(boardId: string): Note[]
-  findById(boardId: string, noteId: string): Note | undefined
-  save(boardId: string, note: Note): void
-  delete(boardId: string, noteId: string): void
-  deleteAll(boardId: string): void
+  findAll(boardId: string): Promise<Note[]>
+  findById(boardId: string, noteId: string): Promise<Note>
+  save(boardId: string, note: Note): Promise<void>
+  delete(boardId: string, noteId: string): Promise<void>
+  deleteAll(boardId: string): Promise<void>
 }
