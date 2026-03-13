@@ -1,5 +1,6 @@
 import { Elysia } from 'elysia'
 import { cors } from '@elysiajs/cors'
+import { openapi } from '@elysiajs/openapi'
 import { MemoryBoardRepository } from './modules/board/infrastructure/memory/MemoryBoardRepository'
 import { MemoryNoteRepository } from './modules/board/infrastructure/memory/MemoryNoteRepository'
 import { MemoryNoteGroupRepository } from './modules/board/infrastructure/memory/MemoryNoteGroupRepository'
@@ -15,6 +16,7 @@ const hashService = new BunHashService()
 
 const app = new Elysia()
   .use(cors())
+  .use(openapi({ path: '/docs' }))
   .get('/ping', () => ({ ok: true }))
   .use(boardController({ boardRepo, noteRepo, groupRepo, hashService, log }))
   .listen(3001)
