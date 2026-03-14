@@ -5,6 +5,7 @@ import { Navigator } from '@/router/navigator'
 
 import { BoardService } from '@/services/api/boardService'
 import { LocalStorageService } from '@/services/localStorageService'
+import { newUUID } from '@/utils/stringUtils'
 
 type Mode = 'create' | 'join'
 
@@ -26,62 +27,39 @@ onMounted(() => {
   serverUrl.value = stored
 })
 
-async function createBoard() {
+function onSuccess() {
+  LocalStorageService.setBoardPassword(password.value)
+  navigator.toBoard(boardId.value)
+}
+
+function onError(msg: string) {
+  error.value = msg
+}
+
+async function submit() {
   error.value = ''
   loading.value = true
 
-  try {
-    await new BoardService(serverUrl.value).create({
-      boardId: boardId.value,
-      password: password.value,
-      onSuccess: () => {
-        LocalStorageService.setBoardPassword(password.value)
-        navigator.toBoard(boardId.value)
-      },
-      onError: (msg: string) => {
-        error.value = msg
-      },
-    })
-  } finally {
-    loading.value = false
+  const service = new BoardService(serverUrl.value)
+  const params = {
+    boardId: boardId.value,
+    password: password.value,
+    onSuccess,
+    onError,
   }
-}
 
-async function joinBoard() {
-  error.value = ''
-  loading.value = true
-
-  try {
-    await new BoardService(serverUrl.value).getBoard({
-      boardId: boardId.value,
-      onSuccess: () => {
-        LocalStorageService.setBoardPassword(password.value)
-        navigator.toBoard(boardId.value)
-      },
-      onError: (msg) => {
-        error.value = msg
-      },
-    })
-  } finally {
-    loading.value = false
-  }
-}
-
-function submit() {
   switch (mode.value) {
     case 'create':
-      createBoard()
+      await service.create(params)
       break
     case 'join':
-      joinBoard()
+      await service.join(params)
       break
     default:
       break
   }
-}
 
-function newUUID() {
-  return crypto.randomUUID()
+  loading.value = false
 }
 
 function setMode(m: Mode) {

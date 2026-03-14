@@ -18,6 +18,16 @@ export class BoardService extends BaseApiService {
     await this.post({ path: '/board', body: { boardId, password }, onSuccess, onError })
   }
 
+  async join({ boardId, password, onSuccess, onError }: CreateBoardOptions): Promise<void> {
+    await this.post({
+      path: '/board/join',
+      body: { boardId, password },
+      hideToast: true,
+      onSuccess,
+      onError,
+    })
+  }
+
   async getBoard({ boardId, onSuccess, onError }: GetBoardOptions): Promise<void> {
     await this.get({ path: `/board/exists/${boardId}`, onSuccess, onError })
   }

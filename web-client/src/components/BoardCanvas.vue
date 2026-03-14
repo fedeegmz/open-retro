@@ -10,6 +10,7 @@ import { useWebSocket } from '../composables/useWebSocket'
 import { useToast } from '../composables/useToast'
 import { WsMsgType } from '@shared/types/board'
 import type { Note, Group, ConnectedUser } from '@shared/types/board'
+import { newUUID } from '@/utils/stringUtils'
 
 const props = defineProps<{
   serverUrl: string
@@ -18,7 +19,7 @@ const props = defineProps<{
   username: string
 }>()
 
-const myId = crypto.randomUUID()
+const myId = newUUID()
 const wsUrl = `${props.serverUrl}/board/ws?board=${props.boardId}&password=${encodeURIComponent(props.password)}&username=${encodeURIComponent(props.username)}&clientId=${myId}`
 
 const notes = ref<Note[]>([])
@@ -142,7 +143,7 @@ const boardStyle = computed(() => ({
 function addNote() {
   const offset = (notes.value.length % 6) * 24
   const note: Note = {
-    id: crypto.randomUUID(),
+    id: newUUID(),
     x: 100 + offset - canvasOffset.value.x,
     y: 100 + offset - canvasOffset.value.y,
     zIndex: topZ++,
@@ -158,7 +159,7 @@ function addNote() {
 function addGroup() {
   const offset = (groups.value.length % 6) * 32
   const group: Group = {
-    id: crypto.randomUUID(),
+    id: newUUID(),
     x: 80 + offset - canvasOffset.value.x,
     y: 80 + offset - canvasOffset.value.y,
     width: 320,

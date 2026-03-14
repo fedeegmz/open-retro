@@ -36,17 +36,19 @@ async function connect() {
 
   loading.value = true
 
-  try {
-    await new ServerService(serverUrl.value).ping()
-    LocalStorageService.setServerUrl(serverUrl.value)
-    LocalStorageService.setUsername(username.value.trim())
-    navigator.toBoardSetup()
-  } catch {
-    error.value =
-      'No se pudo conectar al servidor. Verificá que la URL sea correcta y que el servidor esté activo.'
-  } finally {
-    loading.value = false
-  }
+  await new ServerService(serverUrl.value).ping({
+    onSuccess: () => {
+      LocalStorageService.setServerUrl(serverUrl.value)
+      LocalStorageService.setUsername(username.value.trim())
+      navigator.toBoardSetup()
+    },
+    onError: () => {
+      error.value =
+        'No se pudo conectar al servidor. Verificá que la URL sea correcta y que el servidor esté activo.'
+    },
+  })
+
+  loading.value = false
 }
 </script>
 
