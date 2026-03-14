@@ -1,61 +1,75 @@
-import { Elysia, t } from 'elysia'
+import { Elysia } from 'elysia'
 import { WsMsgType } from '@shared/types/board'
 import type { WsMessage, BoardState, ConnectedUser } from '@shared/types/board'
+import { Permission } from '@shared/types/role'
+import { PermissionService } from '../../../user/domain/services/PermissionService'
 import { BoardMessageHandler } from '../../application/BoardMessageHandler'
+import { UserSessionManager } from '../../../user/application/UserSessionManager'
 import type { IBoardRepository } from '../../domain/repositories/IBoardRepository'
 import type { INoteRepository } from '../../domain/repositories/INoteRepository'
 import type { INoteGroupRepository } from '../../domain/repositories/INoteGroupRepository'
 import type { IHashService } from '../../../shared/domain/services/IHashService'
 import type { ILogService } from '../../../shared/domain/services/ILogService'
 import { CreateBoardSchema } from './schemas/CreateBoardSchema'
+import { WebSocketQuerySchema } from './schemas/WebSocketQuerySchema'
+import { ExportBoardQuerySchema } from './schemas/ExportBoardSchema'
 import { ApiResponse } from '@shared/types/api'
 import { Board } from '../../domain/Board'
 import AlreadyExistError from '../../../shared/domain/errors/AlreadyExistError'
 import NotFoundError from '../../../shared/domain/errors/NotFoundError'
+import { JsonExportBoardUseCase } from '../../application/useCases/JsonExportBoardUseCase'
+import InvalidArgError from '../../../shared/domain/errors/InvalidArgError'
 
 interface Deps {
-  boardRepo: IBoardRepository
-  noteRepo: INoteRepository
-  groupRepo: INoteGroupRepository
+  boardRepository: IBoardRepository
+  noteRepository: INoteRepository
+  groupRepository: INoteGroupRepository
   hashService: IHashService
-  log: ILogService
+  logService: ILogService
 }
 
-export function boardController({ boardRepo, noteRepo, groupRepo, hashService, log }: Deps) {
+export function boardController({
+  boardRepository: boardRepo,
+  noteRepository: noteRepo,
+  groupRepository: groupRepo,
+  hashService,
+  logService: log,
+}: Deps) {
   const messageHandler = new BoardMessageHandler(boardRepo, noteRepo, groupRepo)
-  const clients = new Map<string, Set<any>>()
-  const clientInfo = new Map<any, ConnectedUser>()
+  const sessionManager = new UserSessionManager(log)
+  const jsonExportBoardUseCase = new JsonExportBoardUseCase(boardRepo, noteRepo, groupRepo)
 
   return new Elysia({ prefix: '/board' })
     .ws('/ws', {
-      query: t.Object({
-        board: t.String({ minLength: 1 }),
-        password: t.String(),
-        username: t.String({ minLength: 1 }),
-        clientId: t.String({ minLength: 1 }),
-      }),
+      query: WebSocketQuerySchema,
       async open(ws) {
         const boardId = ws.data.query.board
-        const board = await boardRepo.findById(boardId)
-        if (!board) {
-          ws.close()
-          return
+        let board: Board
+        try {
+          board = await boardRepo.findById(boardId)
+        } catch (e) {
+          if (e instanceof NotFoundError) {
+            log.error(`[${boardId}] Failed to find board: ${e}`)
+            ws.close()
+            return
+          }
+          log.error(`[${boardId}] Unknown error: ${e}`)
+          throw e
         }
 
         if (!hashService.verify(ws.data.query.password, board.passwordHash)) {
-          ws.close(4001, 'Contraseña incorrecta')
+          ws.close(4001, 'Invalid password')
           return
         }
 
-        const roomClients = clients.get(boardId) ?? new Set()
-        roomClients.add(ws.raw)
-        clients.set(boardId, roomClients)
-
+        const role = sessionManager.computeRole(ws.data.query.clientId, board.createdBy)
         const user: ConnectedUser = {
           id: ws.data.query.clientId,
           username: ws.data.query.username,
+          role,
         }
-        clientInfo.set(ws.raw, user)
+
+        sessionManager.joinRoom(boardId, ws.raw, user)
 
         const rawNotes = await noteRepo.findAll(boardId)
         const maskedNotes = board.isNotesHidden
@@ -75,26 +89,20 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
         const syncMsg: WsMessage = { type: WsMsgType.BoardSync, state }
         ws.send(JSON.stringify(syncMsg))
 
-        const currentUsers: ConnectedUser[] = []
-        for (const raw of roomClients) {
-          const info = clientInfo.get(raw)
-          if (info) currentUsers.push(info)
-        }
+        const currentUsers = sessionManager.getRoomUsers(boardId)
         const usersSyncMsg: WsMessage = { type: WsMsgType.UsersSync, users: currentUsers }
         ws.send(JSON.stringify(usersSyncMsg))
 
         const joinMsg: WsMessage = { type: WsMsgType.UserJoin, user }
-        const serializedJoin = JSON.stringify(joinMsg)
-        for (const client of roomClients) {
-          if (client !== ws.raw) client.send(serializedJoin)
-        }
-
-        log.info(`[${boardId}] ${user.username} connected (${roomClients.size} total)`)
+        sessionManager.broadcastToRoom(boardId, joinMsg, ws.raw)
       },
       async message(ws, raw) {
         const boardId = ws.data.query.board
-        const roomClients = clients.get(boardId)
+        const roomClients = sessionManager.getRoomClients(boardId)
         if (!roomClients) return
+
+        const user = sessionManager.getUser(ws.raw)
+        if (!user) return
 
         let msg: WsMessage
         try {
@@ -113,15 +121,15 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
         if (noteOwnershipOps.has(msg.type)) {
           const noteId = (msg as { id: string }).id
           const note = await noteRepo.findById(boardId, noteId)
-          if (note.createdBy && note.createdBy !== ws.data.query.clientId) {
-            log.warn(`[${boardId}] Unauthorized note operation by ${ws.data.query.clientId}`)
+          if (note.createdBy && !PermissionService.canModifyResource(user, note.createdBy)) {
+            log.warn(`[${boardId}] Unauthorized note operation by ${user.username}`)
             return
           }
         }
 
         if (msg.type === WsMsgType.BoardToggleNotes) {
           const board = await boardRepo.findById(boardId)
-          if (board && board.createdBy === ws.data.query.clientId) {
+          if (board && PermissionService.can(user.role, Permission.ToggleNoteVisibility)) {
             board.isNotesHidden = msg.isHidden
             await boardRepo.save(board)
 
@@ -134,7 +142,7 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
             const groups = await groupRepo.findAll(boardId)
 
             for (const client of roomClients) {
-              const clientUserId = clientInfo.get(client)?.id
+              const clientUserId = sessionManager.getUser(client)?.id
               const maskedNotes = msg.isHidden
                 ? rawNotes.map((n) => ({
                     ...n,
@@ -163,7 +171,7 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
 
         for (const client of roomClients) {
           if (client !== ws.raw) {
-            const clientUserId = clientInfo.get(client)?.id
+            const clientUserId = sessionManager.getUser(client)?.id
             let clientMsg = msg
 
             if (isHidden) {
@@ -185,28 +193,15 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
       },
       async close(ws) {
         const boardId = ws.data.query.board
-        const roomClients = clients.get(boardId)
-        if (!roomClients) return
 
-        const user = clientInfo.get(ws.raw)
-        const wasInRoom = roomClients.delete(ws.raw)
-        clientInfo.delete(ws.raw)
-        if (!wasInRoom) return
+        const { user, roomEmpty } = sessionManager.leaveRoom(boardId, ws.raw)
 
         if (user) {
           const leaveMsg: WsMessage = { type: WsMsgType.UserLeave, userId: user.id }
-          const serializedLeave = JSON.stringify(leaveMsg)
-          for (const client of roomClients) {
-            client.send(serializedLeave)
-          }
+          sessionManager.broadcastToRoom(boardId, leaveMsg)
         }
 
-        log.info(
-          `[${boardId}] ${user?.username ?? 'Client'} disconnected (${roomClients.size} remaining)`,
-        )
-
-        if (roomClients.size === 0) {
-          clients.delete(boardId)
+        if (roomEmpty) {
           await boardRepo.delete(boardId)
           await noteRepo.deleteAll(boardId)
           await groupRepo.deleteAll(boardId)
@@ -223,7 +218,6 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
         } catch (e) {
           if (e instanceof NotFoundError) {
             await boardRepo.save(new Board(boardId, hashService.hash(password), clientId))
-            clients.set(boardId, new Set())
 
             return ApiResponse.success({ boardId })
           }
@@ -257,4 +251,23 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
 
       return ApiResponse.success({ boardId: board.id })
     })
+    .get(
+      '/:id/export',
+      async ({ params: { id }, query }) => {
+        let exportedData
+        switch (query.format) {
+          case 'json':
+          case undefined:
+            exportedData = await jsonExportBoardUseCase.execute(id)
+            break
+          default:
+            throw new InvalidArgError(`Unsupported format: ${query.format}`)
+        }
+
+        return ApiResponse.success(exportedData)
+      },
+      {
+        query: ExportBoardQuerySchema,
+      },
+    )
 }

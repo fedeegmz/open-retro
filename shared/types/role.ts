@@ -4,7 +4,7 @@ export enum Role {
 }
 
 export enum Permission {
-  ManageBoard = 'manage_board',
+  ToggleNoteVisibility = 'toggle_note_visibility',
   CreateNote = 'create_note',
   UpdateOwnNote = 'update_own_note',
   DeleteOwnNote = 'delete_own_note',
