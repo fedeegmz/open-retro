@@ -1,6 +1,9 @@
+import { Role } from './role'
+
 export interface ConnectedUser {
   id: string
   username: string
+  role: Role
 }
 
 export interface Note {
