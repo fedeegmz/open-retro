@@ -18,6 +18,8 @@ import { Board } from '../../domain/Board'
 import AlreadyExistError from '../../../shared/domain/errors/AlreadyExistError'
 import NotFoundError from '../../../shared/domain/errors/NotFoundError'
 import { JsonExportBoardUseCase } from '../../application/useCases/JsonExportBoardUseCase'
+import { JsonImportBoardUseCase } from '../../application/useCases/JsonImportBoardUseCase'
+import { ImportBoardSchema } from './schemas/ImportBoardSchema'
 import InvalidArgError from '../../../shared/domain/errors/InvalidArgError'
 
 interface Deps {
@@ -29,37 +31,47 @@ interface Deps {
 }
 
 export function boardController({
-  boardRepository: boardRepo,
-  noteRepository: noteRepo,
-  groupRepository: groupRepo,
+  boardRepository,
+  noteRepository,
+  groupRepository,
   hashService,
-  logService: log,
+  logService,
 }: Deps) {
-  const messageHandler = new BoardMessageHandler(boardRepo, noteRepo, groupRepo)
-  const sessionManager = new UserSessionManager(log)
-  const jsonExportBoardUseCase = new JsonExportBoardUseCase(boardRepo, noteRepo, groupRepo)
+  const messageHandler = new BoardMessageHandler(boardRepository, noteRepository, groupRepository)
+  const sessionManager = new UserSessionManager(logService)
+  const jsonExportBoardUseCase = new JsonExportBoardUseCase(
+    boardRepository,
+    noteRepository,
+    groupRepository,
+  )
+  const jsonImportBoardUseCase = new JsonImportBoardUseCase(
+    boardRepository,
+    noteRepository,
+    groupRepository,
+    hashService,
+  )
 
   const joinBoardUseCase = new JoinBoardUseCase(
-    boardRepo,
-    noteRepo,
-    groupRepo,
+    boardRepository,
+    noteRepository,
+    groupRepository,
     hashService,
-    log,
+    logService,
     sessionManager,
   )
   const processBoardMessageUseCase = new ProcessBoardMessageUseCase(
-    boardRepo,
-    noteRepo,
-    groupRepo,
-    log,
+    boardRepository,
+    noteRepository,
+    groupRepository,
+    logService,
     sessionManager,
     messageHandler,
   )
   const leaveBoardUseCase = new LeaveBoardUseCase(
-    boardRepo,
-    noteRepo,
-    groupRepo,
-    log,
+    boardRepository,
+    noteRepository,
+    groupRepository,
+    logService,
     sessionManager,
   )
 
@@ -89,10 +101,10 @@ export function boardController({
       async ({ body }) => {
         const { boardId, password, clientId } = body
         try {
-          await boardRepo.findById(boardId)
+          await boardRepository.findById(boardId)
         } catch (e) {
           if (e instanceof NotFoundError) {
-            await boardRepo.save(new Board(boardId, hashService.hash(password), clientId))
+            await boardRepository.save(new Board(boardId, hashService.hash(password), clientId))
 
             return ApiResponse.success({ boardId })
           }
@@ -109,7 +121,7 @@ export function boardController({
       async ({ body }) => {
         const { boardId, password } = body
 
-        const board = await boardRepo.findById(boardId)
+        const board = await boardRepository.findById(boardId)
 
         if (!hashService.verify(password, board.passwordHash)) {
           return ApiResponse.error('Invalid password')
@@ -122,7 +134,7 @@ export function boardController({
       },
     )
     .get('/exists/:id', async ({ params: { id } }) => {
-      const board = await boardRepo.findById(id)
+      const board = await boardRepository.findById(id)
 
       return ApiResponse.success({ boardId: board.id })
     })
@@ -143,6 +155,18 @@ export function boardController({
       },
       {
         query: ExportBoardQuerySchema,
+      },
+    )
+    .post(
+      '/import',
+      async ({ body }) => {
+        const { boardId, password, clientId, data } = body
+        await jsonImportBoardUseCase.execute(boardId, password, clientId, data)
+
+        return ApiResponse.success({ boardId })
+      },
+      {
+        body: ImportBoardSchema,
       },
     )
 }
