@@ -1,13 +1,15 @@
 import { Elysia, t } from 'elysia'
 import { WsMsgType } from '@shared/types/board'
 import type { WsMessage, BoardState, ConnectedUser } from '@shared/types/board'
-import { Board } from '../../domain/Board'
 import { BoardMessageHandler } from '../../application/BoardMessageHandler'
 import type { IBoardRepository } from '../../domain/repositories/IBoardRepository'
 import type { INoteRepository } from '../../domain/repositories/INoteRepository'
 import type { INoteGroupRepository } from '../../domain/repositories/INoteGroupRepository'
 import type { IHashService } from '../../../shared/domain/services/IHashService'
 import type { ILogService } from '../../../shared/domain/services/ILogService'
+import { CreateBoardSchema } from './schemas/CreateBoardSchema'
+import { ApiResponse } from '../../../shared/infrastructure/http/ApiResponse'
+import { Board } from '../../domain/Board'
 
 interface Deps {
   boardRepo: IBoardRepository
@@ -30,9 +32,9 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
         username: t.String({ minLength: 1 }),
         clientId: t.String({ minLength: 1 }),
       }),
-      open(ws) {
+      async open(ws) {
         const boardId = ws.data.query.board
-        const board = boardRepo.findById(boardId)
+        const board = await boardRepo.findById(boardId)
         if (!board) {
           ws.close()
           return
@@ -54,8 +56,8 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
         clientInfo.set(ws.raw, user)
 
         const state: BoardState = {
-          notes: noteRepo.findAll(boardId),
-          groups: groupRepo.findAll(boardId),
+          notes: await noteRepo.findAll(boardId),
+          groups: await groupRepo.findAll(boardId),
           nextZIndex: board.nextZIndex,
         }
         const syncMsg: WsMessage = { type: WsMsgType.BoardSync, state }
@@ -77,7 +79,7 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
 
         log.info(`[${boardId}] ${user.username} connected (${roomClients.size} total)`)
       },
-      message(ws, raw) {
+      async message(ws, raw) {
         const boardId = ws.data.query.board
         const roomClients = clients.get(boardId)
         if (!roomClients) return
@@ -98,8 +100,8 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
         ])
         if (noteOwnershipOps.has(msg.type)) {
           const noteId = (msg as { id: string }).id
-          const note = noteRepo.findById(boardId, noteId)
-          if (note?.createdBy && note.createdBy !== ws.data.query.clientId) {
+          const note = await noteRepo.findById(boardId, noteId)
+          if (note.createdBy && note.createdBy !== ws.data.query.clientId) {
             log.warn(`[${boardId}] Unauthorized note operation by ${ws.data.query.clientId}`)
             return
           }
@@ -112,7 +114,7 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
           if (client !== ws.raw) client.send(serialized)
         }
       },
-      close(ws) {
+      async close(ws) {
         const boardId = ws.data.query.board
         const roomClients = clients.get(boardId)
         if (!roomClients) return
@@ -136,45 +138,30 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
 
         if (roomClients.size === 0) {
           clients.delete(boardId)
-          boardRepo.delete(boardId)
-          noteRepo.deleteAll(boardId)
-          groupRepo.deleteAll(boardId)
+          await boardRepo.delete(boardId)
+          await noteRepo.deleteAll(boardId)
+          await groupRepo.deleteAll(boardId)
           log.info(`[${boardId}] Room cleaned up`)
         }
       },
     })
     .post(
       '/',
-      ({ body, set }) => {
+      async ({ body }) => {
         const { boardId, password } = body
-        log.info(`Creando board [${boardId}] with password: ${password}`)
 
-        if (boardRepo.exists(boardId)) {
-          log.warn(`Ya existe board [${boardId}]`)
-          set.status = 409
-          return { error: 'Ya existe un board con ese ID' }
-        }
-
-        boardRepo.save(new Board(boardId, hashService.hash(password)))
+        await boardRepo.save(new Board(boardId, hashService.hash(password)))
         clients.set(boardId, new Set())
-        log.info(`Board [${boardId}] creado`)
-        return { ok: true, boardId }
+
+        return ApiResponse.success({ boardId })
       },
       {
-        body: t.Object({
-          boardId: t.String({ minLength: 1 }),
-          password: t.String({ minLength: 1 }),
-        }),
+        body: CreateBoardSchema,
       },
     )
-    .get('/exists/:id', ({ params: { id }, set }) => {
-      log.info(`Verificando existencia de board [${id}]`)
-      if (!boardRepo.exists(id)) {
-        log.warn(`Board [${id}] no encontrado`)
-        set.status = 404
-        return { error: 'Board no encontrado' }
-      }
-      log.info(`Board [${id}] encontrado`)
-      return { ok: true, boardId: id }
+    .get('/exists/:id', async ({ params: { id } }) => {
+      const board = await boardRepo.findById(id)
+
+      return ApiResponse.success({ boardId: board.id })
     })
 }

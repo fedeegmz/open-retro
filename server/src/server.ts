@@ -7,6 +7,8 @@ import { MemoryNoteGroupRepository } from './modules/board/infrastructure/memory
 import { BunHashService } from './modules/shared/infrastructure/services/BunHashService'
 import { boardController } from './modules/board/infrastructure/http/boardController'
 import { ConsoleLogService } from './modules/shared/infrastructure/services/ConsoleLogService'
+import { globalErrorHandler } from './modules/shared/infrastructure/http/globalErrorHandler'
+import { ApiResponse } from './modules/shared/infrastructure/http/ApiResponse'
 
 const log = new ConsoleLogService()
 const boardRepo = new MemoryBoardRepository()
@@ -17,7 +19,8 @@ const hashService = new BunHashService()
 const app = new Elysia()
   .use(cors())
   .use(openapi({ path: '/docs' }))
-  .get('/ping', () => ({ ok: true }))
+  .use(globalErrorHandler)
+  .get('/ping', () => ApiResponse.success())
   .use(boardController({ boardRepo, noteRepo, groupRepo, hashService, log }))
   .listen(3001)
 
