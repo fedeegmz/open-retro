@@ -324,6 +324,7 @@ function onBoardMouseDown(event: MouseEvent) {
       @toggle-visibility="
         () => send({ type: WsMsgType.BoardToggleNotes, isHidden: !isNotesHidden })
       "
+      @leave="navigator.backToBoardSetup()"
     />
 
     <UsersSidebar :users="connectedUsers" :my-id="myId" />
