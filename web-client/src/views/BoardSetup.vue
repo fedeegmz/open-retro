@@ -6,14 +6,16 @@ import { Navigator } from '@/router/navigator'
 import { BoardService } from '@/services/api/boardService'
 import { LocalStorageService } from '@/services/localStorageService'
 
+type Mode = 'create' | 'join'
+
 const navigator = new Navigator(useRouter())
 
 const serverUrl = ref('')
-const boardId = ref(crypto.randomUUID())
+const boardId = ref(newUUID())
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
-const mode = ref<'create' | 'join'>('create')
+const mode = ref<Mode>('create')
 
 onMounted(() => {
   const stored = LocalStorageService.getServerUrl()
@@ -29,11 +31,17 @@ async function createBoard() {
   loading.value = true
 
   try {
-    await new BoardService(serverUrl.value).create(boardId.value, password.value)
-    LocalStorageService.setBoardPassword(password.value)
-    navigator.toBoard(boardId.value)
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Error al comunicarse con el servidor.'
+    await new BoardService(serverUrl.value).create({
+      boardId: boardId.value,
+      password: password.value,
+      onSuccess: () => {
+        LocalStorageService.setBoardPassword(password.value)
+        navigator.toBoard(boardId.value)
+      },
+      onError: (msg: string) => {
+        error.value = msg
+      },
+    })
   } finally {
     loading.value = false
   }
@@ -44,28 +52,39 @@ async function joinBoard() {
   loading.value = true
 
   try {
-    await new BoardService(serverUrl.value).getBoard(boardId.value, (msg) => {
-      error.value = msg
+    await new BoardService(serverUrl.value).getBoard({
+      boardId: boardId.value,
+      onSuccess: () => {
+        LocalStorageService.setBoardPassword(password.value)
+        navigator.toBoard(boardId.value)
+      },
+      onError: (msg) => {
+        error.value = msg
+      },
     })
-    LocalStorageService.setBoardPassword(password.value)
-    navigator.toBoard(boardId.value)
-  } catch {
-    // error already set via onError callback
   } finally {
     loading.value = false
   }
 }
 
 function submit() {
-  if (mode.value === 'create') createBoard()
-  else joinBoard()
+  switch (mode.value) {
+    case 'create':
+      createBoard()
+      break
+    case 'join':
+      joinBoard()
+      break
+    default:
+      break
+  }
 }
 
 function newUUID() {
   return crypto.randomUUID()
 }
 
-function setMode(m: 'create' | 'join') {
+function setMode(m: Mode) {
   mode.value = m
   error.value = ''
 }

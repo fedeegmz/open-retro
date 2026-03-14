@@ -32,7 +32,7 @@ function getAvatarColor(userId: string): string {
   for (let i = 0; i < userId.length; i++) {
     hash = (hash * 31 + userId.charCodeAt(i)) & 0xffffffff
   }
-  return colors[Math.abs(hash) % colors.length]
+  return colors[Math.abs(hash) % colors.length] ?? '#3b82f6'
 }
 </script>
 

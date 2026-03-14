@@ -8,7 +8,7 @@ import type { INoteGroupRepository } from '../../domain/repositories/INoteGroupR
 import type { IHashService } from '../../../shared/domain/services/IHashService'
 import type { ILogService } from '../../../shared/domain/services/ILogService'
 import { CreateBoardSchema } from './schemas/CreateBoardSchema'
-import { ApiResponse } from '../../../shared/infrastructure/http/ApiResponse'
+import { ApiResponse } from '@shared/types/api'
 import { Board } from '../../domain/Board'
 
 interface Deps {
