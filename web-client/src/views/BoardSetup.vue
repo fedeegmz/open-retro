@@ -44,6 +44,7 @@ async function submit() {
   const params = {
     boardId: boardId.value,
     password: password.value,
+    clientId: LocalStorageService.getClientId(),
     onSuccess,
     onError,
   }

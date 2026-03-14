@@ -3,6 +3,7 @@ import { BaseApiService } from './baseApiService'
 interface CreateBoardOptions {
   boardId: string
   password: string
+  clientId?: string
   onSuccess?: () => void
   onError?: (message: string) => void
 }
@@ -14,14 +15,26 @@ interface GetBoardOptions {
 }
 
 export class BoardService extends BaseApiService {
-  async create({ boardId, password, onSuccess, onError }: CreateBoardOptions): Promise<void> {
-    await this.post({ path: '/board', body: { boardId, password }, onSuccess, onError })
+  async create({
+    boardId,
+    password,
+    clientId,
+    onSuccess,
+    onError,
+  }: CreateBoardOptions): Promise<void> {
+    await this.post({ path: '/board', body: { boardId, password, clientId }, onSuccess, onError })
   }
 
-  async join({ boardId, password, onSuccess, onError }: CreateBoardOptions): Promise<void> {
+  async join({
+    boardId,
+    password,
+    clientId,
+    onSuccess,
+    onError,
+  }: CreateBoardOptions): Promise<void> {
     await this.post({
       path: '/board/join',
-      body: { boardId, password },
+      body: { boardId, password, clientId },
       hideToast: true,
       onSuccess,
       onError,

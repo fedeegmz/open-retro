@@ -10,6 +10,8 @@ import type { ILogService } from '../../../shared/domain/services/ILogService'
 import { CreateBoardSchema } from './schemas/CreateBoardSchema'
 import { ApiResponse } from '@shared/types/api'
 import { Board } from '../../domain/Board'
+import AlreadyExistError from '../../../shared/domain/errors/AlreadyExistError'
+import NotFoundError from '../../../shared/domain/errors/NotFoundError'
 
 interface Deps {
   boardRepo: IBoardRepository
@@ -55,10 +57,20 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
         }
         clientInfo.set(ws.raw, user)
 
+        const rawNotes = await noteRepo.findAll(boardId)
+        const maskedNotes = board.isNotesHidden
+          ? rawNotes.map((note) => ({
+              ...note,
+              text: note.createdBy === ws.data.query.clientId ? note.text : '',
+            }))
+          : rawNotes
+
         const state: BoardState = {
-          notes: await noteRepo.findAll(boardId),
+          notes: maskedNotes,
           groups: await groupRepo.findAll(boardId),
           nextZIndex: board.nextZIndex,
+          isNotesHidden: board.isNotesHidden,
+          createdBy: board.createdBy,
         }
         const syncMsg: WsMessage = { type: WsMsgType.BoardSync, state }
         ws.send(JSON.stringify(syncMsg))
@@ -107,11 +119,68 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
           }
         }
 
+        if (msg.type === WsMsgType.BoardToggleNotes) {
+          const board = await boardRepo.findById(boardId)
+          if (board && board.createdBy === ws.data.query.clientId) {
+            board.isNotesHidden = msg.isHidden
+            await boardRepo.save(board)
+
+            const visibilityMsg: WsMessage = {
+              type: WsMsgType.BoardNotesVisibility,
+              isHidden: msg.isHidden,
+            }
+
+            const rawNotes = await noteRepo.findAll(boardId)
+            const groups = await groupRepo.findAll(boardId)
+
+            for (const client of roomClients) {
+              const clientUserId = clientInfo.get(client)?.id
+              const maskedNotes = msg.isHidden
+                ? rawNotes.map((n) => ({
+                    ...n,
+                    text: n.createdBy === clientUserId ? n.text : '',
+                  }))
+                : rawNotes
+
+              const state: BoardState = {
+                notes: maskedNotes,
+                groups,
+                nextZIndex: board.nextZIndex,
+                isNotesHidden: board.isNotesHidden,
+                createdBy: board.createdBy,
+              }
+              client.send(JSON.stringify({ type: WsMsgType.BoardSync, state }))
+              client.send(JSON.stringify(visibilityMsg))
+            }
+          }
+          return
+        }
+
         messageHandler.handle(boardId, msg)
 
-        const serialized = JSON.stringify(msg)
+        const board = await boardRepo.findById(boardId)
+        const isHidden = board?.isNotesHidden
+
         for (const client of roomClients) {
-          if (client !== ws.raw) client.send(serialized)
+          if (client !== ws.raw) {
+            const clientUserId = clientInfo.get(client)?.id
+            let clientMsg = msg
+
+            if (isHidden) {
+              if (msg.type === WsMsgType.NoteAdd) {
+                if (msg.note.createdBy !== clientUserId) {
+                  clientMsg = { ...msg, note: { ...msg.note, text: '' } }
+                }
+              } else if (msg.type === WsMsgType.NoteEdit) {
+                const note = await noteRepo.findById(boardId, msg.id)
+                if (note && note.createdBy !== clientUserId) {
+                  clientMsg = { ...msg, text: '' }
+                }
+              }
+            }
+
+            client.send(JSON.stringify(clientMsg))
+          }
         }
       },
       async close(ws) {
@@ -148,12 +217,19 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
     .post(
       '/',
       async ({ body }) => {
-        const { boardId, password } = body
+        const { boardId, password, clientId } = body
+        try {
+          await boardRepo.findById(boardId)
+        } catch (e) {
+          if (e instanceof NotFoundError) {
+            await boardRepo.save(new Board(boardId, hashService.hash(password), clientId))
+            clients.set(boardId, new Set())
 
-        await boardRepo.save(new Board(boardId, hashService.hash(password)))
-        clients.set(boardId, new Set())
+            return ApiResponse.success({ boardId })
+          }
+        }
 
-        return ApiResponse.success({ boardId })
+        throw new AlreadyExistError(`Board ${boardId} already exists`)
       },
       {
         body: CreateBoardSchema,

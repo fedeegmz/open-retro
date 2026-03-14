@@ -9,6 +9,7 @@ const props = defineProps<{
   height: number
   text: string
   isOwner: boolean
+  isHidden?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -128,6 +129,7 @@ function stopResize() {
 <template>
   <div
     class="sticky-note"
+    :class="{ 'is-hidden': isHidden }"
     :style="{
       width: `${localWidth}px`,
       height: `${localHeight}px`,
@@ -138,16 +140,39 @@ function stopResize() {
     @mousedown="onMouseDown"
     @contextmenu="openContextMenu"
   >
-    <textarea
-      v-if="isEditing"
-      ref="textarea"
-      v-model="localText"
-      class="note-textarea"
-      @blur="disableEditing"
-    />
-    <p v-else class="note-text">{{ localText || 'Doble click para escribir...' }}</p>
+    <div v-if="isHidden" class="hidden-overlay">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="hidden-icon"
+      >
+        <path
+          d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+        />
+        <line x1="1" y1="1" x2="23" y2="23" />
+      </svg>
+      <span>Nota Oculta</span>
+    </div>
+    <template v-else>
+      <textarea
+        v-if="isEditing"
+        ref="textarea"
+        v-model="localText"
+        class="note-textarea"
+        @blur="disableEditing"
+      />
+      <p v-else-if="!localText && isOwner" class="note-text placeholder">
+        Doble click para escribir...
+      </p>
+      <p v-else class="note-text">{{ localText }}</p>
+    </template>
 
-    <div class="resize-handle" @mousedown="startResize($event)" />
+    <div v-if="!isHidden" class="resize-handle" @mousedown="startResize($event)" />
   </div>
 
   <ContextMenu
@@ -179,6 +204,33 @@ function stopResize() {
     6px 6px 20px rgba(0, 0, 0, 0.1);
 }
 
+.sticky-note.is-hidden {
+  background-color: rgba(254, 240, 138, 0.5); /* lighter #fef08a */
+  backdrop-filter: blur(4px);
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.hidden-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hidden-icon {
+  width: 24px;
+  height: 24px;
+  opacity: 0.5;
+}
+
 .note-textarea {
   width: 100%;
   height: 100%;
@@ -204,6 +256,10 @@ function stopResize() {
   word-break: break-word;
   overflow: hidden;
   cursor: grab;
+}
+
+.note-text.placeholder {
+  color: rgba(28, 25, 23, 0.4);
 }
 
 .note-text:active {

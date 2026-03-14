@@ -11,6 +11,7 @@ import { useToast } from '../composables/useToast'
 import { WsMsgType } from '@shared/types/board'
 import type { Note, Group, ConnectedUser } from '@shared/types/board'
 import { newUUID } from '@/utils/stringUtils'
+import { LocalStorageService } from '@/services/localStorageService'
 
 const props = defineProps<{
   serverUrl: string
@@ -19,12 +20,14 @@ const props = defineProps<{
   username: string
 }>()
 
-const myId = newUUID()
+const myId = LocalStorageService.getClientId()
 const wsUrl = `${props.serverUrl}/board/ws?board=${props.boardId}&password=${encodeURIComponent(props.password)}&username=${encodeURIComponent(props.username)}&clientId=${myId}`
 
 const notes = ref<Note[]>([])
 const groups = ref<Group[]>([])
 const connectedUsers = ref<ConnectedUser[]>([])
+const isNotesHidden = ref(false)
+const boardCreator = ref<string | null>(null)
 let topZ = 1
 
 const navigator = new Navigator(useRouter())
@@ -44,6 +47,11 @@ onMessage((msg) => {
       notes.value = msg.state.notes
       groups.value = msg.state.groups
       topZ = msg.state.nextZIndex
+      isNotesHidden.value = msg.state.isNotesHidden
+      boardCreator.value = msg.state.createdBy
+      break
+    case WsMsgType.BoardNotesVisibility:
+      isNotesHidden.value = msg.isHidden
       break
     case WsMsgType.NoteAdd:
       notes.value.push(msg.note)
@@ -304,10 +312,19 @@ function onBoardMouseDown(event: MouseEvent) {
         @delete="deleteNote(note.id)"
         @resize="onNoteResize(note.id, $event)"
         @edit="onNoteEdit(note.id, $event)"
+        :is-hidden="isNotesHidden && note.createdBy !== myId && !note.text"
       />
     </div>
 
-    <ToolBar @add-note="addNote" @add-group="addGroup" />
+    <ToolBar
+      @add-note="addNote"
+      @add-group="addGroup"
+      :show-visibility-toggle="boardCreator === myId"
+      :is-notes-hidden="isNotesHidden"
+      @toggle-visibility="
+        () => send({ type: WsMsgType.BoardToggleNotes, isHidden: !isNotesHidden })
+      "
+    />
 
     <UsersSidebar :users="connectedUsers" :my-id="myId" />
 

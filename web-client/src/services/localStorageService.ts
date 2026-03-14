@@ -1,7 +1,10 @@
+import { newUUID } from '@/utils/stringUtils'
+
 const KEYS = {
   serverUrl: 'serverUrl',
   boardPassword: 'boardPassword',
   username: 'username',
+  clientId: 'clientId',
 } as const
 
 export const LocalStorageService = {
@@ -24,5 +27,14 @@ export const LocalStorageService = {
   },
   setUsername(name: string): void {
     localStorage.setItem(KEYS.username, name)
+  },
+
+  getClientId(): string {
+    let id = localStorage.getItem(KEYS.clientId)
+    if (!id) {
+      id = newUUID()
+      localStorage.setItem(KEYS.clientId, id)
+    }
+    return id
   },
 }

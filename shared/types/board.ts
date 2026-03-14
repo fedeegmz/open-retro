@@ -29,10 +29,14 @@ export interface BoardState {
   notes: Note[]
   groups: Group[]
   nextZIndex: number
+  isNotesHidden: boolean
+  createdBy: string
 }
 
 export enum WsMsgType {
   BoardSync = 'board:sync',
+  BoardToggleNotes = 'board:toggle_notes',
+  BoardNotesVisibility = 'board:notes_visibility',
   NoteAdd = 'note:add',
   NoteMove = 'note:move',
   NoteResize = 'note:resize',
@@ -52,6 +56,8 @@ export enum WsMsgType {
 
 export type WsMessage =
   | { type: WsMsgType.BoardSync; state: BoardState }
+  | { type: WsMsgType.BoardToggleNotes; isHidden: boolean }
+  | { type: WsMsgType.BoardNotesVisibility; isHidden: boolean }
   | { type: WsMsgType.NoteAdd; note: Note }
   | { type: WsMsgType.NoteMove; id: string; x: number; y: number }
   | { type: WsMsgType.NoteResize; id: string; width: number; height: number }
