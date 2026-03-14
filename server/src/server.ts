@@ -10,18 +10,26 @@ import { ConsoleLogService } from './modules/shared/infrastructure/services/Cons
 import { globalErrorHandler } from './modules/shared/infrastructure/http/globalErrorHandler'
 import { ApiResponse } from '@shared/types/api'
 
-const log = new ConsoleLogService()
-const boardRepo = new MemoryBoardRepository()
-const noteRepo = new MemoryNoteRepository()
-const groupRepo = new MemoryNoteGroupRepository()
+const boardRepository = new MemoryBoardRepository()
+const noteRepository = new MemoryNoteRepository()
+const groupRepository = new MemoryNoteGroupRepository()
 const hashService = new BunHashService()
+const logService = new ConsoleLogService()
 
 const app = new Elysia()
   .use(cors())
   .use(openapi({ path: '/docs' }))
   .use(globalErrorHandler)
   .get('/ping', () => ApiResponse.success())
-  .use(boardController({ boardRepo, noteRepo, groupRepo, hashService, log }))
+  .use(
+    boardController({
+      boardRepository,
+      noteRepository,
+      groupRepository,
+      hashService,
+      logService,
+    }),
+  )
   .listen(3001)
 
-log.info(`Open Retro WS Server running on ws://localhost:${app.server?.port}`)
+logService.info(`Open Retro WS Server running on ws://localhost:${app.server?.port}`)
