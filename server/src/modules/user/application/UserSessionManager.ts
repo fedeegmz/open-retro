@@ -1,14 +1,15 @@
 import type { WsMessage, ConnectedUser } from '@shared/types/board'
+import type { IWebSocketClient } from '../../shared/domain/IWebSocketClient'
 import { Role } from '@shared/types/role'
 import type { ILogService } from '../../shared/domain/services/ILogService'
 
 export class UserSessionManager {
-  private readonly clients = new Map<string, Set<any>>()
-  private readonly clientInfo = new Map<any, ConnectedUser>()
+  private readonly clients = new Map<string, Set<IWebSocketClient>>()
+  private readonly clientInfo = new Map<IWebSocketClient, ConnectedUser>()
 
   constructor(private readonly log: ILogService) {}
 
-  joinRoom(boardId: string, ws: any, user: ConnectedUser): void {
+  joinRoom(boardId: string, ws: IWebSocketClient, user: ConnectedUser): void {
     const roomClients = this.clients.get(boardId) ?? new Set()
     roomClients.add(ws)
     this.clients.set(boardId, roomClients)
@@ -17,7 +18,10 @@ export class UserSessionManager {
     this.log.info(`[${boardId}] ${user.username} connected (${roomClients.size} total)`)
   }
 
-  leaveRoom(boardId: string, ws: any): { user: ConnectedUser | undefined; roomEmpty: boolean } {
+  leaveRoom(
+    boardId: string,
+    ws: IWebSocketClient,
+  ): { user: ConnectedUser | undefined; roomEmpty: boolean } {
     const roomClients = this.clients.get(boardId)
     if (!roomClients) return { user: undefined, roomEmpty: true }
 
@@ -43,7 +47,7 @@ export class UserSessionManager {
     return clientId === boardCreatorId ? Role.Owner : Role.Contributor
   }
 
-  getUser(ws: any): ConnectedUser | undefined {
+  getUser(ws: IWebSocketClient): ConnectedUser | undefined {
     return this.clientInfo.get(ws)
   }
 
@@ -59,11 +63,11 @@ export class UserSessionManager {
     return users
   }
 
-  getRoomClients(boardId: string): Set<any> | undefined {
+  getRoomClients(boardId: string): Set<IWebSocketClient> | undefined {
     return this.clients.get(boardId)
   }
 
-  broadcastToRoom(boardId: string, message: WsMessage, excludeWs?: any): void {
+  broadcastToRoom(boardId: string, message: WsMessage, excludeWs?: IWebSocketClient): void {
     const roomClients = this.clients.get(boardId)
     if (!roomClients) return
 

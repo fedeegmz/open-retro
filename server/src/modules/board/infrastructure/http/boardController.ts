@@ -1,8 +1,8 @@
 import { Elysia } from 'elysia'
-import { WsMsgType } from '@shared/types/board'
-import type { WsMessage, BoardState, ConnectedUser } from '@shared/types/board'
-import { Permission } from '@shared/types/role'
-import { PermissionService } from '../../../user/domain/services/PermissionService'
+import { JoinBoardUseCase } from '../../application/useCases/JoinBoardUseCase'
+import { ProcessBoardMessageUseCase } from '../../application/useCases/ProcessBoardMessageUseCase'
+import { LeaveBoardUseCase } from '../../application/useCases/LeaveBoardUseCase'
+import type { IWebSocketClient } from '../../../shared/domain/IWebSocketClient'
 import { BoardMessageHandler } from '../../application/BoardMessageHandler'
 import { UserSessionManager } from '../../../user/application/UserSessionManager'
 import type { IBoardRepository } from '../../domain/repositories/IBoardRepository'
@@ -39,174 +39,49 @@ export function boardController({
   const sessionManager = new UserSessionManager(log)
   const jsonExportBoardUseCase = new JsonExportBoardUseCase(boardRepo, noteRepo, groupRepo)
 
+  const joinBoardUseCase = new JoinBoardUseCase(
+    boardRepo,
+    noteRepo,
+    groupRepo,
+    hashService,
+    log,
+    sessionManager,
+  )
+  const processBoardMessageUseCase = new ProcessBoardMessageUseCase(
+    boardRepo,
+    noteRepo,
+    groupRepo,
+    log,
+    sessionManager,
+    messageHandler,
+  )
+  const leaveBoardUseCase = new LeaveBoardUseCase(
+    boardRepo,
+    noteRepo,
+    groupRepo,
+    log,
+    sessionManager,
+  )
+
   return new Elysia({ prefix: '/board' })
     .ws('/ws', {
       query: WebSocketQuerySchema,
       async open(ws) {
-        const boardId = ws.data.query.board
-        let board: Board
-        try {
-          board = await boardRepo.findById(boardId)
-        } catch (e) {
-          if (e instanceof NotFoundError) {
-            log.error(`[${boardId}] Failed to find board: ${e}`)
-            ws.close()
-            return
-          }
-          log.error(`[${boardId}] Unknown error: ${e}`)
-          throw e
-        }
-
-        if (!hashService.verify(ws.data.query.password, board.passwordHash)) {
-          ws.close(4001, 'Invalid password')
-          return
-        }
-
-        const role = sessionManager.computeRole(ws.data.query.clientId, board.createdBy)
-        const user: ConnectedUser = {
-          id: ws.data.query.clientId,
+        const client = ws.raw as unknown as IWebSocketClient
+        await joinBoardUseCase.execute(client, {
+          boardId: ws.data.query.board,
+          password: ws.data.query.password,
+          clientId: ws.data.query.clientId,
           username: ws.data.query.username,
-          role,
-        }
-
-        sessionManager.joinRoom(boardId, ws.raw, user)
-
-        const rawNotes = await noteRepo.findAll(boardId)
-        const maskedNotes = board.isNotesHidden
-          ? rawNotes.map((note) => ({
-              ...note,
-              text: note.createdBy === ws.data.query.clientId ? note.text : '',
-            }))
-          : rawNotes
-
-        const state: BoardState = {
-          notes: maskedNotes,
-          groups: await groupRepo.findAll(boardId),
-          nextZIndex: board.nextZIndex,
-          isNotesHidden: board.isNotesHidden,
-          createdBy: board.createdBy,
-        }
-        const syncMsg: WsMessage = { type: WsMsgType.BoardSync, state }
-        ws.send(JSON.stringify(syncMsg))
-
-        const currentUsers = sessionManager.getRoomUsers(boardId)
-        const usersSyncMsg: WsMessage = { type: WsMsgType.UsersSync, users: currentUsers }
-        ws.send(JSON.stringify(usersSyncMsg))
-
-        const joinMsg: WsMessage = { type: WsMsgType.UserJoin, user }
-        sessionManager.broadcastToRoom(boardId, joinMsg, ws.raw)
+        })
       },
       async message(ws, raw) {
-        const boardId = ws.data.query.board
-        const roomClients = sessionManager.getRoomClients(boardId)
-        if (!roomClients) return
-
-        const user = sessionManager.getUser(ws.raw)
-        if (!user) return
-
-        let msg: WsMessage
-        try {
-          msg = (typeof raw === 'string' ? JSON.parse(raw) : raw) as WsMessage
-        } catch (e) {
-          log.error(`[${boardId}] Failed to parse WS message: ${e}`)
-          return
-        }
-        const noteOwnershipOps = new Set([
-          WsMsgType.NoteEdit,
-          WsMsgType.NoteMove,
-          WsMsgType.NoteResize,
-          WsMsgType.NoteDelete,
-          WsMsgType.NoteZ,
-        ])
-        if (noteOwnershipOps.has(msg.type)) {
-          const noteId = (msg as { id: string }).id
-          const note = await noteRepo.findById(boardId, noteId)
-          if (note.createdBy && !PermissionService.canModifyResource(user, note.createdBy)) {
-            log.warn(`[${boardId}] Unauthorized note operation by ${user.username}`)
-            return
-          }
-        }
-
-        if (msg.type === WsMsgType.BoardToggleNotes) {
-          const board = await boardRepo.findById(boardId)
-          if (board && PermissionService.can(user.role, Permission.ToggleNoteVisibility)) {
-            board.isNotesHidden = msg.isHidden
-            await boardRepo.save(board)
-
-            const visibilityMsg: WsMessage = {
-              type: WsMsgType.BoardNotesVisibility,
-              isHidden: msg.isHidden,
-            }
-
-            const rawNotes = await noteRepo.findAll(boardId)
-            const groups = await groupRepo.findAll(boardId)
-
-            for (const client of roomClients) {
-              const clientUserId = sessionManager.getUser(client)?.id
-              const maskedNotes = msg.isHidden
-                ? rawNotes.map((n) => ({
-                    ...n,
-                    text: n.createdBy === clientUserId ? n.text : '',
-                  }))
-                : rawNotes
-
-              const state: BoardState = {
-                notes: maskedNotes,
-                groups,
-                nextZIndex: board.nextZIndex,
-                isNotesHidden: board.isNotesHidden,
-                createdBy: board.createdBy,
-              }
-              client.send(JSON.stringify({ type: WsMsgType.BoardSync, state }))
-              client.send(JSON.stringify(visibilityMsg))
-            }
-          }
-          return
-        }
-
-        messageHandler.handle(boardId, msg)
-
-        const board = await boardRepo.findById(boardId)
-        const isHidden = board?.isNotesHidden
-
-        for (const client of roomClients) {
-          if (client !== ws.raw) {
-            const clientUserId = sessionManager.getUser(client)?.id
-            let clientMsg = msg
-
-            if (isHidden) {
-              if (msg.type === WsMsgType.NoteAdd) {
-                if (msg.note.createdBy !== clientUserId) {
-                  clientMsg = { ...msg, note: { ...msg.note, text: '' } }
-                }
-              } else if (msg.type === WsMsgType.NoteEdit) {
-                const note = await noteRepo.findById(boardId, msg.id)
-                if (note && note.createdBy !== clientUserId) {
-                  clientMsg = { ...msg, text: '' }
-                }
-              }
-            }
-
-            client.send(JSON.stringify(clientMsg))
-          }
-        }
+        const client = ws.raw as unknown as IWebSocketClient
+        await processBoardMessageUseCase.execute(client, ws.data.query.board, raw)
       },
       async close(ws) {
-        const boardId = ws.data.query.board
-
-        const { user, roomEmpty } = sessionManager.leaveRoom(boardId, ws.raw)
-
-        if (user) {
-          const leaveMsg: WsMessage = { type: WsMsgType.UserLeave, userId: user.id }
-          sessionManager.broadcastToRoom(boardId, leaveMsg)
-        }
-
-        if (roomEmpty) {
-          await boardRepo.delete(boardId)
-          await noteRepo.deleteAll(boardId)
-          await groupRepo.deleteAll(boardId)
-          log.info(`[${boardId}] Room cleaned up`)
-        }
+        const client = ws.raw as unknown as IWebSocketClient
+        await leaveBoardUseCase.execute(client, ws.data.query.board)
       },
     })
     .post(
