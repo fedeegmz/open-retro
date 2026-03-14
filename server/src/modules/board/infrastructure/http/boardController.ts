@@ -159,6 +159,23 @@ export function boardController({ boardRepo, noteRepo, groupRepo, hashService, l
         body: CreateBoardSchema,
       },
     )
+    .post(
+      '/join',
+      async ({ body }) => {
+        const { boardId, password } = body
+
+        const board = await boardRepo.findById(boardId)
+
+        if (!hashService.verify(password, board.passwordHash)) {
+          return ApiResponse.error('Invalid password')
+        }
+
+        return ApiResponse.success({ boardId })
+      },
+      {
+        body: CreateBoardSchema,
+      },
+    )
     .get('/exists/:id', async ({ params: { id } }) => {
       const board = await boardRepo.findById(id)
 
