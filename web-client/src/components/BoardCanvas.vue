@@ -12,6 +12,7 @@ import { WsMsgType } from '@shared/types/board'
 import type { Note, Group, ConnectedUser } from '@shared/types/board'
 import { newUUID } from '@/utils/stringUtils'
 import { LocalStorageService } from '@/services/localStorageService'
+import { BoardService } from '@/services/api/boardService'
 
 const props = defineProps<{
   serverUrl: string
@@ -22,12 +23,14 @@ const props = defineProps<{
 
 const myId = LocalStorageService.getClientId()
 const wsUrl = `${props.serverUrl}/board/ws?board=${props.boardId}&password=${encodeURIComponent(props.password)}&username=${encodeURIComponent(props.username)}&clientId=${myId}`
+const boardService = new BoardService(props.serverUrl)
 
 const notes = ref<Note[]>([])
 const groups = ref<Group[]>([])
 const connectedUsers = ref<ConnectedUser[]>([])
 const isNotesHidden = ref(false)
 const boardCreator = ref<string | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null)
 let topZ = 1
 
 const navigator = new Navigator(useRouter())
@@ -254,6 +257,48 @@ function onGroupTogglePin(id: string, pinned: boolean) {
   send({ type: WsMsgType.GroupPin, id, pinned })
 }
 
+function exportBoard() {
+  boardService.exportBoard({
+    boardId: props.boardId,
+    onSuccess: (data) => {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${props.boardId}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+    },
+  })
+}
+
+function importBoard() {
+  fileInput.value?.click()
+}
+
+function onFileSelected(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target?.result as string)
+      boardService.importBoard({
+        boardId: props.boardId,
+        password: props.password,
+        clientId: myId,
+        data,
+        onSuccess: () => showToast('Board importado correctamente'),
+      })
+    } catch {
+      showToast('El archivo no es un JSON válido')
+    }
+    if (fileInput.value) fileInput.value.value = ''
+  }
+  reader.readAsText(file)
+}
+
 function onBoardMouseDown(event: MouseEvent) {
   isPanning.value = true
 
@@ -319,12 +364,22 @@ function onBoardMouseDown(event: MouseEvent) {
     <ToolBar
       @add-note="addNote"
       @add-group="addGroup"
-      :show-visibility-toggle="boardCreator === myId"
       :is-notes-hidden="isNotesHidden"
+      :is-owner="boardCreator === myId"
       @toggle-visibility="
         () => send({ type: WsMsgType.BoardToggleNotes, isHidden: !isNotesHidden })
       "
+      @export-board="exportBoard"
+      @import-board="importBoard"
       @leave="navigator.backToBoardSetup()"
+    />
+
+    <input
+      ref="fileInput"
+      type="file"
+      accept=".json"
+      style="display: none"
+      @change="onFileSelected"
     />
 
     <UsersSidebar :users="connectedUsers" :my-id="myId" />

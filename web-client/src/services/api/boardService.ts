@@ -44,4 +44,43 @@ export class BoardService extends BaseApiService {
   async getBoard({ boardId, onSuccess, onError }: GetBoardOptions): Promise<void> {
     await this.get({ path: `/board/exists/${boardId}`, onSuccess, onError })
   }
+
+  async exportBoard({
+    boardId,
+    onSuccess,
+    onError,
+  }: {
+    boardId: string
+    onSuccess?: (data: unknown) => void
+    onError?: (message: string) => void
+  }): Promise<void> {
+    await this.get<unknown>({
+      path: `/board/${boardId}/export?format=json`,
+      onSuccess: (res) => onSuccess?.(res.data),
+      onError,
+    })
+  }
+
+  async importBoard({
+    boardId,
+    password,
+    clientId,
+    data,
+    onSuccess,
+    onError,
+  }: {
+    boardId: string
+    password: string
+    clientId: string
+    data: unknown
+    onSuccess?: () => void
+    onError?: (message: string) => void
+  }): Promise<void> {
+    await this.post({
+      path: '/board/import',
+      body: { boardId, password, clientId, data },
+      onSuccess,
+      onError,
+    })
+  }
 }
