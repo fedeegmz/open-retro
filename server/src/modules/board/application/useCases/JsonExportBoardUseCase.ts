@@ -17,9 +17,7 @@ export class JsonExportBoardUseCase {
 
     return {
       board: {
-        id: board.id,
         isNotesHidden: board.isNotesHidden,
-        createdBy: board.createdBy,
         nextZIndex: board.nextZIndex,
       },
       groups: groups.map((group) => ({

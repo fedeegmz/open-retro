@@ -23,9 +23,7 @@ interface ImportedNoteDTO {
 
 export interface JsonImportBoardDTO {
   board: {
-    id: string
     isNotesHidden: boolean
-    createdBy: string
     nextZIndex: number
   }
   groups: ImportedGroupDTO[]

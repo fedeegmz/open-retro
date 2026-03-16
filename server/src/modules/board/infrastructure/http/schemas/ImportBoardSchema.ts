@@ -6,9 +6,7 @@ export const ImportBoardSchema = t.Object({
   clientId: t.String({ minLength: 1 }),
   data: t.Object({
     board: t.Object({
-      id: t.String(),
       isNotesHidden: t.Boolean(),
-      createdBy: t.String(),
       nextZIndex: t.Number(),
     }),
     groups: t.Array(

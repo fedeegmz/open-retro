@@ -40,6 +40,7 @@ export class JsonImportBoardUseCase {
       }
     }
 
+    board.createdBy = clientId
     board.isNotesHidden = data.board.isNotesHidden
     board.nextZIndex = data.board.nextZIndex
 

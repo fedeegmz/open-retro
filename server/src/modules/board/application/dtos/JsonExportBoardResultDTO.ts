@@ -23,9 +23,7 @@ interface ExportedNoteDTO {
 
 export interface JsonExportBoardResultDTO {
   board: {
-    id: string
     isNotesHidden: boolean
-    createdBy: string
     nextZIndex: number
   }
   groups: ExportedGroupDTO[]

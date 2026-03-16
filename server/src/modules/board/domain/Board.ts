@@ -1,7 +1,7 @@
 export class Board {
   readonly id: string
   readonly passwordHash: string
-  readonly createdBy: string
+  createdBy: string
   isNotesHidden: boolean
   nextZIndex: number
 

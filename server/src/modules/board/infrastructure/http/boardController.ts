@@ -21,6 +21,8 @@ import { JsonExportBoardUseCase } from '../../application/useCases/JsonExportBoa
 import { JsonImportBoardUseCase } from '../../application/useCases/JsonImportBoardUseCase'
 import { ImportBoardSchema } from './schemas/ImportBoardSchema'
 import InvalidArgError from '../../../shared/domain/errors/InvalidArgError'
+import { WsMsgType } from '@shared/types/board'
+import type { WsMessage, BoardState } from '@shared/types/board'
 
 interface Deps {
   boardRepository: IBoardRepository
@@ -162,6 +164,17 @@ export function boardController({
       async ({ body }) => {
         const { boardId, password, clientId, data } = body
         await jsonImportBoardUseCase.execute(boardId, password, clientId, data)
+
+        const board = await boardRepository.findById(boardId)
+        const state: BoardState = {
+          notes: await noteRepository.findAll(boardId),
+          groups: await groupRepository.findAll(boardId),
+          nextZIndex: board.nextZIndex,
+          isNotesHidden: board.isNotesHidden,
+          createdBy: board.createdBy,
+        }
+        const syncMsg: WsMessage = { type: WsMsgType.BoardSync, state }
+        sessionManager.broadcastToRoom(boardId, syncMsg)
 
         return ApiResponse.success({ boardId })
       },
