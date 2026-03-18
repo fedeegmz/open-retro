@@ -19,6 +19,43 @@ open-retro/
 └── web-client/    # Frontend (Vue 3 + Vite)
 ```
 
+## Docker
+
+### Levantar con Docker Compose
+
+```bash
+docker compose up --build
+```
+
+- Servidor: `http://localhost:3001`
+- Cliente: `http://localhost:5173`
+
+Los cambios en `server/src/`, `web-client/src/` y `shared/` se reflejan automáticamente en los contenedores (hot reload).
+
+### Variable de entorno `ENVIRONMENT`
+
+Cada servicio acepta la variable `ENVIRONMENT` para controlar el modo de ejecución:
+
+| Valor | Servidor | Cliente |
+|---|---|---|
+| `develop` (default) | `bun --watch src/server.ts` | `vite` dev server |
+| `production` | `bun src/server.ts` | `vite build` + `vite preview` |
+
+Para cambiar el modo, editar `docker-compose.yml`:
+
+```yaml
+environment:
+  ENVIRONMENT: "production"
+```
+
+### Limpiar contenedores y volúmenes
+
+```bash
+docker compose down -v
+```
+
+---
+
 ## Desarrollo
 
 ### Configuracion inicial

@@ -30,6 +30,6 @@ const app = new Elysia()
       logService,
     }),
   )
-  .listen(3001)
+  .listen(Number(process.env.PORT) || 3001)
 
 logService.info(`Open Retro WS Server running on ws://localhost:${app.server?.port}`)
