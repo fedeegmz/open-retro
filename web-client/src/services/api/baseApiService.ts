@@ -21,20 +21,40 @@ export abstract class BaseApiService {
   protected async get<T = void>(
     options: Omit<BaseApiServiceOptions<T>, 'body'>,
   ): Promise<ApiResponse<T>> {
-    const res = await fetch(`${this.httpUrl}${options.path}`, {
-      signal: AbortSignal.timeout(this.TIMEOUT_MS),
-    })
-    return this.handleResponse<T>(res, options as BaseApiServiceOptions<T>)
+    try {
+      const res = await fetch(`${this.httpUrl}${options.path}`, {
+        signal: AbortSignal.timeout(this.TIMEOUT_MS),
+      })
+      return this.handleResponse<T>(res, options as BaseApiServiceOptions<T>)
+    } catch {
+      return this.handleNetworkError(options as BaseApiServiceOptions<T>)
+    }
   }
 
   protected async post<T = void>(options: BaseApiServiceOptions<T>): Promise<ApiResponse<T>> {
-    const res = await fetch(`${this.httpUrl}${options.path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(options.body),
-      signal: AbortSignal.timeout(this.TIMEOUT_MS),
-    })
-    return this.handleResponse<T>(res, options)
+    try {
+      const res = await fetch(`${this.httpUrl}${options.path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(options.body),
+        signal: AbortSignal.timeout(this.TIMEOUT_MS),
+      })
+      return this.handleResponse<T>(res, options)
+    } catch {
+      return this.handleNetworkError(options)
+    }
+  }
+
+  private handleNetworkError<T = void>(options: BaseApiServiceOptions<T>): ApiResponse<T> {
+    const message = 'Could not connect to the server'
+
+    if (!options.hideToast) {
+      showToast(message)
+    }
+
+    options.onError?.(message)
+
+    return { success: false, error: message } as ApiResponse<T>
   }
 
   private async handleResponse<T = void>(
