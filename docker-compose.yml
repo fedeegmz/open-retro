@@ -7,10 +7,10 @@ services:
       context: .
       dockerfile: server/Dockerfile
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
-      PORT: "3001"
-      ENVIRONMENT: "${ENVIRONMENT:-develop}"
+      PORT: '3001'
+      ENVIRONMENT: '${ENVIRONMENT:-develop}'
     volumes:
       - ./server/src:/app/server/src
       - ./shared:/app/shared
@@ -25,7 +25,7 @@ services:
       context: .
       dockerfile: web-client/Dockerfile
     ports:
-      - "5173:5173"
+      - '5173:5173'
     volumes:
       - ./web-client/src:/app/web-client/src
       - ./web-client/index.html:/app/web-client/index.html
@@ -36,7 +36,8 @@ services:
     networks:
       - retro-net
     environment:
-      ENVIRONMENT: "${ENVIRONMENT:-develop}"
+      ENVIRONMENT: '${ENVIRONMENT:-develop}'
+      VITE_DEFAULT_SERVER_URL: '${VITE_DEFAULT_SERVER_URL:-http://localhost:3001}'
     depends_on:
       - server
     restart: unless-stopped

@@ -10,7 +10,7 @@ import { useWebSocket } from '../composables/useWebSocket'
 import { useToast } from '../composables/useToast'
 import { WsMsgType } from '@shared/types/board'
 import type { Note, Group, ConnectedUser } from '@shared/types/board'
-import { newUUID } from '@/utils/stringUtils'
+import { newUUID, joinPath } from '@/utils/stringUtils'
 import { LocalStorageService } from '@/services/localStorageService'
 import { BoardService } from '@/services/api/boardService'
 
@@ -22,7 +22,10 @@ const props = defineProps<{
 }>()
 
 const myId = LocalStorageService.getClientId()
-const wsUrl = `${props.serverUrl}/board/ws?board=${props.boardId}&password=${encodeURIComponent(props.password)}&username=${encodeURIComponent(props.username)}&clientId=${myId}`
+const wsUrl = joinPath([
+  props.serverUrl,
+  `board/ws?board=${props.boardId}&password=${encodeURIComponent(props.password)}&username=${encodeURIComponent(props.username)}&clientId=${myId}`,
+])
 const boardService = new BoardService(props.serverUrl)
 
 const notes = ref<Note[]>([])

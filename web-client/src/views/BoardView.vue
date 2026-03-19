@@ -19,7 +19,7 @@ onMounted(() => {
   const storedUsername = LocalStorageService.getUsername()
 
   if (!storedServer || !storedPassword || !storedUsername) {
-    navigator.toServerSetup()
+    navigator.toHome()
     return
   }
 

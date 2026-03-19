@@ -1,34 +1,47 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Navigator } from '@/router/navigator'
 
 import { BoardService } from '@/services/api/boardService'
 import { LocalStorageService } from '@/services/localStorageService'
+import { getConfig } from '@/config/config'
 import { newUUID } from '@/utils/stringUtils'
+import ServerUrlModal from '@/components/ServerUrlModal.vue'
 
 type Mode = 'create' | 'join'
 
 const navigator = new Navigator(useRouter())
 
-const serverUrl = ref('')
 const boardId = ref(newUUID())
 const password = ref('')
+const username = ref(LocalStorageService.getUsername() ?? '')
 const error = ref('')
 const loading = ref(false)
 const mode = ref<Mode>('create')
+const showServerUrlModal = ref(false)
 
-onMounted(() => {
-  const stored = LocalStorageService.getServerUrl()
-  if (!stored) {
-    navigator.toServerSetup()
-    return
-  }
-  serverUrl.value = stored
+const USERNAME_REGEX = /^[a-zA-Z0-9_-]+$/
+
+const usernameError = computed(() => {
+  if (!username.value) return ''
+  return USERNAME_REGEX.test(username.value)
+    ? ''
+    : 'Solo se permiten letras, números, guiones (-) y guiones bajos (_).'
 })
+
+const isUsernameValid = computed(
+  () => username.value.length >= 3 && USERNAME_REGEX.test(username.value),
+)
+
+function onUsernameInput(e: Event) {
+  const cleaned = (e.target as HTMLInputElement).value.replace(/[^a-zA-Z0-9_-]/g, '')
+  username.value = cleaned
+}
 
 function onSuccess() {
   LocalStorageService.setBoardPassword(password.value)
+  LocalStorageService.setUsername(username.value.trim())
   navigator.toBoard(boardId.value)
 }
 
@@ -38,9 +51,20 @@ function onError(msg: string) {
 
 async function submit() {
   error.value = ''
+
+  const url = LocalStorageService.getServerUrl() ?? getConfig().defaultServerUrl
+  if (!url) {
+    showServerUrlModal.value = true
+    return
+  }
+
+  if (!LocalStorageService.getServerUrl()) {
+    LocalStorageService.setServerUrl(url)
+  }
+
   loading.value = true
 
-  const service = new BoardService(serverUrl.value)
+  const service = new BoardService(url)
   const params = {
     boardId: boardId.value,
     password: password.value,
@@ -63,34 +87,29 @@ async function submit() {
   loading.value = false
 }
 
+function onServerUrlSuccess() {
+  showServerUrlModal.value = false
+  submit()
+}
+
 function setMode(m: Mode) {
   mode.value = m
   error.value = ''
-}
-
-function goBack() {
-  navigator.toServerSetup()
 }
 </script>
 
 <template>
   <div class="setup-layout">
     <div class="setup-card">
-      <div class="header">
-        <button class="back-btn" @click="goBack" title="Volver">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-            <path
-              fill-rule="evenodd"
-              d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
-              clip-rule="evenodd"
-            />
-          </svg>
-          Volver
-        </button>
-        <div class="server-badge">
-          <span class="dot" />
-          {{ serverUrl }}
-        </div>
+      <div class="logo">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <rect width="40" height="40" rx="10" fill="#6366f1" />
+          <rect x="8" y="12" width="10" height="10" rx="2" fill="white" opacity="0.9" />
+          <rect x="22" y="12" width="10" height="10" rx="2" fill="white" opacity="0.6" />
+          <rect x="8" y="25" width="10" height="6" rx="2" fill="white" opacity="0.6" />
+          <rect x="22" y="25" width="10" height="6" rx="2" fill="white" opacity="0.9" />
+        </svg>
+        <span class="logo-text">Open Retro</span>
       </div>
 
       <h1>{{ mode === 'create' ? 'Crear un board' : 'Unirse a un board' }}</h1>
@@ -112,6 +131,20 @@ function goBack() {
       </div>
 
       <form @submit.prevent="submit" class="form">
+        <div class="field">
+          <label for="username">Tu nombre</label>
+          <input
+            id="username"
+            :value="username"
+            type="text"
+            placeholder="Ej: Ana_Garcia"
+            autocomplete="off"
+            :disabled="loading"
+            @input="onUsernameInput"
+          />
+          <span v-if="usernameError" class="field-error">{{ usernameError }}</span>
+        </div>
+
         <div class="field">
           <div class="label-row">
             <label for="board-id">ID del board</label>
@@ -158,13 +191,19 @@ function goBack() {
           {{ error }}
         </div>
 
-        <button type="submit" class="btn-primary" :disabled="loading || !boardId || !password">
+        <button
+          type="submit"
+          class="btn-primary"
+          :disabled="loading || !boardId || !password || !isUsernameValid"
+        >
           <span v-if="loading" class="spinner" />
           {{ loading ? 'Cargando...' : mode === 'create' ? 'Crear board' : 'Unirse al board' }}
         </button>
       </form>
     </div>
   </div>
+
+  <ServerUrlModal v-if="showServerUrlModal" @success="onServerUrlSuccess" />
 </template>
 
 <style scoped>
@@ -188,56 +227,18 @@ function goBack() {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
-.header {
+.logo {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 28px;
-  gap: 12px;
+  gap: 10px;
+  margin-bottom: 32px;
 }
 
-.back-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px 0;
-  flex-shrink: 0;
-  transition: color 0.15s;
-}
-
-.back-btn:hover {
-  color: #111827;
-}
-
-.server-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  color: #6b7280;
-  background: #f3f4f6;
-  padding: 4px 10px;
-  border-radius: 20px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 220px;
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  background: #22c55e;
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+.logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e1b4b;
+  letter-spacing: -0.3px;
 }
 
 h1 {
@@ -343,6 +344,11 @@ input:focus {
 input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.field-error {
+  font-size: 12px;
+  color: #b91c1c;
 }
 
 .error-banner {
