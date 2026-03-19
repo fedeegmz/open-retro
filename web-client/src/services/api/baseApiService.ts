@@ -1,5 +1,6 @@
 import { useToast } from '@/composables/useToast'
 import { ApiResponse } from '@shared/types/api'
+import { joinPath } from '@/utils/stringUtils'
 const { show: showToast } = useToast()
 
 interface BaseApiServiceOptions<T = void> {
@@ -22,7 +23,7 @@ export abstract class BaseApiService {
     options: Omit<BaseApiServiceOptions<T>, 'body'>,
   ): Promise<ApiResponse<T>> {
     try {
-      const res = await fetch(`${this.httpUrl}${options.path}`, {
+      const res = await fetch(joinPath([this.httpUrl, options.path]), {
         signal: AbortSignal.timeout(this.TIMEOUT_MS),
       })
       return this.handleResponse<T>(res, options as BaseApiServiceOptions<T>)
@@ -33,7 +34,7 @@ export abstract class BaseApiService {
 
   protected async post<T = void>(options: BaseApiServiceOptions<T>): Promise<ApiResponse<T>> {
     try {
-      const res = await fetch(`${this.httpUrl}${options.path}`, {
+      const res = await fetch(joinPath([this.httpUrl, options.path]), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(options.body),
