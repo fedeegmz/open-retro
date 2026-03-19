@@ -9,6 +9,12 @@ COPY web-client/tsconfig.json web-client/tsconfig.app.json web-client/tsconfig.n
 
 RUN cd web-client && npm ci
 
+# Copy source code
+COPY web-client/src ./web-client/src
+COPY web-client/public ./web-client/public
+COPY web-client/index.html ./web-client/
+COPY shared ./shared
+
 WORKDIR /app/web-client
 
 ENV ENVIRONMENT=develop
