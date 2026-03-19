@@ -3,10 +3,14 @@ FROM oven/bun:1
 
 WORKDIR /app
 
-# Copy dependency manifests and tsconfig (needed for @shared/* path alias resolution)
+# Copy dependency manifests
 COPY server/package.json server/bun.lock server/tsconfig.json ./server/
 
 RUN cd server && bun install --frozen-lockfile
+
+# Copy source code
+COPY server/src ./server/src
+COPY shared ./shared
 
 WORKDIR /app/server
 
