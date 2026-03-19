@@ -3,7 +3,7 @@ import type { Router } from 'vue-router'
 export class Navigator {
   constructor(private readonly router: Router) {}
 
-  toServerSetup() {
+  toHome() {
     return this.router.replace('/')
   }
 

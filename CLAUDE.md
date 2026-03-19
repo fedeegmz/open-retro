@@ -39,6 +39,7 @@ npm run format       # oxfmt on src/
 ### WebSocket Protocol
 
 The server (`server/src/server.ts`) acts as a relay with state:
+
 - `POST /board` — creates a new board with a password (hashed via `Bun.hash`)
 - `GET /board/exists/:id` — checks if a board exists
 - `GET /ping` — health check
@@ -60,11 +61,11 @@ There is no Pinia/Vuex. State lives in `Board.vue` as `ref<Note[]>` and `ref<Gro
 
 All navigation is centralized in `Navigator` (`src/router/navigator.ts`). Views and components instantiate it with `new Navigator(useRouter())` and call its methods — no hardcoded route strings outside of this class.
 
-| Method | Destination |
-|---|---|
-| `toServerSetup()` | `/` (replace) |
-| `toBoardSetup()` | `/connect` |
-| `toBoard(boardId)` | `/board/:id` |
+| Method               | Destination          |
+| -------------------- | -------------------- |
+| `toHome()`           | `/` (replace)        |
+| `toBoardSetup()`     | `/connect`           |
+| `toBoard(boardId)`   | `/board/:id`         |
 | `backToBoardSetup()` | `/connect` (replace) |
 
 ### Linting

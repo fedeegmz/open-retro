@@ -1,0 +1,51 @@
+name: open-retro
+
+services:
+  server:
+    container_name: open-retro-server
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - '3001:3001'
+    environment:
+      PORT: '3001'
+      ENVIRONMENT: '${ENVIRONMENT:-develop}'
+    volumes:
+      - ./server/src:/app/server/src
+      - ./shared:/app/shared
+      - server_node_modules:/app/server/node_modules
+    networks:
+      - retro-net
+    restart: unless-stopped
+
+  web-client:
+    container_name: open-retro-web-client
+    build:
+      context: .
+      dockerfile: web-client/Dockerfile
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./web-client/src:/app/web-client/src
+      - ./web-client/index.html:/app/web-client/index.html
+      - ./web-client/vite.config.ts:/app/web-client/vite.config.ts
+      - ./web-client/tsconfig.app.json:/app/web-client/tsconfig.app.json
+      - ./shared:/app/shared
+      - web_client_node_modules:/app/web-client/node_modules
+    networks:
+      - retro-net
+    environment:
+      ENVIRONMENT: '${ENVIRONMENT:-develop}'
+      VITE_DEFAULT_SERVER_URL: '${VITE_DEFAULT_SERVER_URL:-http://localhost:3001}'
+    depends_on:
+      - server
+    restart: unless-stopped
+
+volumes:
+  server_node_modules:
+  web_client_node_modules:
+
+networks:
+  retro-net:
+    driver: bridge
