@@ -10,7 +10,7 @@ services:
       - "3001:3001"
     environment:
       PORT: "3001"
-      ENVIRONMENT: "develop"
+      ENVIRONMENT: "${ENVIRONMENT:-develop}"
     volumes:
       - ./server/src:/app/server/src
       - ./shared:/app/shared
@@ -36,7 +36,7 @@ services:
     networks:
       - retro-net
     environment:
-      ENVIRONMENT: "develop"
+      ENVIRONMENT: "${ENVIRONMENT:-develop}"
     depends_on:
       - server
     restart: unless-stopped

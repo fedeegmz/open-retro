@@ -5,6 +5,7 @@ WORKDIR /app
 
 # Copy only dependency manifests to cache the install layer
 COPY web-client/package.json web-client/package-lock.json ./web-client/
+COPY web-client/tsconfig.json web-client/tsconfig.app.json web-client/tsconfig.node.json ./web-client/
 
 RUN cd web-client && npm ci
 
