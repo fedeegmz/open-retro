@@ -3,6 +3,10 @@ import type { Router } from 'vue-router'
 export class Navigator {
   constructor(private readonly router: Router) {}
 
+  toHome() {
+    return this.router.replace('/')
+  }
+
   toBoardSetup() {
     return this.router.push('/connect')
   }
