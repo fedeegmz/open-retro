@@ -90,7 +90,7 @@ function disableEditing() {
 }
 
 function onMouseDown(event: MouseEvent) {
-  if (!props.isOwner || isEditing.value) return
+  if (isEditing.value) return
   event.stopPropagation()
   emit('bringToFront')
   emit('dragStart', event)

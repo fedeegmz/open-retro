@@ -8,12 +8,14 @@ export const RolePermissions: Record<Role, Permission[]> = {
     Permission.UpdateOwnNote,
     Permission.DeleteOwnNote,
     Permission.ManageGroups,
+    Permission.MoveAnyNote,
   ],
   [Role.Contributor]: [
     Permission.CreateNote,
     Permission.UpdateOwnNote,
     Permission.DeleteOwnNote,
     Permission.ManageGroups,
+    Permission.MoveAnyNote,
   ],
 }
 
