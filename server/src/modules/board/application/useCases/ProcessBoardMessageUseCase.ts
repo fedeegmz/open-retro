@@ -37,12 +37,18 @@ export class ProcessBoardMessageUseCase {
 
     const noteOwnershipOps = new Set([
       WsMsgType.NoteEdit,
-      WsMsgType.NoteMove,
       WsMsgType.NoteResize,
       WsMsgType.NoteDelete,
-      WsMsgType.NoteZ,
     ])
-    if (noteOwnershipOps.has(msg.type)) {
+
+    if (msg.type === WsMsgType.NoteMove || msg.type === WsMsgType.NoteZ) {
+      if (!PermissionService.can(user.role, Permission.MoveAnyNote)) {
+        this.logService.warn(
+          `[${boardId}] Unauthorized note operation (${msg.type}) by ${user.username}`,
+        )
+        return
+      }
+    } else if (noteOwnershipOps.has(msg.type)) {
       const noteId = (msg as { id: string }).id
       const note = await this.noteRepository.findById(boardId, noteId)
       if (note.createdBy && !PermissionService.canModifyResource(user, note.createdBy)) {
