@@ -6,6 +6,7 @@ import { MemoryNoteRepository } from './modules/board/infrastructure/memory/Memo
 import { MemoryNoteGroupRepository } from './modules/board/infrastructure/memory/MemoryNoteGroupRepository'
 import { BunHashService } from './modules/shared/infrastructure/services/BunHashService'
 import { boardController } from './modules/board/infrastructure/http/boardController'
+import { userController } from './modules/user/infrastructure/http/userController'
 import { ConsoleLogService } from './modules/shared/infrastructure/services/ConsoleLogService'
 import { globalErrorHandler } from './modules/shared/infrastructure/http/globalErrorHandler'
 import { ApiResponse } from '@shared/types/api'
@@ -25,6 +26,7 @@ const app = new Elysia()
   .use(globalErrorHandler)
   .get('/ping', () => ApiResponse.success())
   .get('/languages', () => ApiResponse.success(languages))
+  .use(userController())
   .use(
     boardController({
       boardRepository,
