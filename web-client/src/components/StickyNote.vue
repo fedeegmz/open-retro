@@ -192,29 +192,32 @@ function stopResize() {
   position: absolute;
   background-color: #fef08a;
   box-shadow:
-    2px 2px 6px rgba(0, 0, 0, 0.15),
-    4px 4px 12px rgba(0, 0, 0, 0.08);
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 12px;
-  border-radius: 2px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   user-select: none;
+  transition: box-shadow 0.2s ease;
 }
 
 .sticky-note:hover {
   box-shadow:
-    4px 4px 12px rgba(0, 0, 0, 0.18),
-    6px 6px 20px rgba(0, 0, 0, 0.1);
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .sticky-note.is-hidden {
-  background-color: rgba(254, 240, 138, 0.5); /* lighter #fef08a */
-  backdrop-filter: blur(4px);
-  border: 1px dashed rgba(0, 0, 0, 0.1);
+  background-color: rgba(254, 240, 138, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(0, 0, 0, 0.4);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .hidden-overlay {
@@ -262,7 +265,7 @@ function stopResize() {
 }
 
 .note-text.placeholder {
-  color: rgba(28, 25, 23, 0.4);
+  color: rgba(28, 25, 23, 0.3);
 }
 
 .note-text:active {

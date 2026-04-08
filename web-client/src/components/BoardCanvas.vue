@@ -408,8 +408,8 @@ function onBoardMouseDown(event: MouseEvent) {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #f5f0e8;
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-color: var(--color-background);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
