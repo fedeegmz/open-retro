@@ -6,7 +6,6 @@ import StickyNote from './StickyNote.vue'
 import NoteGroup from './NoteGroup.vue'
 import ToolBar from './ToolBar.vue'
 import UsersSidebar from './UsersSidebar.vue'
-import LanguageSelector from './LanguageSelector.vue'
 import { useWebSocket } from '../composables/useWebSocket'
 import { useToast } from '../composables/useToast'
 import { useI18n } from 'vue-i18n'
@@ -391,7 +390,6 @@ function onBoardMouseDown(event: MouseEvent) {
     <UsersSidebar :users="connectedUsers" :my-id="myId" />
 
     <div class="footer-overlay">
-      <LanguageSelector />
       <div v-if="wsError === 'auth'" class="connection-status error">
         {{ t('connection.access_denied') }}
       </div>
@@ -408,8 +406,8 @@ function onBoardMouseDown(event: MouseEvent) {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #f5f0e8;
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-color: var(--color-background);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 

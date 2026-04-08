@@ -167,14 +167,14 @@ const { t } = useI18n()
   height: calc(100vh - 48px);
   max-height: 480px;
   width: 52px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(22, 27, 37, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    0 1px 4px rgba(0, 0, 0, 0.06);
+    0 12px 24px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -193,7 +193,7 @@ const { t } = useI18n()
   background: transparent;
   border: none;
   border-radius: 10px;
-  color: #44403c;
+  color: var(--color-muted);
   cursor: pointer;
   transition:
     background-color 0.15s ease,
@@ -201,17 +201,17 @@ const { t } = useI18n()
 }
 
 .tool-btn:hover {
-  background-color: rgba(0, 0, 0, 0.06);
-  color: #1c1917;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
 }
 
 .tool-btn:active {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.12);
 }
 
 .tool-btn.active {
-  color: #ea580c;
-  background-color: rgba(234, 88, 12, 0.1);
+  color: var(--color-primary);
+  background-color: rgba(62, 175, 124, 0.15);
 }
 
 .tool-btn svg {
@@ -229,7 +229,7 @@ const { t } = useI18n()
 .divider {
   width: 28px;
   height: 1px;
-  background-color: rgba(0, 0, 0, 0.08);
+  background-color: var(--color-border);
   margin: 2px 0;
 }
 

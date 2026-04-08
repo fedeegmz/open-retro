@@ -81,12 +81,12 @@ onUnmounted(() => {
   position: fixed;
   z-index: 9999;
   min-width: 160px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--color-background-mute);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.12),
-    0 2px 6px rgba(0, 0, 0, 0.07);
+    0 12px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
   padding: 4px;
   animation: menu-in 0.1s ease;
 }
@@ -113,22 +113,22 @@ onUnmounted(() => {
   border-radius: 6px;
   font-family: inherit;
   font-size: 13px;
-  color: #1c1917;
+  color: var(--color-text);
   cursor: pointer;
   text-align: left;
   transition: background-color 0.1s ease;
 }
 
 .context-menu-item:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .context-menu-item.danger {
-  color: #dc2626;
+  color: #e5484d;
 }
 
 .context-menu-item.danger:hover {
-  background-color: rgba(220, 38, 38, 0.07);
+  background-color: rgba(229, 72, 77, 0.15);
 }
 
 .item-icon {

@@ -39,18 +39,19 @@ const { toasts } = useToast()
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: #1f2937;
-  color: #f9fafb;
-  border-radius: 8px;
+  background: var(--color-background-soft);
+  color: var(--color-text);
+  border-radius: 12px;
   font-size: 13px;
   font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-border);
   max-width: 360px;
 }
 
 .toast-icon {
   flex-shrink: 0;
-  color: #f87171;
+  color: #e5484d;
 }
 
 .toast-enter-active,
