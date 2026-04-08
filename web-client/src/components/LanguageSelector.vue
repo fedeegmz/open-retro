@@ -136,28 +136,28 @@ const selectLanguage = (code: string) => {
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(22, 27, 37, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  color: #44403c;
+  color: var(--color-text);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .selector-toggle:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(0, 0, 0, 0.15);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: rgba(22, 27, 37, 0.95);
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .selector-toggle.active {
-  border-color: #ea580c;
-  background: white;
+  border-color: var(--color-primary);
+  background: var(--color-background-mute);
 }
 
 .globe-icon {
@@ -182,18 +182,18 @@ const selectLanguage = (code: string) => {
   bottom: calc(100% + 8px);
   right: 0;
   min-width: 140px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--color-background-soft);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 6px;
   display: flex;
   flex-direction: column;
   gap: 2px;
   box-shadow:
-    0 10px 25px -5px rgba(0, 0, 0, 0.1),
-    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    0 12px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
   z-index: 1000;
 }
 
@@ -205,7 +205,7 @@ const selectLanguage = (code: string) => {
   border: none;
   background: transparent;
   border-radius: 8px;
-  color: #44403c;
+  color: var(--color-text);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -214,13 +214,13 @@ const selectLanguage = (code: string) => {
 }
 
 .dropdown-item:hover {
-  background: rgba(234, 88, 12, 0.05);
-  color: #ea580c;
+  background: rgba(62, 175, 124, 0.1);
+  color: var(--color-primary);
 }
 
 .dropdown-item.selected {
-  color: #ea580c;
-  background: rgba(234, 88, 12, 0.1);
+  color: var(--color-primary);
+  background: rgba(62, 175, 124, 0.15);
 }
 
 .check-icon {

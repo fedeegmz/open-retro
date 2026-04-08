@@ -220,10 +220,11 @@ function stopResize() {
 .note-group {
   position: absolute;
   background-color: transparent;
-  border: 2px solid #3b82f6;
+  border: 1px solid var(--color-primary);
   border-radius: 12px;
   cursor: grab;
   user-select: none;
+  box-shadow: 0 4px 12px rgba(62, 175, 124, 0.1);
 }
 
 .note-group:active {
@@ -233,12 +234,12 @@ function stopResize() {
 .note-group.pinned {
   cursor: default;
   border-style: dashed;
-  border-color: #93c5fd;
+  border-color: var(--color-muted);
 }
 
 .note-group.pinned .group-title,
 .note-group.pinned .group-description {
-  color: #93c5fd;
+  color: var(--color-muted);
 }
 
 .group-header {
@@ -251,9 +252,10 @@ function stopResize() {
 .group-title {
   font-size: 14px;
   font-weight: 600;
-  color: #1e40af;
+  color: var(--color-primary);
   cursor: text;
   line-height: 1.3;
+  padding: 2px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -262,9 +264,9 @@ function stopResize() {
 .title-input {
   font-size: 14px;
   font-weight: 600;
-  color: #1e40af;
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: var(--color-primary);
+  background: rgba(62, 175, 124, 0.08);
+  border: 1px solid rgba(62, 175, 124, 0.4);
   border-radius: 4px;
   padding: 1px 4px;
   outline: none;
@@ -274,23 +276,24 @@ function stopResize() {
 
 .group-description {
   font-size: 12px;
-  color: #3b82f6;
+  color: var(--color-muted);
   line-height: 1.4;
   cursor: text;
+  padding: 2px 4px;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .group-description.empty {
-  color: rgba(59, 130, 246, 0.45);
+  color: rgba(255, 255, 255, 0.2);
   font-style: italic;
 }
 
 .desc-input {
   font-size: 12px;
-  color: #1e40af;
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   padding: 2px 4px;
   outline: none;
@@ -317,8 +320,8 @@ function stopResize() {
   right: 4px;
   width: 6px;
   height: 6px;
-  border-right: 2px solid rgba(59, 130, 246, 0.5);
-  border-bottom: 2px solid rgba(59, 130, 246, 0.5);
+  border-right: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
   border-radius: 1px;
   opacity: 0;
   transition: opacity 0.15s ease;

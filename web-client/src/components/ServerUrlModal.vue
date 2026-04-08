@@ -76,7 +76,8 @@ async function confirm() {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,24 +86,25 @@ async function confirm() {
 }
 
 .modal-card {
-  background: white;
+  background: var(--color-background-soft);
   border-radius: 16px;
   padding: 40px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-border);
 }
 
 h2 {
   font-size: 20px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text);
   margin: 0 0 8px;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-muted);
   margin: 0 0 28px;
   line-height: 1.5;
 }
@@ -122,24 +124,24 @@ h2 {
 label {
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text);
 }
 
 input {
   padding: 10px 14px;
-  border: 1.5px solid #e5e7eb;
+  border: 1.5px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  color: #111827;
+  font-family: var(--font-mono);
+  color: var(--color-text);
   outline: none;
   transition: border-color 0.15s;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 input:focus {
-  border-color: #6366f1;
-  background: white;
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 input:disabled {
@@ -152,11 +154,11 @@ input:disabled {
   align-items: flex-start;
   gap: 8px;
   padding: 10px 14px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: rgba(229, 72, 77, 0.1);
+  border: 1px solid rgba(229, 72, 77, 0.2);
   border-radius: 8px;
   font-size: 13px;
-  color: #b91c1c;
+  color: #e5484d;
   line-height: 1.5;
 }
 
@@ -171,7 +173,7 @@ input:disabled {
   justify-content: center;
   gap: 8px;
   padding: 11px 20px;
-  background: #6366f1;
+  background: var(--color-primary);
   color: white;
   font-size: 14px;
   font-weight: 600;
@@ -184,7 +186,7 @@ input:disabled {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #4f46e5;
+  background: var(--color-primary-light);
 }
 
 .btn-primary:disabled {

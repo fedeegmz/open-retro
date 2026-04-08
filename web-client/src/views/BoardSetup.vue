@@ -104,7 +104,7 @@ function setMode(m: Mode) {
     <div class="setup-card">
       <div class="logo">
         <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-          <rect width="40" height="40" rx="10" fill="#6366f1" />
+          <rect width="40" height="40" rx="10" fill="var(--color-primary)" />
           <rect x="8" y="12" width="10" height="10" rx="2" fill="white" opacity="0.9" />
           <rect x="22" y="12" width="10" height="10" rx="2" fill="white" opacity="0.6" />
           <rect x="8" y="25" width="10" height="6" rx="2" fill="white" opacity="0.6" />
@@ -216,19 +216,20 @@ emplate>
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: #f5f0e8;
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+  background-color: var(--color-background);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 24px 24px;
   padding: 24px;
 }
 
 .setup-card {
-  background: white;
+  background: var(--color-background-soft);
   border-radius: 16px;
   padding: 40px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-border);
 }
 
 .logo {
@@ -241,27 +242,27 @@ emplate>
 .logo-text {
   font-size: 18px;
   font-weight: 700;
-  color: #1e1b4b;
+  color: var(--color-text);
   letter-spacing: -0.3px;
 }
 
 h1 {
   font-size: 22px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text);
   margin: 0 0 8px;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-muted);
   margin: 0 0 24px;
   line-height: 1.5;
 }
 
 .tab-group {
   display: flex;
-  background: #f3f4f6;
+  background: var(--color-background-mute);
   border-radius: 8px;
   padding: 3px;
   gap: 2px;
@@ -277,16 +278,16 @@ h1 {
   border-radius: 6px;
   cursor: pointer;
   background: transparent;
-  color: #6b7280;
+  color: var(--color-muted);
   transition:
     background 0.15s,
     color 0.15s;
 }
 
 .tab.active {
-  background: white;
-  color: #111827;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: var(--color-background-soft);
+  color: var(--color-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .form {
@@ -310,13 +311,13 @@ h1 {
 label {
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text);
 }
 
 .regenerate-btn {
   font-size: 12px;
   font-weight: 500;
-  color: #6366f1;
+  color: var(--color-primary);
   background: none;
   border: none;
   cursor: pointer;
@@ -325,24 +326,24 @@ label {
 }
 
 .regenerate-btn:hover {
-  color: #4f46e5;
+  color: var(--color-primary-light);
 }
 
 input {
   padding: 10px 14px;
-  border: 1.5px solid #e5e7eb;
+  border: 1.5px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  color: #111827;
+  font-family: var(--font-mono);
+  color: var(--color-text);
   outline: none;
   transition: border-color 0.15s;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 input:focus {
-  border-color: #6366f1;
-  background: white;
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 input:disabled {
@@ -352,7 +353,7 @@ input:disabled {
 
 .field-error {
   font-size: 12px;
-  color: #b91c1c;
+  color: #e5484d;
 }
 
 .error-banner {
@@ -360,11 +361,11 @@ input:disabled {
   align-items: flex-start;
   gap: 8px;
   padding: 10px 14px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: rgba(229, 72, 77, 0.1);
+  border: 1px solid rgba(229, 72, 77, 0.2);
   border-radius: 8px;
   font-size: 13px;
-  color: #b91c1c;
+  color: #e5484d;
   line-height: 1.5;
 }
 
@@ -379,7 +380,7 @@ input:disabled {
   justify-content: center;
   gap: 8px;
   padding: 11px 20px;
-  background: #6366f1;
+  background: var(--color-primary);
   color: white;
   font-size: 14px;
   font-weight: 600;
@@ -392,7 +393,7 @@ input:disabled {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #4f46e5;
+  background: var(--color-primary-light);
 }
 
 .btn-primary:disabled {
