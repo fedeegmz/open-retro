@@ -6,8 +6,10 @@ import StickyNote from './StickyNote.vue'
 import NoteGroup from './NoteGroup.vue'
 import ToolBar from './ToolBar.vue'
 import UsersSidebar from './UsersSidebar.vue'
+import LanguageSelector from './LanguageSelector.vue'
 import { useWebSocket } from '../composables/useWebSocket'
 import { useToast } from '../composables/useToast'
+import { useI18n } from 'vue-i18n'
 import { WsMsgType } from '@shared/types/board'
 import type { Note, Group, ConnectedUser } from '@shared/types/board'
 import { newUUID, joinPath } from '@/utils/stringUtils'
@@ -37,12 +39,13 @@ const fileInput = ref<HTMLInputElement | null>(null)
 let topZ = 1
 
 const navigator = new Navigator(useRouter())
+const { t } = useI18n()
 const { show: showToast } = useToast()
 const { send, onMessage, isConnected, wsError } = useWebSocket(wsUrl)
 
 watch(wsError, (err) => {
   if (err === 'auth') {
-    showToast('Contraseña incorrecta')
+    showToast(t('connection.wrong_password'))
     navigator.backToBoardSetup()
   }
 })
@@ -292,10 +295,10 @@ function onFileSelected(event: Event) {
         password: props.password,
         clientId: myId,
         data,
-        onSuccess: () => showToast('Board importado correctamente'),
+        onSuccess: () => showToast(t('notifications.import_success')),
       })
     } catch {
-      showToast('El archivo no es un JSON válido')
+      showToast(t('notifications.invalid_json'))
     }
     if (fileInput.value) fileInput.value.value = ''
   }
@@ -387,10 +390,15 @@ function onBoardMouseDown(event: MouseEvent) {
 
     <UsersSidebar :users="connectedUsers" :my-id="myId" />
 
-    <div v-if="wsError === 'auth'" class="connection-status error">
-      Contraseña incorrecta — acceso denegado
+    <div class="footer-overlay">
+      <LanguageSelector />
+      <div v-if="wsError === 'auth'" class="connection-status error">
+        {{ t('connection.access_denied') }}
+      </div>
+      <div v-else-if="!isConnected" class="connection-status">
+        {{ t('connection.reconnecting') }}
+      </div>
     </div>
-    <div v-else-if="!isConnected" class="connection-status">Reconectando...</div>
   </div>
 </template>
 
@@ -414,10 +422,19 @@ function onBoardMouseDown(event: MouseEvent) {
   will-change: transform;
 }
 
-.connection-status {
+.footer-overlay {
   position: fixed;
   bottom: 16px;
   right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  z-index: 200;
+}
+
+.connection-status {
+  position: relative;
   padding: 8px 16px;
   background: rgba(239, 68, 68, 0.9);
   color: white;

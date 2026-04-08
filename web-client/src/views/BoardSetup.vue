@@ -9,8 +9,11 @@ import { getConfig } from '@/config/config'
 import { newUUID } from '@/utils/stringUtils'
 import ServerUrlModal from '@/components/ServerUrlModal.vue'
 
+import { useI18n } from 'vue-i18n'
+
 type Mode = 'create' | 'join'
 
+const { t } = useI18n()
 const navigator = new Navigator(useRouter())
 
 const boardId = ref(newUUID())
@@ -25,9 +28,7 @@ const USERNAME_REGEX = /^[a-zA-Z0-9_-]+$/
 
 const usernameError = computed(() => {
   if (!username.value) return ''
-  return USERNAME_REGEX.test(username.value)
-    ? ''
-    : 'Solo se permiten letras, números, guiones (-) y guiones bajos (_).'
+  return USERNAME_REGEX.test(username.value) ? '' : t('setup.username_error')
 })
 
 const isUsernameValid = computed(
@@ -109,35 +110,31 @@ function setMode(m: Mode) {
           <rect x="8" y="25" width="10" height="6" rx="2" fill="white" opacity="0.6" />
           <rect x="22" y="25" width="10" height="6" rx="2" fill="white" opacity="0.9" />
         </svg>
-        <span class="logo-text">Open Retro</span>
+        <span class="logo-text">{{ t('setup.title') }}</span>
       </div>
 
-      <h1>{{ mode === 'create' ? 'Crear un board' : 'Unirse a un board' }}</h1>
+      <h1>{{ mode === 'create' ? t('setup.create_board') : t('setup.join_board') }}</h1>
       <p class="subtitle">
-        {{
-          mode === 'create'
-            ? 'Creá un nuevo board vacío y protegelo con una contraseña.'
-            : 'Ingresá el ID y la contraseña del board al que querés unirte.'
-        }}
+        {{ mode === 'create' ? t('setup.create_desc') : t('setup.join_desc') }}
       </p>
 
       <div class="tab-group">
         <button :class="['tab', { active: mode === 'create' }]" @click="setMode('create')">
-          Crear
+          {{ t('setup.create_tab') }}
         </button>
         <button :class="['tab', { active: mode === 'join' }]" @click="setMode('join')">
-          Unirse
+          {{ t('setup.join_tab') }}
         </button>
       </div>
 
       <form @submit.prevent="submit" class="form">
         <div class="field">
-          <label for="username">Tu nombre</label>
+          <label for="username">{{ t('setup.username_label') }}</label>
           <input
             id="username"
             :value="username"
             type="text"
-            placeholder="Ej: Ana_Garcia"
+            :placeholder="t('setup.username_placeholder')"
             autocomplete="off"
             :disabled="loading"
             @input="onUsernameInput"
@@ -147,22 +144,22 @@ function setMode(m: Mode) {
 
         <div class="field">
           <div class="label-row">
-            <label for="board-id">ID del board</label>
+            <label for="board-id">{{ t('setup.board_id_label') }}</label>
             <button
               v-if="mode === 'create'"
               type="button"
               class="regenerate-btn"
               @click="boardId = newUUID()"
-              title="Generar nuevo ID"
+              :title="t('setup.generate_id_title')"
             >
-              Regenerar
+              {{ t('setup.regenerate') }}
             </button>
           </div>
           <input
             id="board-id"
             v-model="boardId"
             type="text"
-            placeholder="ID del board"
+            :placeholder="t('setup.board_id_placeholder')"
             autocomplete="off"
             spellcheck="false"
             :disabled="loading"
@@ -170,12 +167,12 @@ function setMode(m: Mode) {
         </div>
 
         <div class="field">
-          <label for="password">Contraseña</label>
+          <label for="password">{{ t('setup.password_label') }}</label>
           <input
             id="password"
             v-model="password"
             type="password"
-            placeholder="Contraseña del board"
+            :placeholder="t('setup.password_placeholder')"
             :disabled="loading"
           />
         </div>
@@ -197,7 +194,13 @@ function setMode(m: Mode) {
           :disabled="loading || !boardId || !password || !isUsernameValid"
         >
           <span v-if="loading" class="spinner" />
-          {{ loading ? 'Cargando...' : mode === 'create' ? 'Crear board' : 'Unirse al board' }}
+          {{
+            loading
+              ? t('common.loading')
+              : mode === 'create'
+                ? t('setup.submit_create')
+                : t('setup.submit_join')
+          }}
         </button>
       </form>
     </div>
@@ -205,6 +208,7 @@ function setMode(m: Mode) {
 
   <ServerUrlModal v-if="showServerUrlModal" @success="onServerUrlSuccess" />
 </template>
+emplate>
 
 <style scoped>
 .setup-layout {

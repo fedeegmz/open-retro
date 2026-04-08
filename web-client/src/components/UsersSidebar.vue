@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import type { ConnectedUser } from '@shared/types/board'
+import { useI18n } from 'vue-i18n'
 
 defineProps<{
   users: ConnectedUser[]
   myId: string
 }>()
+
+const { t } = useI18n()
 
 function getInitials(username: string): string {
   return username
@@ -44,7 +47,7 @@ function getAvatarColor(userId: string): string {
       class="user-avatar"
       :class="{ 'is-me': user.id === myId }"
       :style="{ backgroundColor: getAvatarColor(user.id) }"
-      :title="user.id === myId ? `${user.username} (vos)` : user.username"
+      :title="user.id === myId ? `${user.username} ${t('user.me_suffix')}` : user.username"
     >
       {{ getInitials(user.username) }}
     </div>

@@ -2,7 +2,9 @@
 import { ref } from 'vue'
 import { ServerService } from '@/services/api/serverService'
 import { LocalStorageService } from '@/services/localStorageService'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const emit = defineEmits<{ success: [] }>()
 
 const serverUrl = ref(LocalStorageService.getServerUrl() ?? '')
@@ -31,17 +33,17 @@ async function confirm() {
   <Teleport to="body">
     <div class="modal-backdrop">
       <div class="modal-card">
-        <h2>Configurar servidor</h2>
-        <p class="subtitle">Ingresá la URL del servidor WebSocket al que querés conectarte.</p>
+        <h2>{{ t('setup.server_config_title') }}</h2>
+        <p class="subtitle">{{ t('setup.server_config_desc') }}</p>
 
         <form @submit.prevent="confirm" class="form">
           <div class="field">
-            <label for="server-url">URL del servidor</label>
+            <label for="server-url">{{ t('setup.server_url_label') }}</label>
             <input
               id="server-url"
               v-model="serverUrl"
               type="text"
-              placeholder="ws://mi-servidor:3001"
+              :placeholder="t('setup.server_url_placeholder')"
               autocomplete="off"
               spellcheck="false"
               :disabled="loading"
@@ -62,7 +64,7 @@ async function confirm() {
 
           <button type="submit" class="btn-primary" :disabled="loading || !serverUrl">
             <span v-if="loading" class="spinner" />
-            {{ loading ? 'Conectando...' : 'Conectar' }}
+            {{ loading ? t('setup.connecting') : t('setup.connect') }}
           </button>
         </form>
       </div>
