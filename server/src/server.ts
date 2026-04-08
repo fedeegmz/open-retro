@@ -9,6 +9,8 @@ import { boardController } from './modules/board/infrastructure/http/boardContro
 import { ConsoleLogService } from './modules/shared/infrastructure/services/ConsoleLogService'
 import { globalErrorHandler } from './modules/shared/infrastructure/http/globalErrorHandler'
 import { ApiResponse } from '@shared/types/api'
+import { i18n } from './modules/shared/infrastructure/services/i18nPlugin'
+import { languages } from '@shared/i18n'
 
 const boardRepository = new MemoryBoardRepository()
 const noteRepository = new MemoryNoteRepository()
@@ -19,8 +21,10 @@ const logService = new ConsoleLogService()
 const app = new Elysia()
   .use(cors())
   .use(openapi({ path: '/docs' }))
+  .use(i18n)
   .use(globalErrorHandler)
   .get('/ping', () => ApiResponse.success())
+  .get('/languages', () => ApiResponse.success(languages))
   .use(
     boardController({
       boardRepository,

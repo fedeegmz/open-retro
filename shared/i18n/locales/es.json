@@ -1,0 +1,80 @@
+{
+  "common": {
+    "ok": "Aceptar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "loading": "Cargando...",
+    "error": "Error"
+  },
+  "errors": {
+    "not_found": "Recurso no encontrado",
+    "already_exists": "El recurso ya existe",
+    "invalid_arg": "Argumento inválido",
+    "internal_server_error": "Ocurrió un error inesperado",
+    "validation_error": "Error de validación"
+  },
+  "board": {
+    "note": "Nota",
+    "group": "Grupo",
+    "show_notes": "Mostrar notas",
+    "hide_notes": "Ocultar notas",
+    "export": "Exportar",
+    "import": "Importar",
+    "leave": "Salir",
+    "export_json": "Exportar board (JSON)",
+    "import_json": "Importar board (JSON)",
+    "leave_board": "Abandonar board",
+    "delete_note": "Eliminar nota",
+    "hidden_note": "Nota Oculta",
+    "note_placeholder": "Doble click para escribir...",
+    "pin_group": "Fijar grupo",
+    "unpin_group": "Desfijar grupo",
+    "delete_group": "Eliminar grupo",
+    "group_desc_placeholder": "Añadir descripción...",
+    "group_desc_empty": "Doble click para añadir descripción..."
+  },
+  "setup": {
+    "title": "Open Retro",
+    "create_board": "Crear un board",
+    "join_board": "Unirse a un board",
+    "create_desc": "Creá un nuevo board vacío y protegelo con una contraseña.",
+    "join_desc": "Ingresá el ID y la contraseña del board al que querés unirte.",
+    "create_tab": "Crear",
+    "join_tab": "Unirse",
+    "username_label": "Tu nombre",
+    "username_placeholder": "Ej: Ana_Garcia",
+    "board_id_label": "ID del board",
+    "board_id_placeholder": "ID del board",
+    "password_label": "Contraseña",
+    "password_placeholder": "Contraseña del board",
+    "regenerate": "Regenerar",
+    "generate_id_title": "Generar nuevo ID",
+    "submit_create": "Crear board",
+    "submit_join": "Unirse al board",
+    "username_error": "Solo se permiten letras, números, guiones (-) y guiones bajos (_).",
+    "server_config_title": "Configurar servidor",
+    "server_config_desc": "Ingresá la URL del servidor WebSocket al que querés conectarte.",
+    "server_url_label": "URL del servidor",
+    "server_url_placeholder": "ws://mi-servidor:3001",
+    "connect": "Conectar",
+    "connecting": "Conectando..."
+  },
+  "user": {
+    "me_suffix": "(vos)"
+  },
+  "languages": {
+    "en": "Inglés",
+    "es": "Español",
+    "select": "Seleccionar idioma"
+  },
+  "connection": {
+    "wrong_password": "Contraseña incorrecta",
+    "access_denied": "Contraseña incorrecta — acceso denegado",
+    "reconnecting": "Reconectando..."
+  },
+  "notifications": {
+    "import_success": "Tablero importado correctamente",
+    "invalid_json": "El archivo no es un JSON válido"
+  }
+}

@@ -23,7 +23,9 @@ export abstract class BaseApiService {
     options: Omit<BaseApiServiceOptions<T>, 'body'>,
   ): Promise<ApiResponse<T>> {
     try {
+      const locale = localStorage.getItem('lang') || 'en'
       const res = await fetch(joinPath([this.httpUrl, options.path]), {
+        headers: { 'Accept-Language': locale },
         signal: AbortSignal.timeout(this.TIMEOUT_MS),
       })
       return this.handleResponse<T>(res, options as BaseApiServiceOptions<T>)
@@ -34,9 +36,13 @@ export abstract class BaseApiService {
 
   protected async post<T = void>(options: BaseApiServiceOptions<T>): Promise<ApiResponse<T>> {
     try {
+      const locale = localStorage.getItem('lang') || 'en'
       const res = await fetch(joinPath([this.httpUrl, options.path]), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept-Language': locale,
+        },
         body: JSON.stringify(options.body),
         signal: AbortSignal.timeout(this.TIMEOUT_MS),
       })
