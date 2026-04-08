@@ -5,7 +5,9 @@
     "save": "Guardar",
     "delete": "Eliminar",
     "loading": "Cargando...",
-    "error": "Error"
+    "error": "Error",
+    "settings": "Ajustes",
+    "close": "Cerrar"
   },
   "errors": {
     "not_found": "Recurso no encontrado",
@@ -58,7 +60,13 @@
     "server_url_label": "URL del servidor",
     "server_url_placeholder": "ws://mi-servidor:3001",
     "connect": "Conectar",
-    "connecting": "Conectando..."
+    "connecting": "Conectando...",
+    "preferences_tab": "Preferencias",
+    "server_tab": "Servidor",
+    "preferences_title": "Preferencias de la App",
+    "language_label": "Idioma Global",
+    "test_connection": "Probar Conexión",
+    "connection_success": "Conexión exitosa"
   },
   "user": {
     "me_suffix": "(vos)"

@@ -6,7 +6,6 @@ import StickyNote from './StickyNote.vue'
 import NoteGroup from './NoteGroup.vue'
 import ToolBar from './ToolBar.vue'
 import UsersSidebar from './UsersSidebar.vue'
-import LanguageSelector from './LanguageSelector.vue'
 import { useWebSocket } from '../composables/useWebSocket'
 import { useToast } from '../composables/useToast'
 import { useI18n } from 'vue-i18n'
@@ -391,7 +390,6 @@ function onBoardMouseDown(event: MouseEvent) {
     <UsersSidebar :users="connectedUsers" :my-id="myId" />
 
     <div class="footer-overlay">
-      <LanguageSelector />
       <div v-if="wsError === 'auth'" class="connection-status error">
         {{ t('connection.access_denied') }}
       </div>

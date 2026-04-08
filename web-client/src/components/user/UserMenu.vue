@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useUser } from '@/composables/useUser'
+import SettingsModal from '@/components/settings/SettingsModal.vue'
 
 const { username, setUsername } = useUser()
 const isOpen = ref(false)
 const isEditing = ref(false)
+const showSettings = ref(false)
 const editValue = ref(username.value)
 const menuRef = ref<HTMLElement | null>(null)
 
 function toggleMenu() {
   isOpen.value = !isOpen.value
   if (!isOpen.value) isEditing.value = false
+}
+
+function openSettings() {
+  showSettings.value = true
+  isOpen.value = false
 }
 
 function startEdit() {
@@ -86,7 +93,7 @@ onUnmounted(() => {
         </div>
 
         <div class="menu-items">
-          <button class="menu-item disabled">
+          <button class="menu-item" @click="openSettings">
             <svg
               width="16"
               height="16"
@@ -100,11 +107,13 @@ onUnmounted(() => {
                 d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
               ></path>
             </svg>
-            Settings (Soon)
+            Settings
           </button>
         </div>
       </div>
     </Transition>
+
+    <SettingsModal v-if="showSettings" @close="showSettings = false" />
   </div>
 </template>
 
