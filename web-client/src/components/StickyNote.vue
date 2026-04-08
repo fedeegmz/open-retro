@@ -2,6 +2,8 @@
 import { ref, watch, nextTick } from 'vue'
 import ContextMenu, { type ContextMenuItem } from './ContextMenu.vue'
 
+import { useI18n } from 'vue-i18n'
+
 const props = defineProps<{
   x: number
   y: number
@@ -20,6 +22,7 @@ const emit = defineEmits<{
   edit: [text: string]
 }>()
 
+const { t } = useI18n()
 const localWidth = ref(props.width)
 const localHeight = ref(props.height)
 const localText = ref(props.text)
@@ -53,7 +56,7 @@ const contextMenuY = ref(0)
 
 const contextMenuItems: ContextMenuItem[] = [
   {
-    label: 'Eliminar nota',
+    label: t('board.delete_note'),
     danger: true,
     icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
     action: () => emit('delete'),
@@ -90,7 +93,7 @@ function disableEditing() {
 }
 
 function onMouseDown(event: MouseEvent) {
-  if (!props.isOwner || isEditing.value) return
+  if (isEditing.value) return
   event.stopPropagation()
   emit('bringToFront')
   emit('dragStart', event)
@@ -156,7 +159,7 @@ function stopResize() {
         />
         <line x1="1" y1="1" x2="23" y2="23" />
       </svg>
-      <span>Nota Oculta</span>
+      <span>{{ t('board.hidden_note') }}</span>
     </div>
     <template v-else>
       <textarea
@@ -167,7 +170,7 @@ function stopResize() {
         @blur="disableEditing"
       />
       <p v-else-if="!localText && isOwner" class="note-text placeholder">
-        Doble click para escribir...
+        {{ t('board.note_placeholder') }}
       </p>
       <p v-else class="note-text">{{ localText }}</p>
     </template>
@@ -189,29 +192,32 @@ function stopResize() {
   position: absolute;
   background-color: #fef08a;
   box-shadow:
-    2px 2px 6px rgba(0, 0, 0, 0.15),
-    4px 4px 12px rgba(0, 0, 0, 0.08);
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 12px;
-  border-radius: 2px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   user-select: none;
+  transition: box-shadow 0.2s ease;
 }
 
 .sticky-note:hover {
   box-shadow:
-    4px 4px 12px rgba(0, 0, 0, 0.18),
-    6px 6px 20px rgba(0, 0, 0, 0.1);
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .sticky-note.is-hidden {
-  background-color: rgba(254, 240, 138, 0.5); /* lighter #fef08a */
-  backdrop-filter: blur(4px);
-  border: 1px dashed rgba(0, 0, 0, 0.1);
+  background-color: rgba(254, 240, 138, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(0, 0, 0, 0.4);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .hidden-overlay {
@@ -259,7 +265,7 @@ function stopResize() {
 }
 
 .note-text.placeholder {
-  color: rgba(28, 25, 23, 0.4);
+  color: rgba(28, 25, 23, 0.3);
 }
 
 .note-text:active {

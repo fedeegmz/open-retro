@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 const props = defineProps<{
   isNotesHidden: boolean
   isOwner: boolean
@@ -12,11 +14,13 @@ const emit = defineEmits<{
   importBoard: []
   leave: []
 }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
   <aside class="toolbar">
-    <button class="tool-btn" title="Nueva nota" @click="emit('addNote')">
+    <button class="tool-btn" :title="t('board.create_note')" @click="emit('addNote')">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -30,12 +34,12 @@ const emit = defineEmits<{
         <line x1="12" y1="8" x2="12" y2="16" />
         <line x1="8" y1="12" x2="16" y2="12" />
       </svg>
-      <span class="tool-label">Nota</span>
+      <span class="tool-label">{{ t('board.note') }}</span>
     </button>
 
     <div class="divider" />
 
-    <button class="tool-btn" title="Nuevo grupo" @click="emit('addGroup')">
+    <button class="tool-btn" :title="t('board.create_group')" @click="emit('addGroup')">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -50,14 +54,14 @@ const emit = defineEmits<{
         <rect x="13" y="6" width="5" height="5" rx="1" />
         <rect x="6" y="13" width="5" height="5" rx="1" />
       </svg>
-      <span class="tool-label">Grupo</span>
+      <span class="tool-label">{{ t('board.group') }}</span>
     </button>
 
     <template v-if="props.isOwner">
       <div class="divider" />
       <button
         class="tool-btn"
-        :title="props.isNotesHidden ? 'Mostrar notas' : 'Ocultar notas'"
+        :title="props.isNotesHidden ? t('board.show_notes') : t('board.hide_notes')"
         @click="emit('toggleVisibility')"
         :class="{ active: props.isNotesHidden }"
       >
@@ -89,7 +93,7 @@ const emit = defineEmits<{
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
-        <span class="tool-label">Notas</span>
+        <span class="tool-label">{{ t('board.note') }}</span>
       </button>
     </template>
 
@@ -98,7 +102,7 @@ const emit = defineEmits<{
     <template v-if="props.isOwner">
       <div class="divider" />
 
-      <button class="tool-btn" title="Exportar board (JSON)" @click="emit('exportBoard')">
+      <button class="tool-btn" :title="t('board.export_json')" @click="emit('exportBoard')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -112,10 +116,10 @@ const emit = defineEmits<{
           <polyline points="7 10 12 15 17 10" />
           <line x1="12" y1="15" x2="12" y2="3" />
         </svg>
-        <span class="tool-label">Exportar</span>
+        <span class="tool-label">{{ t('board.export') }}</span>
       </button>
 
-      <button class="tool-btn" title="Importar board (JSON)" @click="emit('importBoard')">
+      <button class="tool-btn" :title="t('board.import_json')" @click="emit('importBoard')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -129,13 +133,13 @@ const emit = defineEmits<{
           <polyline points="17 8 12 3 7 8" />
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
-        <span class="tool-label">Importar</span>
+        <span class="tool-label">{{ t('board.import') }}</span>
       </button>
     </template>
 
     <div class="divider" />
 
-    <button class="tool-btn leave-btn" title="Salir del tablero" @click="emit('leave')">
+    <button class="tool-btn leave-btn" :title="t('board.leave_board')" @click="emit('leave')">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -149,7 +153,7 @@ const emit = defineEmits<{
         <polyline points="16 17 21 12 16 7" />
         <line x1="21" y1="12" x2="9" y2="12" />
       </svg>
-      <span class="tool-label">Salir</span>
+      <span class="tool-label">{{ t('board.leave') }}</span>
     </button>
   </aside>
 </template>
@@ -163,14 +167,14 @@ const emit = defineEmits<{
   height: calc(100vh - 48px);
   max-height: 480px;
   width: 52px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(22, 27, 37, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    0 1px 4px rgba(0, 0, 0, 0.06);
+    0 12px 24px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -189,7 +193,7 @@ const emit = defineEmits<{
   background: transparent;
   border: none;
   border-radius: 10px;
-  color: #44403c;
+  color: var(--color-muted);
   cursor: pointer;
   transition:
     background-color 0.15s ease,
@@ -197,17 +201,17 @@ const emit = defineEmits<{
 }
 
 .tool-btn:hover {
-  background-color: rgba(0, 0, 0, 0.06);
-  color: #1c1917;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
 }
 
 .tool-btn:active {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.12);
 }
 
 .tool-btn.active {
-  color: #ea580c;
-  background-color: rgba(234, 88, 12, 0.1);
+  color: var(--color-primary);
+  background-color: rgba(62, 175, 124, 0.15);
 }
 
 .tool-btn svg {
@@ -225,7 +229,7 @@ const emit = defineEmits<{
 .divider {
   width: 28px;
   height: 1px;
-  background-color: rgba(0, 0, 0, 0.08);
+  background-color: var(--color-border);
   margin: 2px 0;
 }
 

@@ -9,4 +9,5 @@ export enum Permission {
   UpdateOwnNote = 'update_own_note',
   DeleteOwnNote = 'delete_own_note',
   ManageGroups = 'manage_groups',
+  MoveAnyNote = 'move_any_note',
 }

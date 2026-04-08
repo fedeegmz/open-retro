@@ -1,0 +1,88 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "error": "Error",
+    "settings": "Settings",
+    "close": "Close"
+  },
+  "errors": {
+    "not_found": "Resource not found",
+    "already_exists": "Resource already exists",
+    "invalid_arg": "Invalid argument provided",
+    "internal_server_error": "An unexpected error occurred",
+    "validation_error": "Validation failed"
+  },
+  "board": {
+    "note": "Note",
+    "group": "Group",
+    "show_notes": "Show notes",
+    "hide_notes": "Hide notes",
+    "export": "Export",
+    "import": "Import",
+    "leave": "Leave",
+    "export_json": "Export board (JSON)",
+    "import_json": "Import board (JSON)",
+    "leave_board": "Leave board",
+    "delete_note": "Delete Note",
+    "hidden_note": "Hidden Note",
+    "note_placeholder": "Double click to write...",
+    "pin_group": "Pin Group",
+    "unpin_group": "Unpin Group",
+    "delete_group": "Delete Group",
+    "group_desc_placeholder": "Add description...",
+    "group_desc_empty": "Double click to add description..."
+  },
+  "setup": {
+    "title": "Open Retro",
+    "create_board": "Create a Board",
+    "join_board": "Join a Board",
+    "create_desc": "Create a new empty board and protect it with a password.",
+    "join_desc": "Enter the ID and password of the board you want to join.",
+    "create_tab": "Create",
+    "join_tab": "Join",
+    "username_label": "Your Name",
+    "username_placeholder": "e.g. Jane_Doe",
+    "board_id_label": "Board ID",
+    "board_id_placeholder": "Board ID",
+    "password_label": "Password",
+    "password_placeholder": "Board password",
+    "regenerate": "Regenerate",
+    "generate_id_title": "Generate new ID",
+    "submit_create": "Create Board",
+    "submit_join": "Join Board",
+    "username_error": "Only letters, numbers, dashes (-) and underscores (_) are allowed.",
+    "server_config_title": "Configure Server",
+    "server_config_desc": "Enter the URL of the WebSocket server you want to connect to.",
+    "server_url_label": "Server URL",
+    "server_url_placeholder": "ws://my-server:3001",
+    "connect": "Connect",
+    "connecting": "Connecting...",
+    "preferences_tab": "Preferences",
+    "server_tab": "Server",
+    "preferences_title": "App Preferences",
+    "language_label": "Global Language",
+    "test_connection": "Test Connection",
+    "connection_success": "Connection successful"
+  },
+  "user": {
+    "me_suffix": "(you)"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Spanish",
+    "select": "Select language"
+  },
+  "connection": {
+    "wrong_password": "Wrong password",
+    "access_denied": "Wrong password — access denied",
+    "reconnecting": "Reconnecting..."
+  },
+  "notifications": {
+    "import_success": "Board imported successfully",
+    "invalid_json": "File is not a valid JSON"
+  }
+}

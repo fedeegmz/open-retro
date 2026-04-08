@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import type { ConnectedUser } from '@shared/types/board'
+import { useI18n } from 'vue-i18n'
 
 defineProps<{
   users: ConnectedUser[]
   myId: string
 }>()
+
+const { t } = useI18n()
 
 function getInitials(username: string): string {
   return username
@@ -17,16 +20,16 @@ function getInitials(username: string): string {
 
 function getAvatarColor(userId: string): string {
   const colors = [
-    '#6366f1',
-    '#8b5cf6',
-    '#ec4899',
-    '#f43f5e',
-    '#f97316',
-    '#eab308',
-    '#22c55e',
-    '#14b8a6',
-    '#06b6d4',
-    '#3b82f6',
+    '#3eaf7c', // Primary Green
+    '#ef9f27', // Amber
+    '#378add', // Blue
+    '#e5484d', // Red
+    '#8b5cf6', // Indigo
+    '#ec4899', // Pink
+    '#f97316', // Orange
+    '#14b8a6', // Teal
+    '#06b6d4', // Cyan
+    '#3b82f6', // Bright Blue
   ]
   let hash = 0
   for (let i = 0; i < userId.length; i++) {
@@ -44,7 +47,7 @@ function getAvatarColor(userId: string): string {
       class="user-avatar"
       :class="{ 'is-me': user.id === myId }"
       :style="{ backgroundColor: getAvatarColor(user.id) }"
-      :title="user.id === myId ? `${user.username} (vos)` : user.username"
+      :title="user.id === myId ? `${user.username} ${t('user.me_suffix')}` : user.username"
     >
       {{ getInitials(user.username) }}
     </div>
@@ -87,7 +90,7 @@ function getAvatarColor(userId: string): string {
 }
 
 .user-avatar.is-me {
-  outline: 2px solid white;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 </style>
