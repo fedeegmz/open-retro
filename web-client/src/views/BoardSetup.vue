@@ -7,7 +7,6 @@ import { BoardService } from '@/services/api/boardService'
 import { LocalStorageService } from '@/services/localStorageService'
 import { getConfig } from '@/config/config'
 import { newUUID } from '@/utils/stringUtils'
-import ServerUrlModal from '@/components/ServerUrlModal.vue'
 
 import { useI18n } from 'vue-i18n'
 import { useUser } from '@/composables/useUser'
@@ -23,7 +22,6 @@ const password = ref('')
 const error = ref('')
 const loading = ref(false)
 const mode = ref<Mode>('create')
-const showServerUrlModal = ref(false)
 
 function onSuccess() {
   LocalStorageService.setBoardPassword(password.value)
@@ -39,7 +37,7 @@ async function submit() {
 
   const url = LocalStorageService.getServerUrl() ?? getConfig().defaultServerUrl
   if (!url) {
-    showServerUrlModal.value = true
+    error.value = 'Server URL not configured. Use settings to set it.'
     return
   }
 
@@ -70,11 +68,6 @@ async function submit() {
   }
 
   loading.value = false
-}
-
-function onServerUrlSuccess() {
-  showServerUrlModal.value = false
-  submit()
 }
 
 function setMode(m: Mode) {
@@ -160,8 +153,6 @@ function setMode(m: Mode) {
       </form>
     </div>
   </div>
-
-  <ServerUrlModal v-if="showServerUrlModal" @success="onServerUrlSuccess" />
 </template>
 
 <style scoped>

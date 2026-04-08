@@ -5,7 +5,9 @@
     "save": "Save",
     "delete": "Delete",
     "loading": "Loading...",
-    "error": "Error"
+    "error": "Error",
+    "settings": "Settings",
+    "close": "Close"
   },
   "errors": {
     "not_found": "Resource not found",
@@ -58,7 +60,13 @@
     "server_url_label": "Server URL",
     "server_url_placeholder": "ws://my-server:3001",
     "connect": "Connect",
-    "connecting": "Connecting..."
+    "connecting": "Connecting...",
+    "preferences_tab": "Preferences",
+    "server_tab": "Server",
+    "preferences_title": "App Preferences",
+    "language_label": "Global Language",
+    "test_connection": "Test Connection",
+    "connection_success": "Connection successful"
   },
   "user": {
     "me_suffix": "(you)"

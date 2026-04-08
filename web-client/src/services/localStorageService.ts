@@ -5,6 +5,7 @@ const KEYS = {
   boardPassword: 'boardPassword',
   username: 'username',
   clientId: 'clientId',
+  lang: 'lang',
 } as const
 
 export const LocalStorageService = {
@@ -36,5 +37,12 @@ export const LocalStorageService = {
       localStorage.setItem(KEYS.clientId, id)
     }
     return id
+  },
+
+  getLanguage(): string | null {
+    return localStorage.getItem(KEYS.lang)
+  },
+  setLanguage(code: string): void {
+    localStorage.setItem(KEYS.lang, code)
   },
 }
