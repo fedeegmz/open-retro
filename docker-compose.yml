@@ -42,9 +42,27 @@ services:
       - server
     restart: unless-stopped
 
+  docs:
+    container_name: open-retro-docs
+    build:
+      context: .
+      dockerfile: docs/Dockerfile
+    ports:
+      - '5174:5173'
+    volumes:
+      - ./docs:/app/docs
+      - ./shared:/app/shared
+      - docs_node_modules:/app/docs/node_modules
+    networks:
+      - retro-net
+    environment:
+      ENVIRONMENT: '${ENVIRONMENT:-develop}'
+    restart: unless-stopped
+
 volumes:
   server_node_modules:
   web_client_node_modules:
+  docs_node_modules:
 
 networks:
   retro-net:
