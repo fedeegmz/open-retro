@@ -34,7 +34,10 @@ jobs:
       - name: Build and Push Container
         run: |-
           cp server/Dockerfile Dockerfile
-          gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
+          gcloud builds submit \
+            --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --logging=cloud-logging \
+            .
 
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
