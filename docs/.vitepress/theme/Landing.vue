@@ -1,15 +1,19 @@
+<script setup lang="ts">
+import logoSvg from '@shared/assets/logo-icon.svg?raw'
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+</script>
+
 <template>
   <div class="landing">
     <!-- NAV -->
     <nav>
-      <a class="nav-logo" href="#">
-        <div class="logo-icon">
-          <svg viewBox="0 0 16 16">
-            <path d="M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM11 9v6M14 12H8" />
-          </svg>
-        </div>
-        OpenRetro
-      </a>
+      <div class="nav-logo" @click="scrollToTop" style="cursor: pointer">
+        <div v-html="logoSvg"></div>
+        <span>Open Retro</span>
+      </div>
       <div class="nav-links">
         <a href="#features">Funcionalidades</a>
         <a href="#como-funciona">Cómo funciona</a>
@@ -131,41 +135,40 @@
         <div class="feature-card">
           <div class="feature-icon">
             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7" />
-              <rect x="14" y="3" width="7" height="7" />
-              <rect x="3" y="14" width="7" height="7" />
-              <rect x="14" y="14" width="7" height="7" />
+              <path d="M12 2v20M2 12h20" />
             </svg>
           </div>
-          <div class="feature-title">Formatos flexibles</div>
+          <div class="feature-title">Canvas infinito</div>
           <div class="feature-desc">
-            Start/Stop/Continue, 4Ls, Mad/Sad/Glad y más. Elegí el formato que mejor se adapte a tu
-            equipo.
+            Espacio sin límites para organizar tus ideas. Pané y movete con libertad total por el
+            tablero.
           </div>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-              />
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
             </svg>
           </div>
-          <div class="feature-title">Votación anónima</div>
+          <div class="feature-title">Modo de enfoque</div>
           <div class="feature-desc">
-            Votá las tarjetas que más importan sin presión social. El equipo decide qué priorizar.
+            Ocultá las notas de los demás durante la lluvia de ideas para evitar sesgos y fomentar
+            la honestidad.
           </div>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
           </div>
-          <div class="feature-title">Historial de sesiones</div>
+          <div class="feature-title">Importá y Exportá</div>
           <div class="feature-desc">
-            Consultá retrospectivas pasadas para ver cómo evolucionó el equipo y si se cumplieron
-            las acciones.
+            Guardá tus tableros en formato JSON. Tené el control total de tus datos sin depender de
+            una nube.
           </div>
         </div>
         <div class="feature-card">
@@ -210,17 +213,18 @@
           </div>
           <div class="step">
             <div class="step-num">03</div>
-            <div class="step-title">Voten y discutan</div>
+            <div class="step-title">Revelen y agrupen</div>
             <div class="step-desc">
-              El moderador revela las tarjetas, el equipo vota y agrupa. Enfocate en lo que más
-              importa.
+              El moderador revela las tarjetas, el equipo las discute y agrupa en áreas temáticas
+              usando contenedores.
             </div>
           </div>
           <div class="step" style="border-right: none">
             <div class="step-num">04</div>
-            <div class="step-title">Definan acciones</div>
+            <div class="step-title">Exporten y guarden</div>
             <div class="step-desc">
-              Asignás responsables y fechas. Las acciones quedan guardadas para el próximo sprint.
+              Descargá el tablero completo en un archivo JSON para referencia futura o para seguir
+              en otra sesión.
             </div>
           </div>
         </div>
@@ -253,12 +257,8 @@
     <!-- FOOTER -->
     <footer>
       <div class="footer-brand">
-        <div class="logo-icon" style="width: 22px; height: 22px; border-radius: 5px">
-          <svg viewBox="0 0 16 16" style="width: 12px; height: 12px" fill="white">
-            <path d="M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM11 9v6M14 12H8" />
-          </svg>
-        </div>
-        <span style="font-size: 14px">OpenRetro</span>
+        <div v-html="logoSvg" style="width: 22px; height: 22px"></div>
+        <span style="font-size: 14px">Open Retro</span>
         <span class="footer-sep">·</span>
         <span style="font-size: 13px; color: var(--muted)">MIT License</span>
       </div>
@@ -328,20 +328,9 @@
   text-decoration: none;
 }
 
-.landing .logo-icon {
-  width: 28px;
-  height: 28px;
-  background: var(--green);
-  border-radius: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.landing .logo-icon svg {
-  width: 16px;
-  height: 16px;
-  fill: white;
+.landing .nav-logo :deep(svg) {
+  width: 32px;
+  height: 32px;
 }
 
 .landing .nav-links {
