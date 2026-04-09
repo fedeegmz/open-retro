@@ -31,13 +31,19 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
+      - name: Build and Push Container
+        run: |-
+          gcloud builds submit \
+            --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --file server/Dockerfile \
+            .
+
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE_NAME }}
           region: ${{ env.REGION }}
-          source: .
-          flags: --dockerfile=server/Dockerfile
+          image: gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
           env_vars: |
             ENVIRONMENT=production
             CORS_ORIGINS=${{ vars.CORS_ORIGINS }}
