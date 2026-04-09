@@ -1,0 +1,61 @@
+name: Deploy Client & Docs to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'web-client/**'
+      - 'docs/**'
+      - 'shared/**'
+      - 'firebase.json'
+      - '.github/workflows/deploy-client.yml'
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Google Auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Install dependencies (web-client)
+        working-directory: ./web-client
+        run: npm ci
+
+      - name: Build web-client
+        working-directory: ./web-client
+        env:
+          VITE_DEFAULT_SERVER_URL: ${{ vars.VITE_DEFAULT_SERVER_URL }}
+          ENVIRONMENT: production
+        run: npm run build
+
+      - name: Install dependencies (docs)
+        working-directory: ./docs
+        run: npm install
+
+      - name: Build docs
+        working-directory: ./docs
+        env:
+          ENVIRONMENT: production
+        run: npm run build
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy to Firebase Hosting
+        run: firebase deploy --only hosting --project open-retro-c07e8
