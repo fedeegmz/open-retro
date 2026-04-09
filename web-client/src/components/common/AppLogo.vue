@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import logoSvg from '@shared/assets/logo-icon.svg?raw'
 const router = useRouter()
 </script>
 
 <template>
   <div class="logo" @click="router.push('/')">
-    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-      <rect width="40" height="40" rx="10" fill="var(--color-primary)" />
-      <rect x="8" y="12" width="10" height="10" rx="2" fill="white" opacity="0.9" />
-      <rect x="22" y="12" width="10" height="10" rx="2" fill="white" opacity="0.6" />
-      <rect x="8" y="25" width="10" height="6" rx="2" fill="white" opacity="0.6" />
-      <rect x="22" y="25" width="10" height="6" rx="2" fill="white" opacity="0.9" />
-    </svg>
+    <div v-html="logoSvg" class="logo-icon"></div>
     <span class="logo-text">Open Retro</span>
   </div>
 </template>
@@ -27,6 +22,11 @@ const router = useRouter()
 
 .logo:hover {
   opacity: 0.8;
+}
+
+.logo-icon :deep(svg) {
+  width: 32px;
+  height: 32px;
 }
 
 .logo-text {
