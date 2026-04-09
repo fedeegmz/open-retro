@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "production": "open-retro-c07e8"
+  },
+  "targets": {
+    "open-retro-c07e8": {
+      "hosting": {
+        "web-client": [
+          "open-retro-web-client"
+        ],
+        "docs": [
+          "open-retro-docs"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

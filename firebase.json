@@ -1,0 +1,28 @@
+{
+  "hosting": [
+    {
+      "target": "web-client",
+      "public": "web-client/dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "target": "docs",
+      "public": "docs/.vitepress/dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ]
+    }
+  ]
+}

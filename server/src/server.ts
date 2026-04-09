@@ -20,7 +20,13 @@ const hashService = new BunHashService()
 const logService = new ConsoleLogService()
 
 const app = new Elysia()
-  .use(cors())
+  .use(
+    cors({
+      origin: process.env.CORS_ORIGINS
+        ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
+        : '*',
+    }),
+  )
   .use(openapi({ path: '/docs' }))
   .use(i18n)
   .use(globalErrorHandler)
