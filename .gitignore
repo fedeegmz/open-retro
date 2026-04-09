@@ -40,7 +40,3 @@ __screenshots__/
 
 # Agents
 .agents/plan/
-
-# VitePress
-docs/.vitepress/cache
-docs/.vitepress/dist
