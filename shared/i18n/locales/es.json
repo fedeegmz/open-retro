@@ -84,5 +84,17 @@
   "notifications": {
     "import_success": "Tablero importado correctamente",
     "invalid_json": "El archivo no es un JSON válido"
+  },
+  "session_expired": {
+    "title": "Tiempo límite de sesión alcanzado",
+    "description": "Este tablero alcanzó su tiempo máximo de sesión y ahora está bloqueado.",
+    "go_back": "Volver",
+    "export_board": "Exportar tablero",
+    "admin_warning": "Tenés {seconds}s para exportar el tablero antes de que todos los datos sean eliminados permanentemente.",
+    "data_erased": "Los datos del tablero fueron eliminados permanentemente."
+  },
+  "ws_close": {
+    "invalid_password": "Contraseña incorrecta",
+    "session_expired": "Sesión expirada"
   }
 }

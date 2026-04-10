@@ -35,6 +35,13 @@ export class ProcessBoardMessageUseCase {
       return
     }
 
+    const board = await this.boardRepository.findById(boardId)
+    if (!board) return
+    if (board.isExpired) {
+      this.logService.warn(`[${boardId}] Rejected message on expired board from ${user.username}`)
+      return
+    }
+
     const noteOwnershipOps = new Set([
       WsMsgType.NoteEdit,
       WsMsgType.NoteResize,
@@ -96,7 +103,6 @@ export class ProcessBoardMessageUseCase {
 
     await this.messageHandler.handle(boardId, msg)
 
-    const board = await this.boardRepository.findById(boardId)
     const isHidden = board?.isNotesHidden
 
     for (const client of roomClients) {

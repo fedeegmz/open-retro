@@ -55,6 +55,7 @@ export enum WsMsgType {
   UsersSync = 'users:sync',
   UserJoin = 'user:join',
   UserLeave = 'user:leave',
+  SessionExpired = 'session:expired',
 }
 
 export type WsMessage =
@@ -76,3 +77,4 @@ export type WsMessage =
   | { type: WsMsgType.UsersSync; users: ConnectedUser[] }
   | { type: WsMsgType.UserJoin; user: ConnectedUser }
   | { type: WsMsgType.UserLeave; userId: string }
+  | { type: WsMsgType.SessionExpired }

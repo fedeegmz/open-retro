@@ -6,6 +6,7 @@ import StickyNote from './StickyNote.vue'
 import NoteGroup from './NoteGroup.vue'
 import ToolBar from './ToolBar.vue'
 import UsersSidebar from './UsersSidebar.vue'
+import SessionExpiredModal from './SessionExpiredModal.vue'
 import { useWebSocket } from '../composables/useWebSocket'
 import { useToast } from '../composables/useToast'
 import { useI18n } from 'vue-i18n'
@@ -34,13 +35,14 @@ const groups = ref<Group[]>([])
 const connectedUsers = ref<ConnectedUser[]>([])
 const isNotesHidden = ref(false)
 const boardCreator = ref<string | null>(null)
+const isSessionExpired = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
 let topZ = 1
 
 const navigator = new Navigator(useRouter())
 const { t } = useI18n()
 const { show: showToast } = useToast()
-const { send, onMessage, isConnected, wsError } = useWebSocket(wsUrl)
+const { send, onMessage, isConnected, wsError, disconnect } = useWebSocket(wsUrl)
 
 watch(wsError, (err) => {
   if (err === 'auth') {
@@ -140,6 +142,10 @@ onMessage((msg) => {
       break
     case WsMsgType.UserLeave:
       connectedUsers.value = connectedUsers.value.filter((u) => u.id !== msg.userId)
+      break
+    case WsMsgType.SessionExpired:
+      isSessionExpired.value = true
+      disconnect()
       break
   }
 })
@@ -398,6 +404,14 @@ function onBoardMouseDown(event: MouseEvent) {
       </div>
     </div>
   </div>
+
+  <SessionExpiredModal
+    v-if="isSessionExpired"
+    :is-admin="boardCreator === myId"
+    :server-url="props.serverUrl"
+    :board-id="props.boardId"
+    @go-back="navigator.backToBoardSetup()"
+  />
 </template>
 
 <style scoped>

@@ -9,6 +9,7 @@ import type { UserSessionManager } from '../../../user/application/UserSessionMa
 import type { IWebSocketClient } from '../../../shared/domain/IWebSocketClient'
 import NotFoundError from '../../../shared/domain/errors/NotFoundError'
 import type { JoinBoardDTO } from '../dtos/JoinBoardDTO'
+import { I18nService } from '../../../shared/infrastructure/services/I18nService'
 
 export class JoinBoardUseCase {
   constructor(
@@ -18,6 +19,7 @@ export class JoinBoardUseCase {
     private readonly hashService: IHashService,
     private readonly logService: ILogService,
     private readonly sessionManager: UserSessionManager,
+    private readonly i18n: I18nService = new I18nService(),
   ) {}
 
   async execute(ws: IWebSocketClient, data: JoinBoardDTO): Promise<void> {
@@ -35,7 +37,12 @@ export class JoinBoardUseCase {
     }
 
     if (!this.hashService.verify(data.password, board.passwordHash)) {
-      ws.close(4001, 'Invalid password')
+      ws.close(4001, this.i18n.t('ws_close.invalid_password'))
+      return
+    }
+
+    if (board.isExpired) {
+      ws.close(4002, this.i18n.t('ws_close.session_expired'))
       return
     }
 

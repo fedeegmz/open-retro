@@ -4,6 +4,8 @@ import { ProcessBoardMessageUseCase } from '../../application/useCases/ProcessBo
 import { LeaveBoardUseCase } from '../../application/useCases/LeaveBoardUseCase'
 import type { IWebSocketClient } from '../../../shared/domain/IWebSocketClient'
 import { BoardMessageHandler } from '../../application/BoardMessageHandler'
+import { BoardSessionTimerService } from '../../domain/services/BoardSessionTimerService'
+import type { ServerConfig } from '../../../shared/domain/ServerConfig'
 import { UserSessionManager } from '../../../user/application/UserSessionManager'
 import type { IBoardRepository } from '../../domain/repositories/IBoardRepository'
 import type { INoteRepository } from '../../domain/repositories/INoteRepository'
@@ -30,6 +32,7 @@ interface Deps {
   groupRepository: INoteGroupRepository
   hashService: IHashService
   logService: ILogService
+  config: ServerConfig
 }
 
 export function boardController({
@@ -38,9 +41,11 @@ export function boardController({
   groupRepository,
   hashService,
   logService,
+  config,
 }: Deps) {
   const messageHandler = new BoardMessageHandler(boardRepository, noteRepository, groupRepository)
   const sessionManager = new UserSessionManager(logService)
+  const boardSessionTimer = new BoardSessionTimerService(config)
   const jsonExportBoardUseCase = new JsonExportBoardUseCase(
     boardRepository,
     noteRepository,
@@ -77,6 +82,58 @@ export function boardController({
     sessionManager,
   )
 
+  /** In-memory tracking of grace period timers (boardId → timer) */
+  const gracePeriodTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+  async function deleteBoardData(boardId: string): Promise<void> {
+    try {
+      await boardRepository.delete(boardId)
+      await noteRepository.deleteAll(boardId)
+      await groupRepository.deleteAll(boardId)
+      logService.info(`[${boardId}] Board data deleted after session expiry grace period`)
+    } catch (e) {
+      logService.error(`[${boardId}] Error deleting board data after grace period: ${e}`)
+    }
+  }
+
+  function startGracePeriod(boardId: string): void {
+    logService.info(
+      `[${boardId}] Starting grace period of ${config.adminGraceSeconds}s before data deletion`,
+    )
+    const timer = setTimeout(async () => {
+      gracePeriodTimers.delete(boardId)
+      await deleteBoardData(boardId)
+    }, config.adminGraceSeconds * 1000)
+    gracePeriodTimers.set(boardId, timer)
+  }
+
+  function cancelGracePeriod(boardId: string): void {
+    const timer = gracePeriodTimers.get(boardId)
+    if (timer !== undefined) {
+      clearTimeout(timer)
+      gracePeriodTimers.delete(boardId)
+    }
+  }
+
+  async function onSessionExpired(boardId: string): Promise<void> {
+    logService.info(`[${boardId}] Session time limit reached`)
+
+    let board
+    try {
+      board = await boardRepository.findById(boardId)
+    } catch {
+      return
+    }
+
+    board.isExpired = true
+    await boardRepository.save(board)
+
+    const expiredMsg: WsMessage = { type: WsMsgType.SessionExpired }
+    sessionManager.broadcastToRoom(boardId, expiredMsg)
+
+    startGracePeriod(boardId)
+  }
+
   return new Elysia({ prefix: '/board' })
     .ws('/ws', {
       query: WebSocketQuerySchema,
@@ -107,6 +164,8 @@ export function boardController({
         } catch (e) {
           if (e instanceof NotFoundError) {
             await boardRepository.save(new Board(boardId, hashService.hash(password), clientId))
+
+            boardSessionTimer.start(boardId, () => onSessionExpired(boardId))
 
             return ApiResponse.success({ boardId })
           }
@@ -143,6 +202,9 @@ export function boardController({
     .get(
       '/:id/export',
       async ({ params: { id }, query }) => {
+        // Exporting cancels the grace-period auto-delete so admin data is preserved
+        cancelGracePeriod(id)
+
         let exportedData
         switch (query.format) {
           case 'json':

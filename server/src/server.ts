@@ -12,6 +12,9 @@ import { globalErrorHandler } from './modules/shared/infrastructure/http/globalE
 import { ApiResponse } from '@shared/types/api'
 import { i18n } from './modules/shared/infrastructure/services/i18nPlugin'
 import { languages } from '@shared/i18n'
+import { ServerConfig } from './modules/shared/domain/ServerConfig'
+
+const config = new ServerConfig()
 
 const boardRepository = new MemoryBoardRepository()
 const noteRepository = new MemoryNoteRepository()
@@ -22,9 +25,7 @@ const logService = new ConsoleLogService()
 const app = new Elysia()
   .use(
     cors({
-      origin: process.env.CORS_ORIGINS
-        ? process.env.CORS_ORIGINS.split(';').map((o) => o.trim())
-        : '*',
+      origin: config.corsOrigins,
     }),
   )
   .use(openapi({ path: '/docs' }))
@@ -40,8 +41,13 @@ const app = new Elysia()
       groupRepository,
       hashService,
       logService,
+      config,
     }),
   )
-  .listen(Number(process.env.PORT) || 3001)
+  .listen(config.port)
 
 logService.info(`Open Retro WS Server running on ws://localhost:${app.server?.port}`)
+logService.info(
+  `Session time limit: ${config.sessionTimeLimitSeconds > 0 ? config.sessionTimeLimitSeconds + 's' : 'Disabled'}`,
+)
+logService.info(`Admin grace period: ${config.adminGraceSeconds}s`)

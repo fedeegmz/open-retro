@@ -25,6 +25,14 @@ export class LeaveBoardUseCase {
     }
 
     if (roomEmpty) {
+      const board = await this.boardRepository.findById(boardId)
+      if (board.isExpired) {
+        this.logService.info(
+          `[${boardId}] Room is empty but board is expired. Keeping it for grace period.`,
+        )
+        return
+      }
+
       await this.boardRepository.delete(boardId)
       await this.noteRepository.deleteAll(boardId)
       await this.groupRepository.deleteAll(boardId)
