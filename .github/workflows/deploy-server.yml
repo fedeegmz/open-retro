@@ -47,4 +47,4 @@ jobs:
           image: gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
           env_vars: |
             ENVIRONMENT=production
-            CORS_ORIGINS=${{ vars.CORS_ORIGINS }}
+            CORS_ORIGINS="${{ vars.CORS_ORIGINS }}"
