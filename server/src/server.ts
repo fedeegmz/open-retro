@@ -23,7 +23,7 @@ const app = new Elysia()
   .use(
     cors({
       origin: process.env.CORS_ORIGINS
-        ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
+        ? process.env.CORS_ORIGINS.split(';').map((o) => o.trim())
         : '*',
     }),
   )
