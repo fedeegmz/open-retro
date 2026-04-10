@@ -84,5 +84,17 @@
   "notifications": {
     "import_success": "Board imported successfully",
     "invalid_json": "File is not a valid JSON"
+  },
+  "session_expired": {
+    "title": "Session time limit reached",
+    "description": "This board has reached its maximum session time and is now locked.",
+    "go_back": "Go Back",
+    "export_board": "Export Board",
+    "admin_warning": "You have {seconds}s to export the board before all data is permanently erased.",
+    "data_erased": "Board data has been permanently erased."
+  },
+  "ws_close": {
+    "invalid_password": "Invalid password",
+    "session_expired": "Session expired"
   }
 }
