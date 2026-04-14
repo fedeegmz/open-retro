@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 const props = defineProps<{
   isNotesHidden: boolean
   isOwner: boolean
+  voting?: { active: boolean; maxVotesPerUser: number }
 }>()
 
 const emit = defineEmits<{
@@ -12,10 +13,35 @@ const emit = defineEmits<{
   toggleVisibility: []
   exportBoard: []
   importBoard: []
+  startVoting: [maxVotes: number]
+  pauseVoting: []
+  resetVoting: []
   leave: []
 }>()
 
 const { t } = useI18n()
+
+function toggleVoting() {
+  if (props.voting?.active) {
+    emit('pauseVoting')
+  } else {
+    const votes = window.prompt(
+      t('board.votes_per_user_prompt'),
+      props.voting?.maxVotesPerUser ? String(props.voting?.maxVotesPerUser) : '3',
+    )
+    if (votes === null) return
+    const max = parseInt(votes, 10)
+    if (!isNaN(max) && max > 0) {
+      emit('startVoting', max)
+    }
+  }
+}
+
+function clearVoting() {
+  if (confirm(t('board.confirm_reset_voting'))) {
+    emit('resetVoting')
+  }
+}
 </script>
 
 <template>
@@ -94,6 +120,57 @@ const { t } = useI18n()
           <circle cx="12" cy="12" r="3" />
         </svg>
         <span class="tool-label">{{ t('board.note') }}</span>
+      </button>
+
+      <button
+        class="tool-btn"
+        :title="props.voting?.active ? t('board.pause_voting') : t('board.start_voting')"
+        @click="toggleVoting"
+        :class="{ active: props.voting?.active }"
+      >
+        <svg
+          v-if="props.voting?.active"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="6" y="4" width="4" height="16"></rect>
+          <rect x="14" y="4" width="4" height="16"></rect>
+        </svg>
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        <span class="tool-label">{{ t('board.vote') }}</span>
+      </button>
+
+      <button class="tool-btn danger" :title="t('board.reset_voting')" @click="clearVoting">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        <span class="tool-label">{{ t('board.clear') }}</span>
       </button>
     </template>
 
@@ -212,6 +289,11 @@ const { t } = useI18n()
 .tool-btn.active {
   color: var(--color-primary);
   background-color: rgba(62, 175, 124, 0.15);
+}
+
+.tool-btn.danger:hover {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
 .tool-btn svg {

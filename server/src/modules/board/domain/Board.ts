@@ -6,6 +6,7 @@ export class Board {
   isNotesHidden: boolean
   isExpired: boolean
   nextZIndex: number
+  voting: { active: boolean; maxVotesPerUser: number }
 
   constructor(
     id: string,
@@ -23,5 +24,6 @@ export class Board {
     this.isNotesHidden = isNotesHidden
     this.isExpired = isExpired
     this.nextZIndex = nextZIndex
+    this.voting = { active: false, maxVotesPerUser: 0 }
   }
 }

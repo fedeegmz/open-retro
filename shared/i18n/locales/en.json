@@ -34,7 +34,16 @@
     "unpin_group": "Unpin Group",
     "delete_group": "Delete Group",
     "group_desc_placeholder": "Add description...",
-    "group_desc_empty": "Double click to add description..."
+    "group_desc_empty": "Double click to add description...",
+    "confirm_reset_voting": "Are you sure you want to reset voting? This will clear all current votes.",
+    "votes_per_user_prompt": "Enter max votes per user:",
+    "pause_voting": "Pause Voting",
+    "reset_voting": "Clear Votes",
+    "start_voting": "Start Voting",
+    "vote": "Vote",
+    "clear": "Clear",
+    "create_note": "Create Note",
+    "create_group": "Create Group"
   },
   "setup": {
     "title": "Open Retro",

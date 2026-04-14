@@ -35,6 +35,7 @@ export class JsonExportBoardUseCase {
         zIndex: note.zIndex,
         text: note.text,
         createdBy: note.createdBy,
+        votes: note.votedBy ? note.votedBy.length : 0,
       })),
     }
   }
