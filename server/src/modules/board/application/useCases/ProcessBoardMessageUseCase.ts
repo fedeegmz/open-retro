@@ -93,12 +93,87 @@ export class ProcessBoardMessageUseCase {
             nextZIndex: board.nextZIndex,
             isNotesHidden: board.isNotesHidden,
             createdBy: board.createdBy,
+            voting: board.voting,
           }
           client.send(JSON.stringify({ type: WsMsgType.BoardSync, state }))
           client.send(JSON.stringify(visibilityMsg))
         }
       }
       return
+    }
+
+    if (msg.type === WsMsgType.BoardVotingStart) {
+      if (PermissionService.canModifyResource(user, board.createdBy)) {
+        board.voting = { active: true, maxVotesPerUser: (msg as any).maxVotesPerUser }
+        await this.boardRepository.save(board)
+        roomClients.forEach((client) => client.send(JSON.stringify(msg)))
+      }
+      return
+    }
+
+    if (msg.type === WsMsgType.BoardVotingPause) {
+      if (PermissionService.canModifyResource(user, board.createdBy)) {
+        board.voting = { active: false, maxVotesPerUser: board.voting.maxVotesPerUser }
+        await this.boardRepository.save(board)
+        roomClients.forEach((client) => client.send(JSON.stringify(msg)))
+      }
+      return
+    }
+
+    if (msg.type === WsMsgType.BoardVotingReset) {
+      if (PermissionService.canModifyResource(user, board.createdBy)) {
+        board.voting = { active: false, maxVotesPerUser: 0 }
+        await this.boardRepository.save(board)
+        const allNotes = await this.noteRepository.findAll(boardId)
+        for (const note of allNotes) {
+          if (note.votedBy && note.votedBy.length > 0) {
+            note.votedBy = []
+            await this.noteRepository.save(boardId, note)
+          }
+        }
+        roomClients.forEach((client) => client.send(JSON.stringify(msg)))
+      }
+      return
+    }
+
+    if (msg.type === WsMsgType.NoteVote) {
+      if (!board.voting?.active) return
+      const allNotes = await this.noteRepository.findAll(boardId)
+      const userVotesCast = allNotes.reduce(
+        (acc, n) => acc + (n.votedBy?.includes(user.id) ? 1 : 0),
+        0,
+      )
+
+      if (userVotesCast >= board.voting.maxVotesPerUser) {
+        this.logService.warn(`[${boardId}] User ${user.username} exceeded max votes.`)
+        return
+      }
+
+      const note = await this.noteRepository.findById(boardId, (msg as any).id)
+      if (!note) return
+
+      if (!note.votedBy) note.votedBy = []
+      if (!note.votedBy.includes(user.id)) {
+        note.votedBy.push(user.id)
+        await this.noteRepository.save(boardId, note)
+        msg = { ...msg, userId: user.id } as any
+      } else {
+        return
+      }
+    }
+
+    if (msg.type === WsMsgType.NoteUnvote) {
+      if (!board.voting?.active) return
+      const note = await this.noteRepository.findById(boardId, (msg as any).id)
+      if (!note || !note.votedBy) return
+
+      if (note.votedBy.includes(user.id)) {
+        note.votedBy = note.votedBy.filter((id) => id !== user.id)
+        await this.noteRepository.save(boardId, note)
+        msg = { ...msg, userId: user.id } as any
+      } else {
+        return
+      }
     }
 
     await this.messageHandler.handle(boardId, msg)

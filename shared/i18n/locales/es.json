@@ -34,7 +34,16 @@
     "unpin_group": "Desfijar grupo",
     "delete_group": "Eliminar grupo",
     "group_desc_placeholder": "Añadir descripción...",
-    "group_desc_empty": "Doble click para añadir descripción..."
+    "group_desc_empty": "Doble click para añadir descripción...",
+    "confirm_reset_voting": "¿Estás seguro de que deseas reiniciar la votación? Esto borrará todos los votos actuales.",
+    "votes_per_user_prompt": "Límite de votos por usuario:",
+    "pause_voting": "Pausar Votación",
+    "reset_voting": "Limpiar Votos",
+    "start_voting": "Iniciar Votación",
+    "vote": "Votar",
+    "clear": "Limpiar",
+    "create_note": "Crear Nota",
+    "create_group": "Crear Grupo"
   },
   "setup": {
     "title": "Open Retro",

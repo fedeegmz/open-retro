@@ -69,6 +69,7 @@ export class JoinBoardUseCase {
       nextZIndex: board.nextZIndex,
       isNotesHidden: board.isNotesHidden,
       createdBy: board.createdBy,
+      voting: board.voting,
     }
     const syncMsg: WsMessage = { type: WsMsgType.BoardSync, state }
     ws.send(JSON.stringify(syncMsg))

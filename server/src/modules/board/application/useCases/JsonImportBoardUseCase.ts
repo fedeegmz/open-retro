@@ -69,6 +69,7 @@ export class JsonImportBoardUseCase {
         height: noteDto.bottomRight.y - noteDto.topLeft.y,
         text: noteDto.text,
         createdBy: noteDto.createdBy,
+        votedBy: [],
       })
     }
   }

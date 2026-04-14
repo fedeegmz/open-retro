@@ -36,6 +36,7 @@ const connectedUsers = ref<ConnectedUser[]>([])
 const isNotesHidden = ref(false)
 const boardCreator = ref<string | null>(null)
 const isSessionExpired = ref(false)
+const voting = ref({ active: false, maxVotesPerUser: 1 })
 const fileInput = ref<HTMLInputElement | null>(null)
 let topZ = 1
 
@@ -59,6 +60,7 @@ onMessage((msg) => {
       topZ = msg.state.nextZIndex
       isNotesHidden.value = msg.state.isNotesHidden
       boardCreator.value = msg.state.createdBy
+      voting.value = msg.state.voting
       break
     case WsMsgType.BoardNotesVisibility:
       isNotesHidden.value = msg.isHidden
@@ -95,6 +97,33 @@ onMessage((msg) => {
       const note = notes.value.find((n) => n.id === msg.id)
       if (note) note.zIndex = msg.zIndex
       topZ = Math.max(topZ, msg.zIndex + 1)
+      break
+    }
+    case WsMsgType.BoardVotingStart:
+      voting.value = { active: true, maxVotesPerUser: msg.maxVotesPerUser }
+      break
+    case WsMsgType.BoardVotingPause:
+      voting.value.active = false
+      break
+    case WsMsgType.BoardVotingReset:
+      voting.value = { active: false, maxVotesPerUser: 1 }
+      notes.value.forEach((n) => {
+        n.votedBy = []
+      })
+      break
+    case WsMsgType.NoteVote: {
+      const note = notes.value.find((n) => n.id === msg.id)
+      if (note && msg.userId) {
+        if (!note.votedBy) note.votedBy = []
+        note.votedBy.push(msg.userId)
+      }
+      break
+    }
+    case WsMsgType.NoteUnvote: {
+      const note = notes.value.find((n) => n.id === msg.id)
+      if (note && msg.userId && note.votedBy) {
+        note.votedBy = note.votedBy.filter((id) => id !== msg.userId)
+      }
       break
     }
     case WsMsgType.GroupAdd:
@@ -161,6 +190,13 @@ const boardStyle = computed(() => ({
   cursor: isPanning.value ? 'grabbing' : 'grab',
   backgroundPosition: `${canvasOffset.value.x}px ${canvasOffset.value.y}px`,
 }))
+
+const myBoardVotes = computed(() => {
+  if (!myId) return 0
+  return notes.value.reduce((acc, note) => {
+    return acc + (note.votedBy?.includes(myId) ? 1 : 0)
+  }, 0)
+})
 
 function addNote() {
   const offset = (notes.value.length % 6) * 24
@@ -268,6 +304,29 @@ function onGroupTogglePin(id: string, pinned: boolean) {
   send({ type: WsMsgType.GroupPin, id, pinned })
 }
 
+function onNoteVote(id: string) {
+  const note = notes.value.find((n) => n.id === id)
+  if (note && voting.value.active) {
+    const hasAlreadyVoted = note.votedBy?.includes(myId)
+    const canVoteMore = myBoardVotes.value < voting.value.maxVotesPerUser
+    if (!hasAlreadyVoted && canVoteMore) {
+      if (!note.votedBy) note.votedBy = []
+      if (myId) {
+        note.votedBy.push(myId)
+        send({ type: WsMsgType.NoteVote, id })
+      }
+    }
+  }
+}
+
+function onNoteUnvote(id: string) {
+  const note = notes.value.find((n) => n.id === id)
+  if (note && voting.value.active && note.votedBy && myId) {
+    note.votedBy = note.votedBy.filter((uid) => uid !== myId)
+  }
+  send({ type: WsMsgType.NoteUnvote, id })
+}
+
 function exportBoard() {
   boardService.exportBoard({
     boardId: props.boardId,
@@ -362,12 +421,18 @@ function onBoardMouseDown(event: MouseEvent) {
         :height="note.height"
         :text="note.text"
         :is-owner="note.createdBy === myId"
+        :voted-by="note.votedBy"
+        :voting="voting"
+        :my-id="myId"
+        :can-vote-more="myBoardVotes < voting.maxVotesPerUser"
         :style="{ zIndex: note.zIndex }"
         @bring-to-front="bringToFront(note)"
         @drag-start="startDrag(note, $event, 'note')"
         @delete="deleteNote(note.id)"
         @resize="onNoteResize(note.id, $event)"
         @edit="onNoteEdit(note.id, $event)"
+        @vote="onNoteVote(note.id)"
+        @unvote="onNoteUnvote(note.id)"
         :is-hidden="isNotesHidden && note.createdBy !== myId && !note.text"
       />
     </div>
@@ -377,11 +442,17 @@ function onBoardMouseDown(event: MouseEvent) {
       @add-group="addGroup"
       :is-notes-hidden="isNotesHidden"
       :is-owner="boardCreator === myId"
+      :voting="voting"
       @toggle-visibility="
         () => send({ type: WsMsgType.BoardToggleNotes, isHidden: !isNotesHidden })
       "
       @export-board="exportBoard"
       @import-board="importBoard"
+      @start-voting="
+        (maxVotes) => send({ type: WsMsgType.BoardVotingStart, maxVotesPerUser: maxVotes })
+      "
+      @pause-voting="() => send({ type: WsMsgType.BoardVotingPause })"
+      @reset-voting="() => send({ type: WsMsgType.BoardVotingReset })"
       @leave="navigator.backToBoardSetup()"
     />
 
