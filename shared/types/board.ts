@@ -15,6 +15,7 @@ export interface Note {
   height: number
   text: string
   createdBy?: string
+  votedBy?: string[]
 }
 
 export interface Group {
@@ -34,18 +35,24 @@ export interface BoardState {
   nextZIndex: number
   isNotesHidden: boolean
   createdBy: string
+  voting: { active: boolean; maxVotesPerUser: number }
 }
 
 export enum WsMsgType {
   BoardSync = 'board:sync',
   BoardToggleNotes = 'board:toggle_notes',
   BoardNotesVisibility = 'board:notes_visibility',
+  BoardVotingStart = 'board:voting_start',
+  BoardVotingPause = 'board:voting_pause',
+  BoardVotingReset = 'board:voting_reset',
   NoteAdd = 'note:add',
   NoteMove = 'note:move',
   NoteResize = 'note:resize',
   NoteEdit = 'note:edit',
   NoteDelete = 'note:delete',
   NoteZ = 'note:z',
+  NoteVote = 'note:vote',
+  NoteUnvote = 'note:unvote',
   GroupAdd = 'group:add',
   GroupMove = 'group:move',
   GroupResize = 'group:resize',
@@ -55,18 +62,24 @@ export enum WsMsgType {
   UsersSync = 'users:sync',
   UserJoin = 'user:join',
   UserLeave = 'user:leave',
+  SessionExpired = 'session:expired',
 }
 
 export type WsMessage =
   | { type: WsMsgType.BoardSync; state: BoardState }
   | { type: WsMsgType.BoardToggleNotes; isHidden: boolean }
   | { type: WsMsgType.BoardNotesVisibility; isHidden: boolean }
+  | { type: WsMsgType.BoardVotingStart; maxVotesPerUser: number }
+  | { type: WsMsgType.BoardVotingPause }
+  | { type: WsMsgType.BoardVotingReset }
   | { type: WsMsgType.NoteAdd; note: Note }
   | { type: WsMsgType.NoteMove; id: string; x: number; y: number }
   | { type: WsMsgType.NoteResize; id: string; width: number; height: number }
   | { type: WsMsgType.NoteEdit; id: string; text: string }
   | { type: WsMsgType.NoteDelete; id: string }
   | { type: WsMsgType.NoteZ; id: string; zIndex: number }
+  | { type: WsMsgType.NoteVote; id: string; userId?: string }
+  | { type: WsMsgType.NoteUnvote; id: string; userId?: string }
   | { type: WsMsgType.GroupAdd; group: Group }
   | { type: WsMsgType.GroupMove; id: string; x: number; y: number }
   | { type: WsMsgType.GroupResize; id: string; width: number; height: number }
@@ -76,3 +89,4 @@ export type WsMessage =
   | { type: WsMsgType.UsersSync; users: ConnectedUser[] }
   | { type: WsMsgType.UserJoin; user: ConnectedUser }
   | { type: WsMsgType.UserLeave; userId: string }
+  | { type: WsMsgType.SessionExpired }

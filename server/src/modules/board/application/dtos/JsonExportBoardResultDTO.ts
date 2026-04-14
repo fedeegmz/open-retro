@@ -19,6 +19,7 @@ interface ExportedNoteDTO {
   zIndex: number
   text: string
   createdBy?: string
+  votes: number
 }
 
 export interface JsonExportBoardResultDTO {

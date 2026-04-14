@@ -34,7 +34,16 @@
     "unpin_group": "Unpin Group",
     "delete_group": "Delete Group",
     "group_desc_placeholder": "Add description...",
-    "group_desc_empty": "Double click to add description..."
+    "group_desc_empty": "Double click to add description...",
+    "confirm_reset_voting": "Are you sure you want to reset voting? This will clear all current votes.",
+    "votes_per_user_prompt": "Enter max votes per user:",
+    "pause_voting": "Pause Voting",
+    "reset_voting": "Clear Votes",
+    "start_voting": "Start Voting",
+    "vote": "Vote",
+    "clear": "Clear",
+    "create_note": "Create Note",
+    "create_group": "Create Group"
   },
   "setup": {
     "title": "Open Retro",
@@ -84,5 +93,17 @@
   "notifications": {
     "import_success": "Board imported successfully",
     "invalid_json": "File is not a valid JSON"
+  },
+  "session_expired": {
+    "title": "Session time limit reached",
+    "description": "This board has reached its maximum session time and is now locked.",
+    "go_back": "Go Back",
+    "export_board": "Export Board",
+    "admin_warning": "You have {seconds}s to export the board before all data is permanently erased.",
+    "data_erased": "Board data has been permanently erased."
+  },
+  "ws_close": {
+    "invalid_password": "Invalid password",
+    "session_expired": "Session expired"
   }
 }

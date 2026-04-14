@@ -48,3 +48,5 @@ jobs:
           env_vars: |
             ENVIRONMENT=production
             CORS_ORIGINS=${{ vars.CORS_ORIGINS }}
+            SESSION_TIME_LIMIT=${{ vars.SESSION_TIME_LIMIT }}
+            ADMIN_GRACE_SECONDS=${{ vars.ADMIN_GRACE_SECONDS }}

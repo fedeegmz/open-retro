@@ -34,7 +34,16 @@
     "unpin_group": "Desfijar grupo",
     "delete_group": "Eliminar grupo",
     "group_desc_placeholder": "Añadir descripción...",
-    "group_desc_empty": "Doble click para añadir descripción..."
+    "group_desc_empty": "Doble click para añadir descripción...",
+    "confirm_reset_voting": "¿Estás seguro de que deseas reiniciar la votación? Esto borrará todos los votos actuales.",
+    "votes_per_user_prompt": "Límite de votos por usuario:",
+    "pause_voting": "Pausar Votación",
+    "reset_voting": "Limpiar Votos",
+    "start_voting": "Iniciar Votación",
+    "vote": "Votar",
+    "clear": "Limpiar",
+    "create_note": "Crear Nota",
+    "create_group": "Crear Grupo"
   },
   "setup": {
     "title": "Open Retro",
@@ -84,5 +93,17 @@
   "notifications": {
     "import_success": "Tablero importado correctamente",
     "invalid_json": "El archivo no es un JSON válido"
+  },
+  "session_expired": {
+    "title": "Tiempo límite de sesión alcanzado",
+    "description": "Este tablero alcanzó su tiempo máximo de sesión y ahora está bloqueado.",
+    "go_back": "Volver",
+    "export_board": "Exportar tablero",
+    "admin_warning": "Tenés {seconds}s para exportar el tablero antes de que todos los datos sean eliminados permanentemente.",
+    "data_erased": "Los datos del tablero fueron eliminados permanentemente."
+  },
+  "ws_close": {
+    "invalid_password": "Contraseña incorrecta",
+    "session_expired": "Sesión expirada"
   }
 }
