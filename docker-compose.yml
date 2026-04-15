@@ -57,6 +57,7 @@ services:
       - retro-net
     environment:
       ENVIRONMENT: '${ENVIRONMENT:-develop}'
+      VITE_APP_URL: '${VITE_APP_URL:-http://localhost:5173}'
     restart: unless-stopped
 
 volumes:
