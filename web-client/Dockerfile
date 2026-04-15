@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy only dependency manifests to cache the install layer
 COPY package.json package-lock.json ./
-COPY web-client/package.json web-client/package-lock.json ./web-client/
+COPY web-client/package.json ./web-client/
 COPY server/package.json ./server/
 COPY shared/package.json ./shared/
 
