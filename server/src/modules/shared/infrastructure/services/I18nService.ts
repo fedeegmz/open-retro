@@ -1,4 +1,4 @@
-import { dictionaries, Locale, defaultLocale, I18nKeys } from '@shared/i18n'
+import { dictionaries, Locale, defaultLocale, I18nKeys } from '@open-retro/shared/i18n'
 
 export class I18nService {
   private locale: Locale

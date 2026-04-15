@@ -1,6 +1,6 @@
 import { createI18n } from 'vue-i18n'
-import { dictionaries, defaultLocale } from '@shared/i18n'
-import type { Dictionary } from '@shared/i18n'
+import { dictionaries, defaultLocale } from '@open-retro/shared/i18n'
+import type { Dictionary } from '@open-retro/shared/i18n'
 
 // Support for vue-i18n type safety and autocomplete
 declare module 'vue-i18n' {

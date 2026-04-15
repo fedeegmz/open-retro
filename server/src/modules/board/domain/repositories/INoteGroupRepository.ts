@@ -1,4 +1,4 @@
-import type { Group } from '@shared/types/board'
+import type { Group } from '@open-retro/shared/types/board'
 
 export interface INoteGroupRepository {
   findAll(boardId: string): Promise<Group[]>

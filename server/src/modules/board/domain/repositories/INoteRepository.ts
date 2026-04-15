@@ -1,4 +1,4 @@
-import type { Note } from '@shared/types/board'
+import type { Note } from '@open-retro/shared/types/board'
 
 export interface INoteRepository {
   findAll(boardId: string): Promise<Note[]>

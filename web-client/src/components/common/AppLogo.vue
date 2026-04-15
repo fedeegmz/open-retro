@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import logoSvg from '@shared/assets/logo-icon.svg?raw'
+import logoSvg from '@open-retro/shared/assets/logo-icon.svg?raw'
 const router = useRouter()
 </script>
 

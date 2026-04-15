@@ -1,6 +1,6 @@
 import NotFoundError from '../../../shared/domain/errors/NotFoundError'
 import type { INoteGroupRepository } from '../../domain/repositories/INoteGroupRepository'
-import type { Group } from '@shared/types/board'
+import type { Group } from '@open-retro/shared/types/board'
 
 export class MemoryNoteGroupRepository implements INoteGroupRepository {
   private readonly store = new Map<string, Group[]>()

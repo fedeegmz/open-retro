@@ -1,5 +1,5 @@
-import { Role, Permission } from '@shared/types/role'
-import type { ConnectedUser } from '@shared/types/board'
+import { Role, Permission } from '@open-retro/shared/types/role'
+import type { ConnectedUser } from '@open-retro/shared/types/board'
 
 export const RolePermissions: Record<Role, Permission[]> = {
   [Role.Owner]: [

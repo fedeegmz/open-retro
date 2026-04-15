@@ -1,5 +1,5 @@
 import { useToast } from '@/composables/useToast'
-import { ApiResponse } from '@shared/types/api'
+import { ApiResponse } from '@open-retro/shared/types/api'
 import { joinPath } from '@/utils/stringUtils'
 const { show: showToast } = useToast()
 

@@ -3,14 +3,11 @@
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "bundler",
-    "types": ["bun-types"],
     "strict": true,
-    "skipLibCheck": true,
     "declaration": true,
     "outDir": "./dist",
-    "paths": {
-      "@open-retro/shared/*": ["../shared/*"]
-    }
+    "rootDir": "./",
+    "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["**/*.ts"]
 }

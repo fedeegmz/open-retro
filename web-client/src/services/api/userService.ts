@@ -1,5 +1,5 @@
 import { BaseApiService } from './baseApiService'
-import type { GenerateNameResponse } from '@shared/types/user'
+import type { GenerateNameResponse } from '@open-retro/shared/types/user'
 
 export class UserService extends BaseApiService {
   async generateName(

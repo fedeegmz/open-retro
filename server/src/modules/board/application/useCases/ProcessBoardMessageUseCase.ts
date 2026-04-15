@@ -1,5 +1,5 @@
-import { WsMsgType } from '@shared/types/board'
-import type { WsMessage, BoardState } from '@shared/types/board'
+import { WsMsgType } from '@open-retro/shared/types/board'
+import type { WsMessage, BoardState } from '@open-retro/shared/types/board'
 import type { IBoardRepository } from '../../domain/repositories/IBoardRepository'
 import type { INoteRepository } from '../../domain/repositories/INoteRepository'
 import type { INoteGroupRepository } from '../../domain/repositories/INoteGroupRepository'
@@ -8,7 +8,7 @@ import type { UserSessionManager } from '../../../user/application/UserSessionMa
 import type { IWebSocketClient } from '../../../shared/domain/IWebSocketClient'
 import type { BoardMessageHandler } from '../BoardMessageHandler'
 import { PermissionService } from '../../../user/domain/services/PermissionService'
-import { Permission } from '@shared/types/role'
+import { Permission } from '@open-retro/shared/types/role'
 
 export class ProcessBoardMessageUseCase {
   constructor(
