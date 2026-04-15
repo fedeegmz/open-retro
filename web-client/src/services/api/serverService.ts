@@ -1,5 +1,5 @@
 import { BaseApiService } from './baseApiService'
-import { ApiResponse } from '@shared/types/api'
+import { ApiResponse } from '@open-retro/shared/types/api'
 
 interface PingOptions {
   onSuccess?: () => void

@@ -1,5 +1,5 @@
-import { WsMsgType } from '@shared/types/board'
-import type { WsMessage, BoardState, ConnectedUser } from '@shared/types/board'
+import { WsMsgType } from '@open-retro/shared/types/board'
+import type { WsMessage, BoardState, ConnectedUser } from '@open-retro/shared/types/board'
 import type { IBoardRepository } from '../../domain/repositories/IBoardRepository'
 import type { INoteRepository } from '../../domain/repositories/INoteRepository'
 import type { INoteGroupRepository } from '../../domain/repositories/INoteGroupRepository'

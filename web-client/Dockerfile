@@ -4,10 +4,12 @@ FROM node:22-alpine
 WORKDIR /app
 
 # Copy only dependency manifests to cache the install layer
+COPY package.json package-lock.json ./
 COPY web-client/package.json web-client/package-lock.json ./web-client/
-COPY web-client/tsconfig.json web-client/tsconfig.app.json web-client/tsconfig.node.json ./web-client/
+COPY server/package.json ./server/
+COPY shared/package.json ./shared/
 
-RUN cd web-client && npm ci
+RUN npm install
 
 # Copy source code
 COPY web-client/src ./web-client/src

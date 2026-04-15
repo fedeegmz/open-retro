@@ -1,6 +1,6 @@
-import type { WsMessage, ConnectedUser } from '@shared/types/board'
+import type { WsMessage, ConnectedUser } from '@open-retro/shared/types/board'
 import type { IWebSocketClient } from '../../shared/domain/IWebSocketClient'
-import { Role } from '@shared/types/role'
+import { Role } from '@open-retro/shared/types/role'
 import type { ILogService } from '../../shared/domain/services/ILogService'
 
 export class UserSessionManager {

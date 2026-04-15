@@ -1,10 +1,10 @@
 import Elysia from 'elysia'
 import NotFoundError from '../../domain/errors/NotFoundError'
 import AlreadyExistError from '../../domain/errors/AlreadyExistError'
-import { ApiResponse } from '@shared/types/api'
+import { ApiResponse } from '@open-retro/shared/types/api'
 import InvalidArgError from '../../domain/errors/InvalidArgError'
 import { i18n } from '../services/i18nPlugin'
-import { I18nKeys } from '@shared/i18n'
+import { I18nKeys } from '@open-retro/shared/i18n'
 
 export const globalErrorHandler = new Elysia()
   .use(i18n)
