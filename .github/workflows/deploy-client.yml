@@ -52,6 +52,7 @@ jobs:
         working-directory: ./docs
         env:
           ENVIRONMENT: production
+          VITE_APP_URL: ${{ vars.VITE_APP_URL }}
         run: npm run build
 
       - name: Install Firebase CLI

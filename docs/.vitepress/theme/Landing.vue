@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import logoSvg from '@shared/assets/logo-icon.svg?raw'
 
+const appUrl = import.meta.env.VITE_APP_URL || '#'
+
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
@@ -18,7 +20,7 @@ const scrollToTop = () => {
         <a href="#features">Funcionalidades</a>
         <a href="#como-funciona">Cómo funciona</a>
         <a href="/guide/">Docs</a>
-        <a class="nav-cta" href="#">Empezar gratis</a>
+        <a class="nav-cta" :href="appUrl">Empezar gratis</a>
       </div>
     </nav>
 
@@ -34,7 +36,7 @@ const scrollToTop = () => {
           mejore — en tiempo real, sin complicaciones.
         </p>
         <div class="hero-actions">
-          <a class="btn-primary" href="#">Probar ahora →</a>
+          <a class="btn-primary" :href="appUrl">Probar ahora →</a>
           <a class="btn-secondary" href="https://github.com/fedeegmz/open-retro" target="_blank"
             >Ver en GitHub</a
           >
