@@ -5,9 +5,9 @@ import BoardView from '../views/BoardView.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', redirect: '/connect' },
-    { path: '/connect', component: BoardSetup },
+    { path: '/', component: BoardSetup },
     { path: '/board/:id', component: BoardView },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })
 
