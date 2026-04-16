@@ -13,7 +13,6 @@ RUN cd docs && npm install
 
 # Copy source code
 COPY docs ./docs
-COPY shared ./shared
 
 WORKDIR /app/docs
 

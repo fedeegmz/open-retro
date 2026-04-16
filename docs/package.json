@@ -1,7 +1,14 @@
 {
-  "name": "open-retro-docs",
+  "name": "@open-retro/docs",
   "type": "module",
-  "private": true,
+  "version": "0.0.1",
+  "private": false,
+  "files": [
+    "api",
+    "guide",
+    "index.md",
+    "package.json"
+  ],
   "scripts": {
     "dev": "vitepress dev",
     "build": "vitepress build",
