@@ -8,7 +8,7 @@ export class Navigator {
   }
 
   toBoardSetup() {
-    return this.router.push('/connect')
+    return this.router.push('/')
   }
 
   toBoard(boardId: string) {
@@ -16,6 +16,6 @@ export class Navigator {
   }
 
   backToBoardSetup() {
-    return this.router.replace('/connect')
+    return this.router.replace('/')
   }
 }
