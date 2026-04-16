@@ -30,6 +30,6 @@
   },
   "lint-staged": {
     "*.{ts,vue}": ["oxfmt", "oxlint --fix"],
-    "web-client/src/**/*.{ts,vue}": "./web-client/node_modules/.bin/eslint --fix"
+    "web-client/src/**/*.{ts,vue}": "eslint --fix"
   }
 }
