@@ -8,8 +8,10 @@
     "skipLibCheck": true,
     "declaration": true,
     "outDir": "./dist",
+    "rootDir": "src",
     "paths": {
-      "@open-retro/shared/*": ["../shared/*"]
+      "@open-retro/shared": ["../shared/dist/index.d.ts"],
+      "@open-retro/shared/*": ["../shared/dist/*"]
     }
   },
   "include": ["src"]
