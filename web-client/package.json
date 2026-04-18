@@ -1,6 +1,6 @@
 {
   "name": "@open-retro/web-client",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": false,
   "files": [
     "dist-lib",
@@ -9,10 +9,10 @@
   "type": "module",
   "main": "dist-lib/open-retro-web-client.umd.js",
   "module": "dist-lib/open-retro-web-client.es.js",
-  "types": "dist-lib/index.d.ts",
+  "types": "src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist-lib/index.d.ts",
+      "types": "./src/index.ts",
       "import": "./dist-lib/open-retro-web-client.es.js",
       "require": "./dist-lib/open-retro-web-client.umd.js"
     },
