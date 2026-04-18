@@ -1,6 +1,6 @@
 {
   "name": "@open-retro/web-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
   "files": [
     "dist-lib",
@@ -9,10 +9,10 @@
   "type": "module",
   "main": "dist-lib/open-retro-web-client.umd.js",
   "module": "dist-lib/open-retro-web-client.es.js",
-  "types": "dist-lib/types/index.d.ts",
+  "types": "dist-lib/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist-lib/types/index.d.ts",
+      "types": "./dist-lib/index.d.ts",
       "import": "./dist-lib/open-retro-web-client.es.js",
       "require": "./dist-lib/open-retro-web-client.umd.js"
     },
@@ -21,7 +21,7 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
-    "build:lib": "vue-tsc --declaration --emitDeclarationOnly --outDir dist-lib/types && vite build -c vite.config.lib.ts",
+    "build:lib": "vue-tsc --declaration --emitDeclarationOnly --outDir dist-lib && vite build -c vite.config.lib.ts",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",

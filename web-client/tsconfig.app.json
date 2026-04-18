@@ -6,6 +6,11 @@
     // Extra safety for array and object lookups, but may have false positives.
     "noUncheckedIndexedAccess": true,
 
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "./dist-lib",
+
     // Path mapping for cleaner imports.
     "paths": {
       "@/*": ["./src/*"],
