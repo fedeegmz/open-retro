@@ -24,12 +24,15 @@ function loadConfig(): ServerConfig {
     maxUsersPerSession = isNaN(parsedMaxUsers) || parsedMaxUsers <= 0 ? null : parsedMaxUsers
   }
 
+  const showApiDocs = process.env.SHOW_API_DOCS !== 'false'
+
   return {
     port,
     corsOrigins,
     sessionTimeLimitSeconds,
     adminGraceSeconds,
     maxUsersPerSession,
+    showApiDocs,
   }
 }
 
@@ -47,3 +50,4 @@ logService.info(`Admin grace period: ${config.adminGraceSeconds}s`)
 if (config.maxUsersPerSession !== null) {
   logService.info(`Max users per session: ${config.maxUsersPerSession}`)
 }
+logService.info(`API Documentation: ${config.showApiDocs ? 'Enabled (/docs)' : 'Disabled'}`)

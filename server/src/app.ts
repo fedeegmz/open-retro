@@ -36,13 +36,17 @@ export function createOpenRetroApp(deps: OpenRetroAppDeps) {
   const hashService = deps.hashService ?? new BunHashService()
   const logService = deps.logService ?? new ConsoleLogService()
 
-  return new Elysia()
-    .use(
-      cors({
-        origin: config.corsOrigins,
-      }),
-    )
-    .use(openapi({ path: '/docs' }))
+  let app = new Elysia().use(
+    cors({
+      origin: config.corsOrigins,
+    }),
+  )
+
+  if (config.showApiDocs) {
+    app = app.use(openapi({ path: '/docs' }))
+  }
+
+  return app
     .use(i18n)
     .use(globalErrorHandler)
     .get('/ping', () => ApiResponse.success())
