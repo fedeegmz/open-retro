@@ -19,5 +19,9 @@ WORKDIR /app/server
 
 ENV PORT=3001
 ENV ENVIRONMENT=develop
+ENV CORS_ORIGINS=*
+ENV SESSION_TIME_LIMIT=-1
+ENV ADMIN_GRACE_SECONDS=60
+ENV MAX_USERS_PER_SESSION=null
 
 CMD ["sh", "-c", "if [ \"$ENVIRONMENT\" = \"production\" ]; then bun src/bin.ts; else bun --watch src/bin.ts; fi"]

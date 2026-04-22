@@ -50,6 +50,10 @@ watch(wsError, (err) => {
     showToast(t('connection.wrong_password'))
     navigator.backToBoardSetup()
   }
+  if (err === 'session_full') {
+    showToast(t('connection.session_full'))
+    navigator.backToBoardSetup()
+  }
 })
 
 onMessage((msg) => {
@@ -469,6 +473,9 @@ function onBoardMouseDown(event: MouseEvent) {
     <div class="footer-overlay">
       <div v-if="wsError === 'auth'" class="connection-status error">
         {{ t('connection.access_denied') }}
+      </div>
+      <div v-else-if="wsError === 'session_full'" class="connection-status error">
+        {{ t('connection.session_full') }}
       </div>
       <div v-else-if="!isConnected" class="connection-status">
         {{ t('connection.reconnecting') }}

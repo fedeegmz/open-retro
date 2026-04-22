@@ -10,6 +10,7 @@ import type { IWebSocketClient } from '../../../shared/domain/IWebSocketClient'
 import NotFoundError from '../../../shared/domain/errors/NotFoundError'
 import type { JoinBoardDTO } from '../dtos/JoinBoardDTO'
 import { I18nService } from '../../../shared/infrastructure/services/I18nService'
+import type { ServerConfig } from '../../../shared/domain/ServerConfig'
 
 export class JoinBoardUseCase {
   constructor(
@@ -19,6 +20,7 @@ export class JoinBoardUseCase {
     private readonly hashService: IHashService,
     private readonly logService: ILogService,
     private readonly sessionManager: UserSessionManager,
+    private readonly config: ServerConfig,
     private readonly i18n: I18nService = new I18nService(),
   ) {}
 
@@ -43,6 +45,14 @@ export class JoinBoardUseCase {
 
     if (board.isExpired) {
       ws.close(4002, this.i18n.t('ws_close.session_expired'))
+      return
+    }
+
+    if (
+      this.config.maxUsersPerSession !== null &&
+      this.sessionManager.getRoomUsers(data.boardId).length >= this.config.maxUsersPerSession
+    ) {
+      ws.close(4003, this.i18n.t('ws_close.session_full'))
       return
     }
 

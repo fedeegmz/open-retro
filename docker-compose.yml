@@ -11,6 +11,10 @@ services:
     environment:
       PORT: '3001'
       ENVIRONMENT: '${ENVIRONMENT:-develop}'
+      CORS_ORIGINS: '${CORS_ORIGINS:-*}'
+      SESSION_TIME_LIMIT: '${SESSION_TIME_LIMIT:-}'
+      ADMIN_GRACE_SECONDS: '${ADMIN_GRACE_SECONDS:-60}'
+      MAX_USERS_PER_SESSION: '${MAX_USERS_PER_SESSION:-}'
     volumes:
       - ./server/src:/app/server/src
       - ./shared:/app/shared

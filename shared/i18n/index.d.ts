@@ -91,6 +91,7 @@ export declare const dictionaries: {
       wrong_password: string
       access_denied: string
       reconnecting: string
+      session_full: string
     }
     notifications: {
       import_success: string
@@ -107,6 +108,7 @@ export declare const dictionaries: {
     ws_close: {
       invalid_password: string
       session_expired: string
+      session_full: string
     }
   }
   readonly es: {
@@ -200,6 +202,7 @@ export declare const dictionaries: {
       wrong_password: string
       access_denied: string
       reconnecting: string
+      session_full: string
     }
     notifications: {
       import_success: string
@@ -216,6 +219,7 @@ export declare const dictionaries: {
     ws_close: {
       invalid_password: string
       session_expired: string
+      session_full: string
     }
   }
 }

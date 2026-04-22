@@ -1,7 +1,7 @@
 import { ref, onUnmounted } from 'vue'
 import type { WsMessage } from '@open-retro/shared/types/board'
 
-export type WsError = 'auth' | 'connection' | null
+export type WsError = 'auth' | 'session_full' | 'connection' | null
 
 export function useWebSocket(url: string) {
   const isConnected = ref(false)
@@ -32,6 +32,13 @@ export function useWebSocket(url: string) {
         wsError.value = 'auth'
         shouldReconnect = false
         console.log('[WS] Authentication failed')
+        return
+      }
+
+      if (event.code === 4003) {
+        wsError.value = 'session_full'
+        shouldReconnect = false
+        console.log('[WS] Session is full')
         return
       }
 
