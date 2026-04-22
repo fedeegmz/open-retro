@@ -4,4 +4,5 @@ export interface ServerConfig {
   sessionTimeLimitSeconds: number
   adminGraceSeconds: number
   maxUsersPerSession: number | null
+  showApiDocs: boolean
 }
