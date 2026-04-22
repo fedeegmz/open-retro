@@ -88,7 +88,8 @@
   "connection": {
     "wrong_password": "Contraseña incorrecta",
     "access_denied": "Contraseña incorrecta — acceso denegado",
-    "reconnecting": "Reconectando..."
+    "reconnecting": "Reconectando...",
+    "session_full": "El tablero está lleno — límite de usuarios alcanzado"
   },
   "notifications": {
     "import_success": "Tablero importado correctamente",
@@ -104,6 +105,7 @@
   },
   "ws_close": {
     "invalid_password": "Contraseña incorrecta",
-    "session_expired": "Sesión expirada"
+    "session_expired": "Sesión expirada",
+    "session_full": "Este tablero alcanzó el límite máximo de usuarios"
   }
 }

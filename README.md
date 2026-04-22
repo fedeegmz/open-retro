@@ -48,6 +48,20 @@ environment:
   ENVIRONMENT: "production"
 ```
 
+### Configuración del Servidor
+
+El servidor acepta las siguientes variables de entorno para su configuración:
+
+| Variable | Descripción | Valor por defecto |
+|---|---|---|
+| `PORT` | Puerto en el que corre el servidor | `3001` |
+| `CORS_ORIGINS` | Orígenes permitidos (separados por `;`) | `*` |
+| `SESSION_TIME_LIMIT` | Tiempo máximo en segundos para una sesión (vencimiento) | Sin límite |
+| `ADMIN_GRACE_SECONDS` | Tiempo de gracia en segundos tras el vencimiento antes de borrar datos | `60` |
+| `MAX_USERS_PER_SESSION` | Límite de usuarios conectados por tablero | Sin límite |
+
+Esto se puede configurar en el archivo `docker-compose.yml` bajo la sección `environment` del servicio `server`.
+
 ### Limpiar contenedores y volúmenes
 
 ```bash

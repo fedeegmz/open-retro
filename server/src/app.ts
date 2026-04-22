@@ -25,11 +25,11 @@ export interface OpenRetroAppDeps {
   groupRepository?: INoteGroupRepository
   hashService?: IHashService
   logService?: ILogService
-  config?: ServerConfig
+  config: ServerConfig
 }
 
-export function createOpenRetroApp(deps: OpenRetroAppDeps = {}) {
-  const config = deps.config ?? new ServerConfig()
+export function createOpenRetroApp(deps: OpenRetroAppDeps) {
+  const { config } = deps
   const boardRepository = deps.boardRepository ?? new MemoryBoardRepository()
   const noteRepository = deps.noteRepository ?? new MemoryNoteRepository()
   const groupRepository = deps.groupRepository ?? new MemoryNoteGroupRepository()

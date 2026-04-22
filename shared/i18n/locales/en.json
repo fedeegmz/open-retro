@@ -88,7 +88,8 @@
   "connection": {
     "wrong_password": "Wrong password",
     "access_denied": "Wrong password — access denied",
-    "reconnecting": "Reconnecting..."
+    "reconnecting": "Reconnecting...",
+    "session_full": "Board is full — maximum users reached"
   },
   "notifications": {
     "import_success": "Board imported successfully",
@@ -104,6 +105,7 @@
   },
   "ws_close": {
     "invalid_password": "Invalid password",
-    "session_expired": "Session expired"
+    "session_expired": "Session expired",
+    "session_full": "This board has reached its maximum number of users"
   }
 }

@@ -65,6 +65,7 @@ export function boardController({
     hashService,
     logService,
     sessionManager,
+    config,
   )
   const processBoardMessageUseCase = new ProcessBoardMessageUseCase(
     boardRepository,
