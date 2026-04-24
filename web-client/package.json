@@ -1,6 +1,6 @@
 {
   "name": "@open-retro/web-client",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "private": false,
   "files": [
     "dist-lib",
