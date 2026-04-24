@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Navigator } from '@/router/navigator'
-import BoardCanvas from '../components/BoardCanvas.vue'
+import BoardCanvas from '../components/organisms/BoardCanvas.vue'
 import { LocalStorageService } from '@/services/localStorageService'
 
 import { useUser } from '@/composables/useUser'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
-import ContextMenu, { type ContextMenuItem } from './ContextMenu.vue'
+import ContextMenu, { type ContextMenuItem } from '../molecules/ContextMenu.vue'
 
 import { useI18n } from 'vue-i18n'
 

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 
+import BaseButton from '@/components/atoms/BaseButton.vue'
+
 export interface ContextMenuItem {
   label: string
   icon?: string
@@ -62,7 +64,7 @@ onUnmounted(() => {
       :style="{ top: `${y}px`, left: `${x}px` }"
       @contextmenu.prevent
     >
-      <button
+      <BaseButton
         v-for="item in items"
         :key="item.label"
         class="context-menu-item"
@@ -71,7 +73,7 @@ onUnmounted(() => {
       >
         <span v-if="item.icon" class="item-icon" v-html="item.icon" />
         <span class="item-label">{{ item.label }}</span>
-      </button>
+      </BaseButton>
     </div>
   </Teleport>
 </template>

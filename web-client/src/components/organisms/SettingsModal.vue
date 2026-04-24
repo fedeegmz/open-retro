@@ -5,6 +5,9 @@ import { ServerService } from '@/services/api/serverService'
 import { LocalStorageService } from '@/services/localStorageService'
 import { getConfig } from '@/config/config'
 
+import BaseButton from '@/components/atoms/BaseButton.vue'
+import BaseInput from '@/components/atoms/BaseInput.vue'
+
 const { t, locale } = useI18n()
 const emit = defineEmits<{ close: [] }>()
 
@@ -76,7 +79,7 @@ async function testConnection() {
             <h3>{{ t('common.settings') }}</h3>
           </div>
           <nav class="nav">
-            <button
+            <BaseButton
               :class="['nav-item', { active: activeSection === 'preferences' }]"
               @click="activeSection = 'preferences'"
             >
@@ -95,8 +98,8 @@ async function testConnection() {
                 />
               </svg>
               {{ t('setup.preferences_tab') || 'Preferences' }}
-            </button>
-            <button
+            </BaseButton>
+            <BaseButton
               :class="['nav-item', { active: activeSection === 'server' }]"
               @click="activeSection = 'server'"
             >
@@ -114,9 +117,11 @@ async function testConnection() {
                 <line x1="6" y1="18" x2="6.01" y2="18" />
               </svg>
               {{ t('setup.server_tab') || 'Server' }}
-            </button>
+            </BaseButton>
           </nav>
-          <button class="close-mobile" @click="emit('close')">{{ t('common.close') }}</button>
+          <BaseButton class="close-mobile" @click="emit('close')">{{
+            t('common.close')
+          }}</BaseButton>
         </aside>
 
         <main class="content">
@@ -128,7 +133,7 @@ async function testConnection() {
                   : t('setup.server_config_title')
               }}
             </h2>
-            <button class="close-btn" @click="emit('close')">✕</button>
+            <BaseButton class="close-btn" @click="emit('close')">✕</BaseButton>
           </header>
 
           <div class="scroll-area">
@@ -137,7 +142,7 @@ async function testConnection() {
               <div class="field">
                 <label>{{ t('setup.language_label') || 'Language' }}</label>
                 <div class="lang-grid">
-                  <button
+                  <BaseButton
                     v-for="lang in availableLanguages"
                     :key="lang.code"
                     :class="['lang-card', { active: locale === lang.code }]"
@@ -145,7 +150,7 @@ async function testConnection() {
                   >
                     <span class="lang-name">{{ lang.name }}</span>
                     <span v-if="locale === lang.code" class="check">✓</span>
-                  </button>
+                  </BaseButton>
                 </div>
               </div>
             </div>
@@ -156,14 +161,14 @@ async function testConnection() {
               <div class="field">
                 <label for="server-url">{{ t('setup.server_url_label') }}</label>
                 <div class="input-group">
-                  <input
+                  <BaseInput
                     id="server-url"
                     v-model="serverUrl"
                     type="text"
                     placeholder="https://api.example.com"
                     spellcheck="false"
                   />
-                  <button
+                  <BaseButton
                     class="btn-test"
                     :disabled="serverLoading || !serverUrl"
                     @click="testConnection"
@@ -172,7 +177,7 @@ async function testConnection() {
                     {{
                       serverLoading ? t('setup.connecting') : t('setup.test_connection') || 'Test'
                     }}
-                  </button>
+                  </BaseButton>
                 </div>
                 <p v-if="serverError" class="error-text">{{ serverError }}</p>
                 <p v-if="serverSuccess" class="success-text">

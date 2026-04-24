@@ -12,7 +12,7 @@ export * from './config/config'
 export * from './composables/useWebSocket'
 
 // Components
-export { default as BoardCanvas } from './components/BoardCanvas.vue'
-export { default as ToolBar } from './components/ToolBar.vue'
-export { default as UsersSidebar } from './components/UsersSidebar.vue'
-export { default as SessionExpiredModal } from './components/SessionExpiredModal.vue'
+export { default as BoardCanvas } from './components/organisms/BoardCanvas.vue'
+export { default as ToolBar } from './components/organisms/ToolBar.vue'
+export { default as UsersSidebar } from './components/organisms/UsersSidebar.vue'
+export { default as SessionExpiredModal } from './components/organisms/SessionExpiredModal.vue'
