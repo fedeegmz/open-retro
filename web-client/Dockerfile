@@ -20,5 +20,6 @@ COPY shared ./shared
 WORKDIR /app/web-client
 
 ENV ENVIRONMENT=develop
+ENV VITE_DEFAULT_SERVER_URL=http://localhost:3001
 
 CMD ["sh", "-c", "if [ \"$ENVIRONMENT\" = \"production\" ]; then npm run build && npm run preview; else npm run dev; fi"]

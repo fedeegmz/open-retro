@@ -6,13 +6,9 @@ import { LocalStorageService } from '@/services/localStorageService'
 import { getConfig } from '@/config/config'
 
 import BaseButton from '@/components/atoms/BaseButton.vue'
-import BaseInput from '@/components/atoms/BaseInput.vue'
 
 const { t, locale } = useI18n()
 const emit = defineEmits<{ close: [] }>()
-
-type Section = 'preferences' | 'server'
-const activeSection = ref<Section>('preferences')
 
 // Preferences State
 interface Language {
@@ -21,19 +17,13 @@ interface Language {
 }
 const availableLanguages = ref<Language[]>([])
 
-// Server State
-const serverUrl = ref(LocalStorageService.getServerUrl() ?? getConfig().defaultServerUrl ?? '')
-const serverError = ref('')
-const serverLoading = ref(false)
-const serverSuccess = ref(false)
-
 onMounted(async () => {
   await fetchLanguages()
 })
 
 async function fetchLanguages() {
   try {
-    const url = LocalStorageService.getServerUrl() ?? getConfig().defaultServerUrl
+    const url = getConfig().defaultServerUrl
     if (!url) return
     const response = await new ServerService(url).getLanguages()
     if (response.success && response.data) {
@@ -48,26 +38,6 @@ function selectLanguage(code: string) {
   locale.value = code
   LocalStorageService.setLanguage(code)
 }
-
-async function testConnection() {
-  serverError.value = ''
-  serverSuccess.value = false
-  serverLoading.value = true
-
-  await new ServerService(serverUrl.value).ping({
-    onSuccess: () => {
-      LocalStorageService.setServerUrl(serverUrl.value)
-      serverSuccess.value = true
-      // Refresh languages in case the new server has different ones
-      fetchLanguages()
-    },
-    onError: (msg) => {
-      serverError.value = msg
-    },
-  })
-
-  serverLoading.value = false
-}
 </script>
 
 <template>
@@ -79,10 +49,7 @@ async function testConnection() {
             <h3>{{ t('common.settings') }}</h3>
           </div>
           <nav class="nav">
-            <BaseButton
-              :class="['nav-item', { active: activeSection === 'preferences' }]"
-              @click="activeSection = 'preferences'"
-            >
+            <BaseButton class="nav-item active">
               <svg
                 width="18"
                 height="18"
@@ -99,25 +66,6 @@ async function testConnection() {
               </svg>
               {{ t('setup.preferences_tab') || 'Preferences' }}
             </BaseButton>
-            <BaseButton
-              :class="['nav-item', { active: activeSection === 'server' }]"
-              @click="activeSection = 'server'"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
-                <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
-                <line x1="6" y1="6" x2="6.01" y2="6" />
-                <line x1="6" y1="18" x2="6.01" y2="18" />
-              </svg>
-              {{ t('setup.server_tab') || 'Server' }}
-            </BaseButton>
           </nav>
           <BaseButton class="close-mobile" @click="emit('close')">{{
             t('common.close')
@@ -127,18 +75,14 @@ async function testConnection() {
         <main class="content">
           <header class="content-header">
             <h2>
-              {{
-                activeSection === 'preferences'
-                  ? t('setup.preferences_title') || 'Preferences'
-                  : t('setup.server_config_title')
-              }}
+              {{ t('setup.preferences_title') || 'Preferences' }}
             </h2>
             <BaseButton class="close-btn" @click="emit('close')">✕</BaseButton>
           </header>
 
           <div class="scroll-area">
             <!-- Preferences Section -->
-            <div v-if="activeSection === 'preferences'" class="section fade-in">
+            <div class="section fade-in">
               <div class="field">
                 <label>{{ t('setup.language_label') || 'Language' }}</label>
                 <div class="lang-grid">
@@ -152,37 +96,6 @@ async function testConnection() {
                     <span v-if="locale === lang.code" class="check">✓</span>
                   </BaseButton>
                 </div>
-              </div>
-            </div>
-
-            <!-- Server Section -->
-            <div v-if="activeSection === 'server'" class="section fade-in">
-              <p class="desc">{{ t('setup.server_config_desc') }}</p>
-              <div class="field">
-                <label for="server-url">{{ t('setup.server_url_label') }}</label>
-                <div class="input-group">
-                  <BaseInput
-                    id="server-url"
-                    v-model="serverUrl"
-                    type="text"
-                    placeholder="https://api.example.com"
-                    spellcheck="false"
-                  />
-                  <BaseButton
-                    class="btn-test"
-                    :disabled="serverLoading || !serverUrl"
-                    @click="testConnection"
-                  >
-                    <span v-if="serverLoading" class="spinner-small" />
-                    {{
-                      serverLoading ? t('setup.connecting') : t('setup.test_connection') || 'Test'
-                    }}
-                  </BaseButton>
-                </div>
-                <p v-if="serverError" class="error-text">{{ serverError }}</p>
-                <p v-if="serverSuccess" class="success-text">
-                  ✓ {{ t('setup.connection_success') || 'Connection successful' }}
-                </p>
               </div>
             </div>
           </div>
@@ -385,71 +298,6 @@ async function testConnection() {
 
 .check {
   font-size: 16px;
-}
-
-/* Server Input */
-.input-group {
-  display: flex;
-  gap: 8px;
-}
-
-.input-group input {
-  flex: 1;
-  background: var(--color-background-mute);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 10px 14px;
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.input-group input:focus {
-  border-color: var(--color-primary);
-}
-
-.btn-test {
-  padding: 0 20px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: opacity 0.2s;
-}
-
-.btn-test:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.error-text {
-  font-size: 13px;
-  color: #e5484d;
-  margin: 0;
-}
-
-.success-text {
-  font-size: 13px;
-  color: var(--color-primary);
-  margin: 0;
-  font-weight: 600;
-}
-
-.spinner-small {
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
 }
 
 @keyframes spin {

@@ -38,14 +38,10 @@ function onError(msg: string) {
 async function submit() {
   error.value = ''
 
-  const url = LocalStorageService.getServerUrl() ?? getConfig().defaultServerUrl
+  const url = getConfig().defaultServerUrl
   if (!url) {
-    error.value = 'Server URL not configured. Use settings to set it.'
+    error.value = 'Server URL not configured. It should be injected by the host application.'
     return
-  }
-
-  if (!LocalStorageService.getServerUrl()) {
-    LocalStorageService.setServerUrl(url)
   }
 
   loading.value = true
