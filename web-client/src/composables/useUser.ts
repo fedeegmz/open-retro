@@ -6,7 +6,7 @@ import { getConfig } from '@/config/config'
 const username = ref(LocalStorageService.getUsername() ?? '')
 
 export function useUser() {
-  const serverUrl = LocalStorageService.getServerUrl() ?? getConfig().defaultServerUrl ?? ''
+  const serverUrl = getConfig().defaultServerUrl
   const userService = new UserService(serverUrl)
 
   const setUsername = (newName: string) => {

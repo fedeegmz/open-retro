@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useUser } from '@/composables/useUser'
-import ToastContainer from '@/components/ToastContainer.vue'
-import AppHeader from '@/components/layout/AppHeader.vue'
+import ToastContainer from '@/components/organisms/ToastContainer.vue'
+import BaseLayout from '@/components/templates/BaseLayout.vue'
 
 const { initializeUser } = useUser()
 
@@ -12,15 +12,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <AppHeader />
-  <main class="main-content">
+  <BaseLayout>
     <RouterView />
-  </main>
+  </BaseLayout>
   <ToastContainer />
 </template>
 
 <style>
-.main-content {
-  padding-top: var(--header-height, 64px);
-}
+/* Estilos globales y reseteos generales si existiesen */
 </style>

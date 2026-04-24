@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AppLogo from '@/components/common/AppLogo.vue'
-import UserMenu from '@/components/user/UserMenu.vue'
+import AppLogo from '@/components/atoms/AppLogo.vue'
+import UserMenu from '@/components/molecules/UserMenu.vue'
 </script>
 
 <template>

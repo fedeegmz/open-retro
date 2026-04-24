@@ -2,13 +2,14 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Navigator } from '@/router/navigator'
-import StickyNote from './StickyNote.vue'
+import StickyNote from '../molecules/StickyNote.vue'
 import NoteGroup from './NoteGroup.vue'
 import ToolBar from './ToolBar.vue'
 import UsersSidebar from './UsersSidebar.vue'
 import SessionExpiredModal from './SessionExpiredModal.vue'
-import { useWebSocket } from '../composables/useWebSocket'
-import { useToast } from '../composables/useToast'
+import BoardLayout from '../templates/BoardLayout.vue'
+import { useWebSocket } from '@/composables/useWebSocket'
+import { useToast } from '@/composables/useToast'
 import { useI18n } from 'vue-i18n'
 import { WsMsgType } from '@open-retro/shared/types/board'
 import type { Note, Group, ConnectedUser } from '@open-retro/shared/types/board'
@@ -185,15 +186,6 @@ onMessage((msg) => {
 
 const canvasOffset = ref({ x: 0, y: 0 })
 const isPanning = ref(false)
-
-const canvasStyle = computed(() => ({
-  transform: `translate(${canvasOffset.value.x}px, ${canvasOffset.value.y}px)`,
-}))
-
-const boardStyle = computed(() => ({
-  cursor: isPanning.value ? 'grabbing' : 'grab',
-  backgroundPosition: `${canvasOffset.value.x}px ${canvasOffset.value.y}px`,
-}))
 
 const myBoardVotes = computed(() => {
   if (!myId) return 0
@@ -397,8 +389,13 @@ function onBoardMouseDown(event: MouseEvent) {
 </script>
 
 <template>
-  <div class="board" :style="boardStyle" @mousedown="onBoardMouseDown">
-    <div class="canvas" :style="canvasStyle">
+  <BoardLayout
+    :offset-x="canvasOffset.x"
+    :offset-y="canvasOffset.y"
+    :is-panning="isPanning"
+    @mousedown="onBoardMouseDown"
+  >
+    <template #canvas>
       <NoteGroup
         v-for="group in groups"
         :key="group.id"
@@ -439,38 +436,34 @@ function onBoardMouseDown(event: MouseEvent) {
         @unvote="onNoteUnvote(note.id)"
         :is-hidden="isNotesHidden && note.createdBy !== myId && !note.text"
       />
-    </div>
+    </template>
 
-    <ToolBar
-      @add-note="addNote"
-      @add-group="addGroup"
-      :is-notes-hidden="isNotesHidden"
-      :is-owner="boardCreator === myId"
-      :voting="voting"
-      @toggle-visibility="
-        () => send({ type: WsMsgType.BoardToggleNotes, isHidden: !isNotesHidden })
-      "
-      @export-board="exportBoard"
-      @import-board="importBoard"
-      @start-voting="
-        (maxVotes) => send({ type: WsMsgType.BoardVotingStart, maxVotesPerUser: maxVotes })
-      "
-      @pause-voting="() => send({ type: WsMsgType.BoardVotingPause })"
-      @reset-voting="() => send({ type: WsMsgType.BoardVotingReset })"
-      @leave="navigator.backToBoardSetup()"
-    />
+    <template #toolbar>
+      <ToolBar
+        @add-note="addNote"
+        @add-group="addGroup"
+        :is-notes-hidden="isNotesHidden"
+        :is-owner="boardCreator === myId"
+        :voting="voting"
+        @toggle-visibility="
+          () => send({ type: WsMsgType.BoardToggleNotes, isHidden: !isNotesHidden })
+        "
+        @export-board="exportBoard"
+        @import-board="importBoard"
+        @start-voting="
+          (maxVotes) => send({ type: WsMsgType.BoardVotingStart, maxVotesPerUser: maxVotes })
+        "
+        @pause-voting="() => send({ type: WsMsgType.BoardVotingPause })"
+        @reset-voting="() => send({ type: WsMsgType.BoardVotingReset })"
+        @leave="navigator.backToBoardSetup()"
+      />
+    </template>
 
-    <input
-      ref="fileInput"
-      type="file"
-      accept=".json"
-      style="display: none"
-      @change="onFileSelected"
-    />
+    <template #sidebar>
+      <UsersSidebar :users="connectedUsers" :my-id="myId" />
+    </template>
 
-    <UsersSidebar :users="connectedUsers" :my-id="myId" />
-
-    <div class="footer-overlay">
+    <template #footer>
       <div v-if="wsError === 'auth'" class="connection-status error">
         {{ t('connection.access_denied') }}
       </div>
@@ -480,8 +473,16 @@ function onBoardMouseDown(event: MouseEvent) {
       <div v-else-if="!isConnected" class="connection-status">
         {{ t('connection.reconnecting') }}
       </div>
-    </div>
-  </div>
+    </template>
+
+    <input
+      ref="fileInput"
+      type="file"
+      accept=".json"
+      style="display: none"
+      @change="onFileSelected"
+    />
+  </BoardLayout>
 
   <SessionExpiredModal
     v-if="isSessionExpired"
@@ -493,36 +494,6 @@ function onBoardMouseDown(event: MouseEvent) {
 </template>
 
 <style scoped>
-.board {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  background-color: var(--color-background);
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
-  will-change: transform;
-}
-
-.footer-overlay {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-  z-index: 200;
-}
-
 .connection-status {
   position: relative;
   padding: 8px 16px;

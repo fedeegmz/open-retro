@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import BaseButton from '@/components/atoms/BaseButton.vue'
 
 const props = defineProps<{
   isNotesHidden: boolean
@@ -46,7 +47,7 @@ function clearVoting() {
 
 <template>
   <aside class="toolbar">
-    <button class="tool-btn" :title="t('board.create_note')" @click="emit('addNote')">
+    <BaseButton class="tool-btn" :title="t('board.create_note')" @click="emit('addNote')">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -61,11 +62,11 @@ function clearVoting() {
         <line x1="8" y1="12" x2="16" y2="12" />
       </svg>
       <span class="tool-label">{{ t('board.note') }}</span>
-    </button>
+    </BaseButton>
 
     <div class="divider" />
 
-    <button class="tool-btn" :title="t('board.create_group')" @click="emit('addGroup')">
+    <BaseButton class="tool-btn" :title="t('board.create_group')" @click="emit('addGroup')">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -81,11 +82,11 @@ function clearVoting() {
         <rect x="6" y="13" width="5" height="5" rx="1" />
       </svg>
       <span class="tool-label">{{ t('board.group') }}</span>
-    </button>
+    </BaseButton>
 
     <template v-if="props.isOwner">
       <div class="divider" />
-      <button
+      <BaseButton
         class="tool-btn"
         :title="props.isNotesHidden ? t('board.show_notes') : t('board.hide_notes')"
         @click="emit('toggleVisibility')"
@@ -120,9 +121,9 @@ function clearVoting() {
           <circle cx="12" cy="12" r="3" />
         </svg>
         <span class="tool-label">{{ t('board.note') }}</span>
-      </button>
+      </BaseButton>
 
-      <button
+      <BaseButton
         class="tool-btn"
         :title="props.voting?.active ? t('board.pause_voting') : t('board.start_voting')"
         @click="toggleVoting"
@@ -154,9 +155,9 @@ function clearVoting() {
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
         <span class="tool-label">{{ t('board.vote') }}</span>
-      </button>
+      </BaseButton>
 
-      <button class="tool-btn danger" :title="t('board.reset_voting')" @click="clearVoting">
+      <BaseButton class="tool-btn danger" :title="t('board.reset_voting')" @click="clearVoting">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -171,7 +172,7 @@ function clearVoting() {
           <line x1="9" y1="9" x2="15" y2="15"></line>
         </svg>
         <span class="tool-label">{{ t('board.clear') }}</span>
-      </button>
+      </BaseButton>
     </template>
 
     <div class="spacer"></div>
@@ -179,7 +180,7 @@ function clearVoting() {
     <template v-if="props.isOwner">
       <div class="divider" />
 
-      <button class="tool-btn" :title="t('board.export_json')" @click="emit('exportBoard')">
+      <BaseButton class="tool-btn" :title="t('board.export_json')" @click="emit('exportBoard')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -194,9 +195,9 @@ function clearVoting() {
           <line x1="12" y1="15" x2="12" y2="3" />
         </svg>
         <span class="tool-label">{{ t('board.export') }}</span>
-      </button>
+      </BaseButton>
 
-      <button class="tool-btn" :title="t('board.import_json')" @click="emit('importBoard')">
+      <BaseButton class="tool-btn" :title="t('board.import_json')" @click="emit('importBoard')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -211,12 +212,12 @@ function clearVoting() {
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
         <span class="tool-label">{{ t('board.import') }}</span>
-      </button>
+      </BaseButton>
     </template>
 
     <div class="divider" />
 
-    <button class="tool-btn leave-btn" :title="t('board.leave_board')" @click="emit('leave')">
+    <BaseButton class="tool-btn leave-btn" :title="t('board.leave_board')" @click="emit('leave')">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -231,7 +232,7 @@ function clearVoting() {
         <line x1="21" y1="12" x2="9" y2="12" />
       </svg>
       <span class="tool-label">{{ t('board.leave') }}</span>
-    </button>
+    </BaseButton>
   </aside>
 </template>
 

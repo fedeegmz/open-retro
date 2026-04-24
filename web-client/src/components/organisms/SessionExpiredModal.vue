@@ -3,6 +3,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { BoardService } from '@/services/api/boardService'
 
+import BaseButton from '@/components/atoms/BaseButton.vue'
+
 const props = defineProps<{
   isAdmin: boolean
   serverUrl: string
@@ -97,22 +99,22 @@ function exportBoard() {
 
         <!-- Actions -->
         <div class="actions">
-          <button v-if="isAdmin && !isDataErased" class="btn btn-export" @click="exportBoard">
+          <BaseButton v-if="isAdmin && !isDataErased" class="btn btn-export" @click="exportBoard">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
             {{ t('session_expired.export_board') }}
-          </button>
+          </BaseButton>
 
-          <button class="btn btn-back" @click="emit('go-back')">
+          <BaseButton class="btn btn-back" @click="emit('go-back')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="19" y1="12" x2="5" y2="12" />
               <polyline points="12 19 5 12 12 5" />
             </svg>
             {{ t('session_expired.go_back') }}
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>

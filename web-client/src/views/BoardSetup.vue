@@ -8,6 +8,9 @@ import { LocalStorageService } from '@/services/localStorageService'
 import { getConfig } from '@/config/config'
 import { newUUID } from '@/utils/stringUtils'
 
+import BaseButton from '@/components/atoms/BaseButton.vue'
+import BaseInput from '@/components/atoms/BaseInput.vue'
+
 import { useI18n } from 'vue-i18n'
 import { useUser } from '@/composables/useUser'
 
@@ -35,14 +38,10 @@ function onError(msg: string) {
 async function submit() {
   error.value = ''
 
-  const url = LocalStorageService.getServerUrl() ?? getConfig().defaultServerUrl
+  const url = getConfig().defaultServerUrl
   if (!url) {
-    error.value = 'Server URL not configured. Use settings to set it.'
+    error.value = 'Server URL not configured. It should be injected by the host application.'
     return
-  }
-
-  if (!LocalStorageService.getServerUrl()) {
-    LocalStorageService.setServerUrl(url)
   }
 
   loading.value = true
@@ -85,19 +84,19 @@ function setMode(m: Mode) {
       </p>
 
       <div class="tab-group">
-        <button :class="['tab', { active: mode === 'create' }]" @click="setMode('create')">
+        <BaseButton :class="['tab', { active: mode === 'create' }]" @click="setMode('create')">
           {{ t('setup.create_tab') }}
-        </button>
-        <button :class="['tab', { active: mode === 'join' }]" @click="setMode('join')">
+        </BaseButton>
+        <BaseButton :class="['tab', { active: mode === 'join' }]" @click="setMode('join')">
           {{ t('setup.join_tab') }}
-        </button>
+        </BaseButton>
       </div>
 
       <form @submit.prevent="submit" class="form">
         <div class="field">
           <div class="label-row">
             <label for="board-id">{{ t('setup.board_id_label') }}</label>
-            <button
+            <BaseButton
               v-if="mode === 'create'"
               type="button"
               class="regenerate-btn"
@@ -105,9 +104,9 @@ function setMode(m: Mode) {
               :title="t('setup.generate_id_title')"
             >
               {{ t('setup.regenerate') }}
-            </button>
+            </BaseButton>
           </div>
-          <input
+          <BaseInput
             id="board-id"
             v-model="boardId"
             type="text"
@@ -120,7 +119,7 @@ function setMode(m: Mode) {
 
         <div class="field">
           <label for="password">{{ t('setup.password_label') }}</label>
-          <input
+          <BaseInput
             id="password"
             v-model="password"
             type="password"
@@ -140,7 +139,7 @@ function setMode(m: Mode) {
           {{ error }}
         </div>
 
-        <button type="submit" class="btn-primary" :disabled="loading || !boardId || !password">
+        <BaseButton type="submit" class="btn-primary" :disabled="loading || !boardId || !password">
           <span v-if="loading" class="spinner" />
           {{
             loading
@@ -149,7 +148,7 @@ function setMode(m: Mode) {
                 ? t('setup.submit_create')
                 : t('setup.submit_join')
           }}
-        </button>
+        </BaseButton>
       </form>
     </div>
   </div>

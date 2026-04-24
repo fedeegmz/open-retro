@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useUser } from '@/composables/useUser'
-import SettingsModal from '@/components/settings/SettingsModal.vue'
+import SettingsModal from '@/components/organisms/SettingsModal.vue'
+import BaseButton from '@/components/atoms/BaseButton.vue'
+import BaseInput from '@/components/atoms/BaseInput.vue'
 
 const { username, setUsername } = useUser()
 const isOpen = ref(false)
@@ -52,18 +54,18 @@ onUnmounted(() => {
 
 <template>
   <div class="user-menu" ref="menuRef">
-    <button class="avatar-btn" @click.stop="toggleMenu" :title="username">
+    <BaseButton class="avatar-btn" @click.stop="toggleMenu" :title="username">
       <div class="avatar">
         {{ username.charAt(0).toUpperCase() }}
       </div>
-    </button>
+    </BaseButton>
 
     <Transition name="fade-slide">
       <div v-if="isOpen" class="dropdown" @click.stop>
         <div class="user-info">
           <div v-if="!isEditing" class="username-row">
             <span class="username">{{ username }}</span>
-            <button class="edit-btn" @click.stop="startEdit">
+            <BaseButton class="edit-btn" @click.stop="startEdit">
               <svg
                 width="14"
                 height="14"
@@ -75,10 +77,10 @@ onUnmounted(() => {
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path>
               </svg>
-            </button>
+            </BaseButton>
           </div>
           <div v-else class="edit-row">
-            <input
+            <BaseInput
               v-model="editValue"
               class="edit-input"
               @keyup.enter="saveEdit"
@@ -86,14 +88,14 @@ onUnmounted(() => {
               autoFocus
             />
             <div class="actions">
-              <button class="icon-btn save" @click.stop="saveEdit">✓</button>
-              <button class="icon-btn cancel" @click.stop="cancelEdit">✕</button>
+              <BaseButton class="icon-btn save" @click.stop="saveEdit">✓</BaseButton>
+              <BaseButton class="icon-btn cancel" @click.stop="cancelEdit">✕</BaseButton>
             </div>
           </div>
         </div>
 
         <div class="menu-items">
-          <button class="menu-item" @click="openSettings">
+          <BaseButton class="menu-item" @click="openSettings">
             <svg
               width="16"
               height="16"
@@ -108,7 +110,7 @@ onUnmounted(() => {
               ></path>
             </svg>
             Settings
-          </button>
+          </BaseButton>
         </div>
       </div>
     </Transition>
