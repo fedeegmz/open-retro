@@ -7,6 +7,7 @@ export class Board {
   isExpired: boolean
   nextZIndex: number
   voting: { active: boolean; maxVotesPerUser: number }
+  timer: { minutes: string; seconds: string; isRunning: boolean }
 
   constructor(
     id: string,
@@ -25,5 +26,6 @@ export class Board {
     this.isExpired = isExpired
     this.nextZIndex = nextZIndex
     this.voting = { active: false, maxVotesPerUser: 0 }
+    this.timer = { minutes: '00', seconds: '00', isRunning: false }
   }
 }

@@ -29,6 +29,12 @@ export interface Group {
   pinned: boolean
 }
 
+export interface TimerState {
+  minutes: string
+  seconds: string
+  isRunning: boolean
+}
+
 export interface BoardState {
   notes: Note[]
   groups: Group[]
@@ -36,6 +42,7 @@ export interface BoardState {
   isNotesHidden: boolean
   createdBy: string
   voting: { active: boolean; maxVotesPerUser: number }
+  timer: TimerState
 }
 
 export enum WsMsgType {
@@ -45,6 +52,7 @@ export enum WsMsgType {
   BoardVotingStart = 'board:voting_start',
   BoardVotingPause = 'board:voting_pause',
   BoardVotingReset = 'board:voting_reset',
+  BoardTimerSync = 'board:timer_sync',
   NoteAdd = 'note:add',
   NoteMove = 'note:move',
   NoteResize = 'note:resize',
@@ -72,6 +80,7 @@ export type WsMessage =
   | { type: WsMsgType.BoardVotingStart; maxVotesPerUser: number }
   | { type: WsMsgType.BoardVotingPause }
   | { type: WsMsgType.BoardVotingReset }
+  | { type: WsMsgType.BoardTimerSync; timer: TimerState }
   | { type: WsMsgType.NoteAdd; note: Note }
   | { type: WsMsgType.NoteMove; id: string; x: number; y: number }
   | { type: WsMsgType.NoteResize; id: string; width: number; height: number }

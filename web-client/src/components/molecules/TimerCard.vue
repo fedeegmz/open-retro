@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import { ref, onUnmounted } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseButton from '@/components/atoms/BaseButton.vue'
+import type { TimerState } from '@open-retro/shared/types/board'
+
+const props = defineProps<{
+  isOwner: boolean
+  syncState: TimerState
+}>()
+
+const emit = defineEmits<{
+  (e: 'sync', state: TimerState): void
+}>()
 
 const { t } = useI18n()
 const isRunning = ref(false)
@@ -9,29 +19,60 @@ const minutes = ref('00')
 const seconds = ref('00')
 let intervalId: ReturnType<typeof setInterval> | null = null
 
-const toggleTimer = () => {
-  if (isRunning.value) {
-    pauseTimer()
-  } else {
-    startTimer()
-  }
+watch(
+  () => props.syncState,
+  (newState) => {
+    if (!newState) return
+    minutes.value = newState.minutes
+    seconds.value = newState.seconds
+
+    if (newState.isRunning && !isRunning.value) {
+      isRunning.value = true
+      startLocalInterval()
+    } else if (!newState.isRunning && isRunning.value) {
+      pauseLocalInterval()
+    }
+  },
+  { deep: true, immediate: true },
+)
+
+const emitSync = () => {
+  if (!props.isOwner) return
+  emit('sync', {
+    minutes: minutes.value,
+    seconds: seconds.value,
+    isRunning: isRunning.value,
+  })
 }
 
-const startTimer = () => {
-  const m = parseInt(minutes.value, 10) || 0
-  const s = parseInt(seconds.value, 10) || 0
+const toggleTimer = () => {
+  if (!props.isOwner) return
+  if (isRunning.value) {
+    pauseLocalInterval()
+  } else {
+    // Only start if there is time
+    const m = parseInt(minutes.value, 10) || 0
+    const s = parseInt(seconds.value, 10) || 0
+    if (m === 0 && s === 0) return
 
-  if (m === 0 && s === 0) return
+    isRunning.value = true
+    startLocalInterval()
+  }
+  emitSync()
+}
 
-  isRunning.value = true
+const startLocalInterval = () => {
+  if (intervalId) {
+    clearInterval(intervalId)
+  }
 
   intervalId = setInterval(() => {
     let currentMin = parseInt(minutes.value, 10) || 0
     let currentSec = parseInt(seconds.value, 10) || 0
 
     if (currentMin === 0 && currentSec === 0) {
-      pauseTimer()
-      // Play a sound or notify?
+      pauseLocalInterval()
+      if (props.isOwner) emitSync()
       return
     }
 
@@ -47,7 +88,7 @@ const startTimer = () => {
   }, 1000)
 }
 
-const pauseTimer = () => {
+const pauseLocalInterval = () => {
   isRunning.value = false
   if (intervalId) {
     clearInterval(intervalId)
@@ -56,6 +97,7 @@ const pauseTimer = () => {
 }
 
 const handleInput = (type: 'minutes' | 'seconds', event: Event) => {
+  if (!props.isOwner) return
   const target = event.target as HTMLInputElement
   let val = target.value.replace(/\D/g, '')
 
@@ -67,14 +109,17 @@ const handleInput = (type: 'minutes' | 'seconds', event: Event) => {
     const numStr = parseInt(val, 10) > 59 ? '59' : val
     seconds.value = numStr
   }
+  emitSync()
 }
 
 const formatOnBlur = (type: 'minutes' | 'seconds') => {
+  if (!props.isOwner) return
   if (type === 'minutes') {
     minutes.value = minutes.value.padStart(2, '0')
   } else {
     seconds.value = seconds.value.padStart(2, '0')
   }
+  emitSync()
 }
 
 onUnmounted(() => {
@@ -87,31 +132,38 @@ onUnmounted(() => {
 <template>
   <div class="timer-card">
     <div class="time-inputs">
-      <input
-        v-model="minutes"
-        type="text"
-        class="time-input"
-        :disabled="isRunning"
-        @input="handleInput('minutes', $event)"
-        @blur="formatOnBlur('minutes')"
-      />
-      <span class="separator">:</span>
-      <input
-        v-model="seconds"
-        type="text"
-        class="time-input"
-        :disabled="isRunning"
-        @input="handleInput('seconds', $event)"
-        @blur="formatOnBlur('seconds')"
-      />
+      <template v-if="isOwner">
+        <input
+          v-model="minutes"
+          type="text"
+          class="time-input"
+          :disabled="isRunning"
+          @input="handleInput('minutes', $event)"
+          @blur="formatOnBlur('minutes')"
+        />
+        <span class="separator">:</span>
+        <input
+          v-model="seconds"
+          type="text"
+          class="time-input"
+          :disabled="isRunning"
+          @input="handleInput('seconds', $event)"
+          @blur="formatOnBlur('seconds')"
+        />
+      </template>
+      <template v-else>
+        <span class="time-input readonly" :class="{ 'is-running': isRunning }">{{ minutes }}</span>
+        <span class="separator">:</span>
+        <span class="time-input readonly" :class="{ 'is-running': isRunning }">{{ seconds }}</span>
+      </template>
     </div>
 
     <BaseButton
+      v-if="isOwner"
       class="timer-btn"
       @click="toggleTimer"
       :title="isRunning ? t('board.pause_timer') : t('board.start_timer')"
     >
-      <!-- Play icon -->
       <svg
         v-if="!isRunning"
         xmlns="http://www.w3.org/2000/svg"
@@ -125,7 +177,6 @@ onUnmounted(() => {
       >
         <polygon points="5 3 19 12 5 21 5 3"></polygon>
       </svg>
-      <!-- Pause icon -->
       <svg
         v-else
         xmlns="http://www.w3.org/2000/svg"
@@ -182,6 +233,16 @@ onUnmounted(() => {
   text-align: center;
   outline: none;
   padding: 0;
+}
+
+.time-input.readonly {
+  display: inline-block;
+  min-width: 36px;
+  text-align: center;
+}
+
+.time-input.readonly.is-running {
+  color: var(--color-primary);
 }
 
 .time-input:disabled {
