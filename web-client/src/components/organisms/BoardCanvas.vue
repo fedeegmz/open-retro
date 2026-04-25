@@ -7,6 +7,7 @@ import NoteGroup from './NoteGroup.vue'
 import ToolBar from './ToolBar.vue'
 import UsersSidebar from './UsersSidebar.vue'
 import SessionExpiredModal from './SessionExpiredModal.vue'
+import TimerCard from '../molecules/TimerCard.vue'
 import BoardLayout from '../templates/BoardLayout.vue'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { useToast } from '@/composables/useToast'
@@ -482,6 +483,8 @@ function onBoardMouseDown(event: MouseEvent) {
       style="display: none"
       @change="onFileSelected"
     />
+
+    <TimerCard />
   </BoardLayout>
 
   <SessionExpiredModal

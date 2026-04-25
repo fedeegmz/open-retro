@@ -43,7 +43,9 @@
     "vote": "Votar",
     "clear": "Limpiar",
     "create_note": "Crear Nota",
-    "create_group": "Crear Grupo"
+    "create_group": "Crear Grupo",
+    "start_timer": "Iniciar Temporizador",
+    "pause_timer": "Pausar Temporizador"
   },
   "setup": {
     "title": "Open Retro",
