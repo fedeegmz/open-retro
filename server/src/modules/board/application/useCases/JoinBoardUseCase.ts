@@ -80,6 +80,7 @@ export class JoinBoardUseCase {
       isNotesHidden: board.isNotesHidden,
       createdBy: board.createdBy,
       voting: board.voting,
+      timer: board.timer,
     }
     const syncMsg: WsMessage = { type: WsMsgType.BoardSync, state }
     ws.send(JSON.stringify(syncMsg))

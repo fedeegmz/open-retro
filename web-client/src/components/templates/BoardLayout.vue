@@ -42,8 +42,8 @@ const canvasStyle = computed(() => ({
 <style scoped>
 .board-layout {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: calc(100vh - var(--header-height, 64px));
   overflow: hidden;
   background-color: var(--color-background);
   background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);

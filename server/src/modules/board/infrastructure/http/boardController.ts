@@ -236,6 +236,7 @@ export function boardController({
           isNotesHidden: board.isNotesHidden,
           createdBy: board.createdBy,
           voting: board.voting,
+          timer: board.timer,
         }
         const syncMsg: WsMessage = { type: WsMsgType.BoardSync, state }
         sessionManager.broadcastToRoom(boardId, syncMsg)

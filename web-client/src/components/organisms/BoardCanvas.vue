@@ -7,12 +7,13 @@ import NoteGroup from './NoteGroup.vue'
 import ToolBar from './ToolBar.vue'
 import UsersSidebar from './UsersSidebar.vue'
 import SessionExpiredModal from './SessionExpiredModal.vue'
+import TimerCard from '../molecules/TimerCard.vue'
 import BoardLayout from '../templates/BoardLayout.vue'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { useToast } from '@/composables/useToast'
 import { useI18n } from 'vue-i18n'
 import { WsMsgType } from '@open-retro/shared/types/board'
-import type { Note, Group, ConnectedUser } from '@open-retro/shared/types/board'
+import type { Note, Group, ConnectedUser, TimerState } from '@open-retro/shared/types/board'
 import { newUUID, joinPath } from '@/utils/stringUtils'
 import { LocalStorageService } from '@/services/localStorageService'
 import { BoardService } from '@/services/api/boardService'
@@ -38,6 +39,7 @@ const isNotesHidden = ref(false)
 const boardCreator = ref<string | null>(null)
 const isSessionExpired = ref(false)
 const voting = ref({ active: false, maxVotesPerUser: 1 })
+const timerState = ref<TimerState | undefined>(undefined)
 const fileInput = ref<HTMLInputElement | null>(null)
 let topZ = 1
 
@@ -66,6 +68,7 @@ onMessage((msg) => {
       isNotesHidden.value = msg.state.isNotesHidden
       boardCreator.value = msg.state.createdBy
       voting.value = msg.state.voting
+      if (msg.state.timer) timerState.value = msg.state.timer
       break
     case WsMsgType.BoardNotesVisibility:
       isNotesHidden.value = msg.isHidden
@@ -142,6 +145,9 @@ onMessage((msg) => {
       }
       break
     }
+    case WsMsgType.BoardTimerSync:
+      timerState.value = msg.timer
+      break
     case WsMsgType.GroupResize: {
       const group = groups.value.find((g) => g.id === msg.id)
       if (group) {
@@ -386,6 +392,10 @@ function onBoardMouseDown(event: MouseEvent) {
   window.addEventListener('mousemove', onMove)
   window.addEventListener('mouseup', onUp)
 }
+
+function onTimerSync(state: TimerState) {
+  send({ type: WsMsgType.BoardTimerSync, timer: state })
+}
 </script>
 
 <template>
@@ -481,6 +491,13 @@ function onBoardMouseDown(event: MouseEvent) {
       accept=".json"
       style="display: none"
       @change="onFileSelected"
+    />
+
+    <TimerCard
+      v-if="timerState"
+      :is-owner="boardCreator === myId"
+      :sync-state="timerState"
+      @sync="onTimerSync"
     />
   </BoardLayout>
 

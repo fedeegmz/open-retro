@@ -159,7 +159,7 @@ function setMode(m: Mode) {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: calc(100vh - var(--header-height, 64px));
   background-color: var(--color-background);
   background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 24px 24px;

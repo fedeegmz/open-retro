@@ -94,6 +94,7 @@ export class ProcessBoardMessageUseCase {
             isNotesHidden: board.isNotesHidden,
             createdBy: board.createdBy,
             voting: board.voting,
+            timer: board.timer,
           }
           client.send(JSON.stringify({ type: WsMsgType.BoardSync, state }))
           client.send(JSON.stringify(visibilityMsg))
@@ -116,6 +117,17 @@ export class ProcessBoardMessageUseCase {
         board.voting = { active: false, maxVotesPerUser: board.voting.maxVotesPerUser }
         await this.boardRepository.save(board)
         roomClients.forEach((client) => client.send(JSON.stringify(msg)))
+      }
+      return
+    }
+
+    if (msg.type === WsMsgType.BoardTimerSync) {
+      if (PermissionService.canModifyResource(user, board.createdBy)) {
+        board.timer = msg.timer
+        await this.boardRepository.save(board)
+        roomClients.forEach((client) => {
+          if (client !== ws) client.send(JSON.stringify(msg))
+        })
       }
       return
     }
