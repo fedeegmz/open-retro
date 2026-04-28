@@ -5,4 +5,5 @@ export interface ServerConfig {
   adminGraceSeconds: number
   maxUsersPerSession: number | null
   showApiDocs: boolean
+  requireAuthForCreation?: boolean
 }

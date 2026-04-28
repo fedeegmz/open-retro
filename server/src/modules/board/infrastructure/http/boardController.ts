@@ -12,6 +12,7 @@ import type { INoteRepository } from '../../domain/repositories/INoteRepository'
 import type { INoteGroupRepository } from '../../domain/repositories/INoteGroupRepository'
 import type { IHashService } from '../../../shared/domain/services/IHashService'
 import type { ILogService } from '../../../shared/domain/services/ILogService'
+import type { IAuthService } from '../../../shared/domain/services/IAuthService'
 import { CreateBoardSchema } from './schemas/CreateBoardSchema'
 import { WebSocketQuerySchema } from './schemas/WebSocketQuerySchema'
 import { ExportBoardQuerySchema } from './schemas/ExportBoardSchema'
@@ -32,6 +33,7 @@ interface Deps {
   groupRepository: INoteGroupRepository
   hashService: IHashService
   logService: ILogService
+  authService?: IAuthService
   config: ServerConfig
 }
 
@@ -41,6 +43,7 @@ export function boardController({
   groupRepository,
   hashService,
   logService,
+  authService,
   config,
 }: Deps) {
   const messageHandler = new BoardMessageHandler(boardRepository, noteRepository, groupRepository)
@@ -140,11 +143,26 @@ export function boardController({
       query: WebSocketQuerySchema,
       async open(ws) {
         const client = ws.raw as unknown as IWebSocketClient
+        const { board, password, clientId, username, token } = ws.data.query
+
+        let finalClientId = clientId
+        let finalUsername = username
+
+        if (authService && token) {
+          const user = await authService.verifyToken(token)
+          if (!user) {
+            ws.close()
+            return
+          }
+          finalClientId = user.id
+          finalUsername = user.username
+        }
+
         await joinBoardUseCase.execute(client, {
-          boardId: ws.data.query.board,
-          password: ws.data.query.password,
-          clientId: ws.data.query.clientId,
-          username: ws.data.query.username,
+          boardId: board,
+          password: password,
+          clientId: finalClientId,
+          username: finalUsername,
         })
       },
       async message(ws, raw) {
@@ -158,13 +176,31 @@ export function boardController({
     })
     .post(
       '/',
-      async ({ body }) => {
-        const { boardId, password, clientId } = body
+      async ({ body, set }) => {
+        const { boardId, password, clientId, token } = body
+        let finalCreatedBy = clientId
+
+        if (authService) {
+          if (token) {
+            const user = await authService.verifyToken(token)
+            if (!user) {
+              set.status = 401
+              return ApiResponse.error('Unauthorized')
+            }
+            finalCreatedBy = user.id
+          } else if (config.requireAuthForCreation) {
+            set.status = 401
+            return ApiResponse.error('Unauthorized')
+          }
+        }
+
         try {
           await boardRepository.findById(boardId)
         } catch (e) {
           if (e instanceof NotFoundError) {
-            await boardRepository.save(new Board(boardId, hashService.hash(password), clientId))
+            await boardRepository.save(
+              new Board(boardId, hashService.hash(password), finalCreatedBy),
+            )
 
             boardSessionTimer.start(boardId, () => onSessionExpired(boardId))
 
@@ -180,8 +216,16 @@ export function boardController({
     )
     .post(
       '/join',
-      async ({ body }) => {
-        const { boardId, password } = body
+      async ({ body, set }) => {
+        const { boardId, password, token } = body
+
+        if (authService && token) {
+          const user = await authService.verifyToken(token)
+          if (!user) {
+            set.status = 401
+            return ApiResponse.error('Unauthorized')
+          }
+        }
 
         const board = await boardRepository.findById(boardId)
 
