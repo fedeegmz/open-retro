@@ -45,6 +45,27 @@ export interface BoardState {
   timer: TimerState
 }
 
+export interface CreateBoardRequest {
+  boardId: string
+  password: string
+  clientId: string
+  token?: string
+}
+
+export interface JoinBoardRequest {
+  boardId: string
+  password: string
+  token?: string
+}
+
+export interface WebSocketAuthParams {
+  board: string
+  password?: string
+  username: string
+  clientId: string
+  token?: string
+}
+
 export enum WsMsgType {
   BoardSync = 'board:sync',
   BoardToggleNotes = 'board:toggle_notes',

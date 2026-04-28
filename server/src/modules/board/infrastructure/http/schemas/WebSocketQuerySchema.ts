@@ -5,4 +5,5 @@ export const WebSocketQuerySchema = t.Object({
   password: t.String(),
   username: t.String({ minLength: 1 }),
   clientId: t.String({ minLength: 1 }),
+  token: t.Optional(t.String()),
 })

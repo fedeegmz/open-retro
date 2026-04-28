@@ -18,6 +18,7 @@ import type { INoteRepository } from './modules/board/domain/repositories/INoteR
 import type { INoteGroupRepository } from './modules/board/domain/repositories/INoteGroupRepository'
 import type { IHashService } from './modules/shared/domain/services/IHashService'
 import type { ILogService } from './modules/shared/domain/services/ILogService'
+import type { IAuthService } from './modules/shared/domain/services/IAuthService'
 
 export interface OpenRetroAppDeps {
   boardRepository?: IBoardRepository
@@ -25,6 +26,7 @@ export interface OpenRetroAppDeps {
   groupRepository?: INoteGroupRepository
   hashService?: IHashService
   logService?: ILogService
+  authService?: IAuthService
   config: ServerConfig
 }
 
@@ -35,6 +37,7 @@ export function createOpenRetroApp(deps: OpenRetroAppDeps) {
   const groupRepository = deps.groupRepository ?? new MemoryNoteGroupRepository()
   const hashService = deps.hashService ?? new BunHashService()
   const logService = deps.logService ?? new ConsoleLogService()
+  const authService = deps.authService
 
   let app = new Elysia().use(
     cors({
@@ -59,6 +62,7 @@ export function createOpenRetroApp(deps: OpenRetroAppDeps) {
         groupRepository,
         hashService,
         logService,
+        authService,
         config,
       }),
     )

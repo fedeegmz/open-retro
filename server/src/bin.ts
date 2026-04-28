@@ -25,6 +25,7 @@ function loadConfig(): ServerConfig {
   }
 
   const showApiDocs = process.env.SHOW_API_DOCS !== 'false'
+  const requireAuthForCreation = process.env.REQUIRE_AUTH_FOR_CREATION === 'true'
 
   return {
     port,
@@ -33,6 +34,7 @@ function loadConfig(): ServerConfig {
     adminGraceSeconds,
     maxUsersPerSession,
     showApiDocs,
+    requireAuthForCreation,
   }
 }
 
